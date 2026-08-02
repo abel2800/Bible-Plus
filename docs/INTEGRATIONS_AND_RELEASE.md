@@ -53,7 +53,7 @@ enabled without build-time credentials. See `docs/CONTENT_SOURCES.md`.
 
 ```text
 BIBLE_BRAIN_API_KEY=your-key
-BIBLE_BRAIN_BIBLE_IDS_JSON={"WEB":"approved-bible-id","AMH":"approved-bible-id"}
+BIBLE_BRAIN_BIBLE_IDS_JSON={"WEB":"approved-bible-id","AMH":"AMHABC"}
 BIBLE_BRAIN_MEDIA_HOSTS=approved.cdn.example,other.approved.host
 ```
 

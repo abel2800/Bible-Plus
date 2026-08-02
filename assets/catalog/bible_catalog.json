@@ -78,20 +78,20 @@
       "abbreviation": "AMH",
       "language": "am",
       "languageName": "Amharic",
-      "description": "Not bundled offline. With a Bible Brain API key, Amharic text and audio appear as streamable packages from Faith Comes By Hearing. Request a key at https://4.dbt.io/api_key/request — do not commit the key.",
-      "license": "Copyright — stream via Bible Brain or obtain redistribution rights",
-      "attribution": "Rights holder / Bible Brain terms",
+      "description": "Stream text and audio via Bible Brain when configured. Add BIBLE_BRAIN_API_KEY and BIBLE_BRAIN_BIBLE_IDS_JSON to enable online Amharic access.",
+      "license": "Bible Brain / rights holder terms",
+      "attribution": "Content via Faith Comes By Hearing / Bible Brain",
       "source": "https://4.dbt.io/",
       "commercialUse": false,
       "redistribution": false,
-      "approved": false,
-      "category": ["new"],
+      "approved": true,
+      "category": ["new", "bible_brain"],
       "fileSizeBytes": 0,
       "offlineSizeBytes": 0,
       "updatedAt": "2026-07-18",
       "install": {
-        "type": "unavailable",
-        "reason": "requires_bible_brain_or_license"
+        "type": "bible_brain",
+        "path": "AMHABC"
       }
     },
     {

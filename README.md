@@ -321,7 +321,7 @@ Firestore rules and emulator tests are in `firestore.rules` and `firebase-tests/
 
 ```text
 BIBLE_BRAIN_API_KEY
-BIBLE_BRAIN_BIBLE_IDS_JSON={"WEB":"approved-bible-id"}
+BIBLE_BRAIN_BIBLE_IDS_JSON={"WEB":"approved-bible-id","AMH":"AMHABC"}
 BIBLE_BRAIN_MEDIA_HOSTS=approved.cdn.host
 ```
 
