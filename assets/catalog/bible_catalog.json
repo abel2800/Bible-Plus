@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-23",
+  "packages": [
+    {
+      "id": "web",
+      "versionId": "WEB",
+      "name": "World English Bible",
+      "abbreviation": "WEB",
+      "language": "en",
+      "languageName": "English",
+      "description": "Modern public-domain English translation suitable for personal and commercial redistribution.",
+      "license": "Public Domain",
+      "attribution": "World English Bible, eBible.org",
+      "source": "https://ebible.org/engwebp/",
+      "commercialUse": true,
+      "redistribution": true,
+      "approved": true,
+      "category": ["popular", "bundled"],
+      "fileSizeBytes": 5100000,
+      "offlineSizeBytes": 5200000,
+      "updatedAt": "2026-07-17",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/web.json"
+      }
+    },
+    {
+      "id": "kjv",
+      "versionId": "KJV",
+      "name": "King James Version",
+      "abbreviation": "KJV",
+      "language": "en",
+      "languageName": "English",
+      "description": "Classic public-domain English Bible (1769 text family). Installs offline from the app package — works on web and mobile.",
+      "license": "Public Domain",
+      "attribution": "King James Version (Public Domain)",
+      "source": "https://github.com/midvash/bible-data",
+      "commercialUse": true,
+      "redistribution": true,
+      "approved": true,
+      "category": ["popular"],
+      "fileSizeBytes": 4844880,
+      "offlineSizeBytes": 4844880,
+      "updatedAt": "2026-07-23",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/kjv.json"
+      }
+    },
+    {
+      "id": "asv",
+      "versionId": "ASV",
+      "name": "American Standard Version",
+      "abbreviation": "ASV",
+      "language": "en",
+      "languageName": "English",
+      "description": "Public-domain American Standard Version (1901). Installs offline from the app package.",
+      "license": "Public Domain",
+      "attribution": "American Standard Version (Public Domain)",
+      "source": "https://github.com/midvash/bible-data",
+      "commercialUse": true,
+      "redistribution": true,
+      "approved": true,
+      "category": ["updated"],
+      "fileSizeBytes": 4867136,
+      "offlineSizeBytes": 4867136,
+      "updatedAt": "2026-07-23",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/asv.json"
+      }
+    },
+    {
+      "id": "amharic-placeholder",
+      "versionId": "AMH",
+      "name": "Amharic Bible",
+      "abbreviation": "AMH",
+      "language": "am",
+      "languageName": "Amharic",
+      "description": "Not bundled offline. With a Bible Brain API key, Amharic text and audio appear as streamable packages from Faith Comes By Hearing. Request a key at https://4.dbt.io/api_key/request — do not commit the key.",
+      "license": "Copyright — stream via Bible Brain or obtain redistribution rights",
+      "attribution": "Rights holder / Bible Brain terms",
+      "source": "https://4.dbt.io/",
+      "commercialUse": false,
+      "redistribution": false,
+      "approved": false,
+      "category": ["new"],
+      "fileSizeBytes": 0,
+      "offlineSizeBytes": 0,
+      "updatedAt": "2026-07-18",
+      "install": {
+        "type": "unavailable",
+        "reason": "requires_bible_brain_or_license"
+      }
+    },
+    {
+      "id": "oromo-placeholder",
+      "versionId": "ORM",
+      "name": "Afaan Oromo Bible",
+      "abbreviation": "ORM",
+      "language": "om",
+      "languageName": "Afaan Oromo",
+      "description": "Listed for discovery. With a Bible Brain API key, available Oromo Bibles are listed for online reading and audio. Bundled redistribution still requires a separate license.",
+      "license": "Copyright — stream via Bible Brain or obtain redistribution rights",
+      "attribution": "Rights holder / Bible Brain terms",
+      "source": "https://4.dbt.io/",
+      "commercialUse": false,
+      "redistribution": false,
+      "approved": false,
+      "category": ["new"],
+      "fileSizeBytes": 0,
+      "offlineSizeBytes": 0,
+      "updatedAt": "2026-07-18",
+      "install": {
+        "type": "unavailable",
+        "reason": "requires_bible_brain_or_license"
+      }
+    },
+    {
+      "id": "tigrinya-placeholder",
+      "versionId": "TIR",
+      "name": "Tigrinya Bible",
+      "abbreviation": "TIR",
+      "language": "ti",
+      "languageName": "Tigrinya",
+      "description": "Listed for discovery. Enable online via Bible Brain when your API key includes Tigrinya filesets.",
+      "license": "Copyright — stream via Bible Brain or obtain redistribution rights",
+      "attribution": "Rights holder / Bible Brain terms",
+      "source": "https://4.dbt.io/",
+      "commercialUse": false,
+      "redistribution": false,
+      "approved": false,
+      "category": ["new"],
+      "fileSizeBytes": 0,
+      "offlineSizeBytes": 0,
+      "updatedAt": "2026-07-18",
+      "install": {
+        "type": "unavailable",
+        "reason": "requires_bible_brain_or_license"
+      }
+    },
+    {
+      "id": "somali-placeholder",
+      "versionId": "SOM",
+      "name": "Somali Bible",
+      "abbreviation": "SOM",
+      "language": "so",
+      "languageName": "Somali",
+      "description": "Listed for discovery. Enable online via Bible Brain when your API key includes Somali filesets.",
+      "license": "Copyright — stream via Bible Brain or obtain redistribution rights",
+      "attribution": "Rights holder / Bible Brain terms",
+      "source": "https://4.dbt.io/",
+      "commercialUse": false,
+      "redistribution": false,
+      "approved": false,
+      "category": ["new"],
+      "fileSizeBytes": 0,
+      "offlineSizeBytes": 0,
+      "updatedAt": "2026-07-18",
+      "install": {
+        "type": "unavailable",
+        "reason": "requires_bible_brain_or_license"
+      }
+    }
+  ]
+}

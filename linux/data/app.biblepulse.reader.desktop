@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=BiblePulse
+Comment=Offline-first Bible reading and study
+Exec=biblepulse
+Icon=biblepulse
+Terminal=false
+Type=Application
+Categories=Education;Utility;
+StartupWMClass=app.biblepulse.reader

@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-23",
+  "assets": [
+    {
+      "id": "scripture.web",
+      "feature": "scripture",
+      "path": "assets/bible/web.json",
+      "versionId": "WEB",
+      "language": "en",
+      "canon": "protestant-66",
+      "source": "https://ebible.org/engwebp/",
+      "license": "Public Domain",
+      "attribution": "World English Bible, eBible.org",
+      "commercialUse": true,
+      "redistribution": true,
+      "approved": true,
+      "expiresAt": null,
+      "sha256": "e6393862d54e790a350983b4b97d5a9bc99f1aaff27bade625f5db4671a43d91"
+    },
+    {
+      "id": "scripture.kjv",
+      "feature": "scripture",
+      "path": "assets/bible/kjv.json",
+      "versionId": "KJV",
+      "language": "en",
+      "canon": "protestant-66",
+      "source": "https://github.com/midvash/bible-data",
+      "license": "Public Domain",
+      "attribution": "King James Version, midvash/bible-data",
+      "commercialUse": true,
+      "redistribution": true,
+      "approved": true,
+      "expiresAt": null,
+      "sha256": "ed0eb3fbc56c054324e47b0bdb6f4f2d784e6f3115196426ed8671c7f4e0a0c5"
+    },
+    {
+      "id": "scripture.asv",
+      "feature": "scripture",
+      "path": "assets/bible/asv.json",
+      "versionId": "ASV",
+      "language": "en",
+      "canon": "protestant-66",
+      "source": "https://github.com/midvash/bible-data",
+      "license": "Public Domain",
+      "attribution": "American Standard Version, midvash/bible-data",
+      "commercialUse": true,
+      "redistribution": true,
+      "approved": true,
+      "expiresAt": null,
+      "sha256": "2199635faddc80667c208bce2df8c95a1d964f58176c35141bfad0bc31ef4302"
+    }
+  ]
+}

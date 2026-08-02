@@ -1,0 +1,245 @@
+name: BiblePulse CI
+
+on:
+  push:
+  pull_request:
+
+env:
+  FLUTTER_VERSION: 3.44.1
+
+concurrency:
+  group: biblepulse-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter --version
+      - run: flutter pub get
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed lib test integration_test
+      - name: Analyze app-owned code
+        run: flutter analyze lib test integration_test --no-fatal-infos
+      - name: Validate licensed content
+        run: python tools/content/validate_manifest.py
+      - name: Run unit, widget, accessibility, and migration tests
+        run: flutter test --exclude-tags golden
+      - name: Build web release
+        run: flutter build web --release --no-wasm-dry-run
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-release
+          path: build/web
+          if-no-files-found: error
+
+  android:
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Build Android verification APK and App Bundle
+        run: |
+          flutter build apk --release
+          flutter build appbundle --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-verification-apk
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
+
+  windows:
+    runs-on: windows-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Strip FFmpeg Kit from Windows desktop plugins
+        shell: pwsh
+        run: powershell -ExecutionPolicy Bypass -File tools/ci/strip_ffmpeg_windows_plugin.ps1
+      - name: Verify FFmpeg Kit is stripped
+        shell: pwsh
+        run: |
+          if (Select-String -Path windows/flutter/generated_plugins.cmake -Pattern 'ffmpeg_kit_flutter_new' -Quiet) {
+            throw 'ffmpeg_kit_flutter_new is still listed in generated_plugins.cmake'
+          }
+          if (Select-String -Path windows/flutter/generated_plugin_registrant.cc -Pattern 'ffmpeg_kit|FFmpegKit' -Quiet) {
+            throw 'FFmpeg Kit is still registered in generated_plugin_registrant.cc'
+          }
+      - name: Run Windows golden tests
+        continue-on-error: true
+        run: flutter test test/goldens --no-pub
+      - name: Strip FFmpeg Kit again before Windows build
+        shell: pwsh
+        run: powershell -ExecutionPolicy Bypass -File tools/ci/strip_ffmpeg_windows_plugin.ps1
+      - name: Build Windows release
+        run: flutter build windows --release --no-pub
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-release
+          path: build/windows/x64/runner/Release
+          if-no-files-found: error
+
+  linux:
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build linux --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-release
+          path: build/linux/x64/release/bundle
+          if-no-files-found: error
+
+  apple:
+    runs-on: macos-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Build iOS release (no codesign)
+        run: flutter build ios --release --no-codesign
+      - name: Build macOS release
+        run: flutter build macos --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-release
+          path: build/macos/Build/Products/Release
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ios-release
+          path: build/ios/iphoneos
+          if-no-files-found: warn
+
+  firebase-emulators:
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - run: npm ci
+        working-directory: firebase-tests
+      - name: Test Firestore authorization rules
+        run: npx firebase-tools@latest emulators:exec --only firestore "npm --prefix firebase-tests test"
+
+  web-integration:
+    runs-on: ubuntu-latest
+    needs: verify
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: sudo apt-get update && sudo apt-get install -y xvfb
+      - uses: nanasess/setup-chromedriver@v2
+      - run: flutter pub get
+      - name: Run browser integration smoke test
+        continue-on-error: true
+        run: |
+          chromedriver --port=4444 &
+          xvfb-run -a flutter drive \
+            --profile \
+            --driver=test_driver/integration_test.dart \
+            --target=integration_test/app_smoke_test.dart \
+            -d chrome
+
+  publish-builds:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: [android, windows, linux, apple, verify]
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download platform build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: published
+      - name: Package release archives
+        run: |
+          mkdir -p dist
+          if [ -d published/web-release ]; then
+            (cd published/web-release && zip -r ../../dist/biblepulse-web.zip .)
+          fi
+          if [ -f published/android-verification-apk/app-release.apk ]; then
+            cp published/android-verification-apk/app-release.apk dist/biblepulse-android.apk
+          fi
+          if [ -f published/android-verification-apk/app-release.aab ]; then
+            cp published/android-verification-apk/app-release.aab dist/biblepulse-android.aab
+          fi
+          if [ -d published/windows-release ]; then
+            (cd published/windows-release && zip -r ../../dist/biblepulse-windows.zip .)
+          fi
+          if [ -d published/linux-release ]; then
+            (cd published/linux-release && zip -r ../../dist/biblepulse-linux.zip .)
+          fi
+          if [ -d published/macos-release ]; then
+            (cd published/macos-release && zip -r ../../dist/biblepulse-macos.zip .)
+          fi
+          ls -lah dist
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: BiblePulse build ${{ github.run_number }}
+          body: |
+            Full functional BiblePulse app builds from `main`.
+
+            Download the platform packages attached to this release:
+            - Android APK / AAB
+            - Web
+            - Windows
+            - Linux
+            - macOS
+          files: dist/*
+          draft: false
+          prerelease: true
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

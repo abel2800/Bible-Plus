@@ -1,0 +1,76 @@
+name: bible_pulse
+description: Offline-first English and Amharic Bible reading and study app.
+publish_to: 'none'
+version: 1.0.1+2
+
+environment:
+  sdk: '>=3.6.0 <4.0.0'
+  flutter: '>=3.27.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  provider: ^6.1.1
+
+  sqflite: ^2.3.0
+  shared_preferences: ^2.2.2
+  path_provider: ^2.1.1
+  path: ^1.9.1
+
+  google_fonts: ^6.1.0
+
+  just_audio: ^0.9.36
+  just_audio_background: ^0.0.1-beta.17
+  audio_session: ^0.1.18
+  audio_service: ^0.18.18
+
+  flutter_local_notifications: ^22.0.1
+  timezone: ^0.11.1
+  flutter_timezone: ^4.1.0
+
+  screenshot: ^3.0.0
+  image_gallery_saver_plus: ^5.1.1
+  permission_handler: ^11.1.0
+
+  intl: ^0.20.2
+  uuid: ^4.2.2
+  crypto: ^3.0.6
+
+  http: ^1.1.0
+
+  share_plus: ^7.2.1
+
+  firebase_core: ^4.12.1
+  firebase_auth: ^6.5.6
+  cloud_firestore: ^6.7.1
+  connectivity_plus: ^7.3.0
+
+  flutter_animate: ^4.5.0
+  home_widget: ^0.7.0
+  image_picker: ^1.2.3
+  image: ^4.9.1
+  ffmpeg_kit_flutter_new: ^4.5.3
+  app_links: ^7.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  sqflite_common_ffi: ^2.3.6
+
+flutter:
+  generate: true
+  uses-material-design: true
+
+  assets:
+    - assets/content_manifest.json
+    - assets/bible/web.json
+    - assets/bible/kjv.json
+    - assets/bible/asv.json
+    - assets/catalog/bible_catalog.json
+    - assets/catalog/audio_catalog.json
+    - assets/catalog/web_henson_audio_manifest.json

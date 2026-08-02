@@ -1,0 +1,5 @@
+PRODUCT_NAME = BiblePulse
+
+PRODUCT_BUNDLE_IDENTIFIER = app.biblepulse.reader
+
+PRODUCT_COPYRIGHT = Copyright © 2026 BiblePulse. All rights reserved.

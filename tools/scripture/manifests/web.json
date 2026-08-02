@@ -1,0 +1,13 @@
+{
+  "id": "WEB",
+  "name": "World English Bible",
+  "language": "en",
+  "canon": "protestant-66",
+  "source": "https://ebible.org/engwebp/",
+  "license": "Public Domain",
+  "attribution": "World English Bible, eBible.org",
+  "commercialUse": true,
+  "redistribution": true,
+  "approved": true,
+  "expiresAt": null
+}
