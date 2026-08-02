@@ -56,7 +56,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   const SizedBox(height: 10),
                   Text(
                     'A calmer way to read Scripture, track your habits, and stay encouraged every day.',
-                    style: AppTheme.ui(fontSize: 14.5, color: soft, height: 1.55),
+                    style:
+                        AppTheme.ui(fontSize: 14.5, color: soft, height: 1.55),
                   ),
                   const SizedBox(height: 24),
                   BpCard(
@@ -73,7 +74,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         const SizedBox(height: 10),
                         DropdownButtonFormField<String>(
                           value: _selectedVersion,
-                          decoration: const InputDecoration(labelText: 'Version'),
+                          decoration:
+                              const InputDecoration(labelText: 'Version'),
                           items: [
                             const DropdownMenuItem(
                               value: 'WEB',
@@ -112,15 +114,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         const SizedBox(height: 10),
                         SwitchListTile.adaptive(
                           value: _wantReminders,
-                          onChanged: (value) => setState(() => _wantReminders = value),
+                          onChanged: (value) =>
+                              setState(() => _wantReminders = value),
                           title: const Text('Daily reminders'),
-                          subtitle: const Text('Get gentle nudges for reading and prayer.'),
+                          subtitle: const Text(
+                              'Get gentle nudges for reading and prayer.'),
                         ),
                         SwitchListTile.adaptive(
                           value: _wantDailyVerse,
-                          onChanged: (value) => setState(() => _wantDailyVerse = value),
+                          onChanged: (value) =>
+                              setState(() => _wantDailyVerse = value),
                           title: const Text('Verse of the day'),
-                          subtitle: const Text('Start with a short daily encouragement.'),
+                          subtitle: const Text(
+                              'Start with a short daily encouragement.'),
                         ),
                       ],
                     ),

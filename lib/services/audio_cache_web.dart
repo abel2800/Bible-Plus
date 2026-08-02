@@ -92,7 +92,8 @@ class PersistentAudioChapterCache implements AudioChapterCache {
       // Caller may still encounter CORS restrictions in the browser console.
       // Return the original URI so audio playback can attempt to stream.
       // ignore: avoid_print
-      print('Audio offline cache unavailable, falling back to remote URI: $error');
+      print(
+          'Audio offline cache unavailable, falling back to remote URI: $error');
       return source.uri;
     }
   }
