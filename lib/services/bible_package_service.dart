@@ -116,7 +116,20 @@ class BiblePackageService {
       for (final pkg in _catalog)
         if (pkg.install.type != 'unavailable') pkg.id: pkg,
     };
+    final existingBrainPackages = <String, BiblePackageInfo>{
+      for (final pkg in _catalog)
+        if (pkg.install.type == 'bible_brain' &&
+            pkg.install.path != null &&
+            pkg.install.path!.isNotEmpty)
+          pkg.install.path!: pkg,
+    };
     for (final pkg in remote) {
+      if (pkg.install.path != null && pkg.install.path!.isNotEmpty) {
+        final existing = existingBrainPackages[pkg.install.path!];
+        if (existing != null) {
+          byId.remove(existing.id);
+        }
+      }
       byId.putIfAbsent(pkg.id, () => pkg);
     }
     _catalog = byId.values.toList()..sort((a, b) => a.name.compareTo(b.name));
@@ -489,22 +502,68 @@ class BiblePackageService {
     final books = bibleJson['books'];
     if (books is! List) return {'verses': rows};
     for (var bi = 0; bi < books.length; bi++) {
-      final book = books[bi] as Map<String, dynamic>;
-      final bookId = (book['id'] as num?)?.toInt() ?? bi + 1;
-      final chapters = book['chapters'];
-      if (chapters is! List) continue;
-      for (final chapterRaw in chapters) {
-        final chapter = chapterRaw as Map<String, dynamic>;
-        final chapterNum = (chapter['number'] as num?)?.toInt() ?? 0;
-        final verses = chapter['verses'];
-        if (verses is! List) continue;
-        for (final verseRaw in verses) {
-          final verse = verseRaw as Map<String, dynamic>;
+      final dynamic bookRaw = books[bi];
+      if (bookRaw == null) continue;
+      if (bookRaw is! Map) continue;
+      final book = Map<String, dynamic>.from(bookRaw as Map);
+      final bookId = (book['id'] is num)
+          ? (book['id'] as num).toInt()
+          : (int.tryParse(book['id']?.toString() ?? '') ?? bi + 1);
+
+      final chaptersRaw = book['chapters'];
+      if (chaptersRaw is! List) continue;
+      for (var ci = 0; ci < chaptersRaw.length; ci++) {
+        final dynamic chapterRaw = chaptersRaw[ci];
+        int chapterNum = ci + 1;
+        dynamic versesRaw;
+
+        if (chapterRaw is Map) {
+          final chapter = Map<String, dynamic>.from(chapterRaw as Map);
+          // support both 'number' and 'chapter' keys
+          chapterNum = (chapter['number'] is num)
+              ? (chapter['number'] as num).toInt()
+              : (int.tryParse(chapter['number']?.toString() ?? '') ??
+                  (int.tryParse(chapter['chapter']?.toString() ?? '') ?? ci + 1));
+          versesRaw = chapter.containsKey('verses') ? chapter['verses'] : null;
+          // if chapter is actually a list-like map with numeric keys, try its values
+          if (versesRaw == null && chapter.values.any((v) => v is List)) {
+            final maybeList = chapter.values.firstWhere((v) => v is List);
+            versesRaw = maybeList;
+          }
+        } else if (chapterRaw is List) {
+          versesRaw = chapterRaw;
+        } else {
+          versesRaw = null;
+        }
+
+        if (versesRaw is! List) continue;
+        final verses = versesRaw as List;
+        for (var vi = 0; vi < verses.length; vi++) {
+          final dynamic vRaw = verses[vi];
+          int verseNum = vi + 1;
+          String text = '';
+
+          if (vRaw is Map) {
+            final verseMap = Map<String, dynamic>.from(vRaw as Map);
+            verseNum = (verseMap['verse'] is num)
+                ? (verseMap['verse'] as num).toInt()
+                : (int.tryParse(verseMap['verse']?.toString() ?? '') ??
+                    (int.tryParse(verseMap['id']?.toString() ?? '') ?? vi + 1));
+            text = (verseMap['text'] ?? verseMap['verse_text'] ??
+                    verseMap['content'] ?? '')
+                .toString();
+          } else {
+            // verse represented as plain string
+            verseNum = vi + 1;
+            text = vRaw?.toString() ?? '';
+          }
+
+          if (text.isEmpty) continue;
           rows.add({
             'book': bookId,
             'chapter': chapterNum,
-            'verse': (verse['verse'] as num?)?.toInt() ?? 0,
-            'text': verse['text']?.toString() ?? '',
+            'verse': verseNum,
+            'text': text,
           });
         }
       }

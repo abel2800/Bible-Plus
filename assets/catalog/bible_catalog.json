@@ -72,29 +72,6 @@
       }
     },
     {
-      "id": "amharic-placeholder",
-      "versionId": "AMH",
-      "name": "Amharic Bible",
-      "abbreviation": "AMH",
-      "language": "am",
-      "languageName": "Amharic",
-      "description": "Stream text and audio via Bible Brain when configured. Add BIBLE_BRAIN_API_KEY and BIBLE_BRAIN_BIBLE_IDS_JSON to enable online Amharic access.",
-      "license": "Bible Brain / rights holder terms",
-      "attribution": "Content via Faith Comes By Hearing / Bible Brain",
-      "source": "https://4.dbt.io/",
-      "commercialUse": false,
-      "redistribution": false,
-      "approved": true,
-      "category": ["new", "bible_brain"],
-      "fileSizeBytes": 0,
-      "offlineSizeBytes": 0,
-      "updatedAt": "2026-07-18",
-      "install": {
-        "type": "bible_brain",
-        "path": "AMHABC"
-      }
-    },
-    {
       "id": "oromo-placeholder",
       "versionId": "ORM",
       "name": "Afaan Oromo Bible",
@@ -161,6 +138,29 @@
       "install": {
         "type": "unavailable",
         "reason": "requires_bible_brain_or_license"
+      }
+    },
+    {
+      "id": "amh",
+      "versionId": "AMH",
+      "name": "Amharic Bible",
+      "abbreviation": "AMH",
+      "language": "am",
+      "languageName": "Amharic",
+      "description": "Amharic Bible (bundled asset).",
+      "license": "Public Domain",
+      "attribution": "Unknown",
+      "source": "",
+      "commercialUse": true,
+      "redistribution": true,
+      "approved": true,
+      "category": ["new", "bundled"],
+      "fileSizeBytes": 5708077,
+      "offlineSizeBytes": 5708077,
+      "updatedAt": "2026-08-03",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/amh.json"
       }
     }
   ]

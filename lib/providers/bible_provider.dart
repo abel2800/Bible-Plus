@@ -15,6 +15,7 @@ class BibleProvider with ChangeNotifier {
   }
 
   final BibleService _bibleService;
+  List<String> get availableVersions => _bibleService.availableVersions;
   late final BibleSearchService _searchService;
   late final DailyVerseService _dailyVerseService;
   late final Future<void> ready;

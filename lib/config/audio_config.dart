@@ -10,7 +10,9 @@ abstract final class AudioConfig {
   static Map<String, String> get bibleIds {
     if (_bibleIdsJson.isEmpty) return const {};
     final value = jsonDecode(_bibleIdsJson) as Map<String, dynamic>;
-    return value.map((key, item) => MapEntry(key, item as String));
+        return value.map(
+            (key, item) => MapEntry(key.toString().toUpperCase(), item as String),
+        );
   }
 
   static Set<String> get mediaHosts => _mediaHostsCsv
