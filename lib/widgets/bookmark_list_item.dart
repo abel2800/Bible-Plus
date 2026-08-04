@@ -89,6 +89,7 @@ class BookmarkListItem extends StatelessWidget {
                   if (confirm == true) {
                     await studyProvider.removeBookmark(
                       bookmark.verseReference,
+                      versionId: bookmark.versionId,
                     );
                   }
                 },

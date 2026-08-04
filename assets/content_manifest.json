@@ -49,6 +49,22 @@
       "approved": true,
       "expiresAt": null,
       "sha256": "2199635faddc80667c208bce2df8c95a1d964f58176c35141bfad0bc31ef4302"
+    },
+    {
+      "id": "scripture.amh",
+      "feature": "scripture",
+      "path": "assets/bible/amh.json",
+      "versionId": "AMH",
+      "language": "am",
+      "canon": "protestant-66",
+      "source": "https://ebible.org/amh/",
+      "license": "Public Domain",
+      "attribution": "Amharic Bible",
+      "commercialUse": true,
+      "redistribution": true,
+      "approved": true,
+      "expiresAt": null,
+      "sha256": "498e40cdfe554f89d03863de27b054b9ab0f608b9c38f50f43ada8c4af614f36"
     }
   ]
 }

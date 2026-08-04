@@ -8,6 +8,7 @@ import '../widgets/verse_action_bottom_sheet.dart';
 class VerseCard extends StatelessWidget {
   final BibleVerse verse;
   final String reference;
+  final String versionId;
   final bool isHighlighted;
   final Color? highlightColor;
   final bool isBookmarked;
@@ -24,6 +25,7 @@ class VerseCard extends StatelessWidget {
     super.key,
     required this.verse,
     required this.reference,
+    required this.versionId,
     this.isHighlighted = false,
     this.highlightColor,
     this.isBookmarked = false,
@@ -152,6 +154,7 @@ class VerseCard extends StatelessWidget {
       builder: (context) => VerseActionBottomSheet(
         verse: verse,
         reference: reference,
+        versionId: versionId,
       ),
     );
   }

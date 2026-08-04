@@ -288,7 +288,10 @@ class DatabaseService {
     return maps.map(Highlight.fromJson).toList(growable: false);
   }
 
-  Future<void> deleteHighlight(String verseReference) async {
+  Future<void> deleteHighlight(
+    String verseReference, [
+    String versionId = 'WEB',
+  ]) async {
     final db = await database;
     await db.update(
       'highlights',
@@ -296,8 +299,8 @@ class DatabaseService {
         'deletedAt': DateTime.now().toUtc().toIso8601String(),
         'updatedAt': DateTime.now().toUtc().toIso8601String(),
       },
-      where: 'verseReference = ?',
-      whereArgs: [verseReference],
+      where: 'verseReference = ? AND versionId = ?',
+      whereArgs: [verseReference, versionId.toUpperCase()],
     );
   }
 
@@ -372,7 +375,10 @@ class DatabaseService {
     return maps.map(Bookmark.fromJson).toList(growable: false);
   }
 
-  Future<void> deleteBookmark(String verseReference) async {
+  Future<void> deleteBookmark(
+    String verseReference, [
+    String versionId = 'WEB',
+  ]) async {
     final db = await database;
     await db.update(
       'bookmarks',
@@ -380,8 +386,8 @@ class DatabaseService {
         'deletedAt': DateTime.now().toUtc().toIso8601String(),
         'updatedAt': DateTime.now().toUtc().toIso8601String(),
       },
-      where: 'verseReference = ?',
-      whereArgs: [verseReference],
+      where: 'verseReference = ? AND versionId = ?',
+      whereArgs: [verseReference, versionId.toUpperCase()],
     );
   }
 

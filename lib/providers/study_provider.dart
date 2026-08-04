@@ -66,46 +66,64 @@ class StudyProvider with ChangeNotifier {
   Future<void> addHighlight(
     String verseReference,
     String text,
-    Color color,
-  ) async {
+    Color color, {
+    String versionId = 'WEB',
+  }) async {
+    final normalizedVersion = versionId.toUpperCase();
     final item = Highlight(
       id: _uuid.v4(),
       verseReference: verseReference,
       text: text,
       color: color.toARGB32(),
       createdAt: DateTime.now().toUtc(),
+      versionId: normalizedVersion,
     );
     if (_usesSqlite) {
-      await _database.deleteHighlight(verseReference);
+      await _database.deleteHighlight(verseReference, normalizedVersion);
       await _database.insertHighlight(item);
       _highlights = await _database.getHighlights();
     } else {
-      _highlights
-          .removeWhere((value) => value.verseReference == verseReference);
+      _highlights.removeWhere((value) =>
+          value.verseReference == verseReference &&
+          value.versionId.toUpperCase() == normalizedVersion);
       _highlights.add(item);
       await _saveFallback();
     }
     notifyListeners();
   }
 
-  Future<void> removeHighlight(String verseReference) async {
+  Future<void> removeHighlight(
+    String verseReference, {
+    String versionId = 'WEB',
+  }) async {
+    final normalizedVersion = versionId.toUpperCase();
     if (_usesSqlite) {
-      await _database.deleteHighlight(verseReference);
+      await _database.deleteHighlight(verseReference, normalizedVersion);
       _highlights = await _database.getHighlights();
     } else {
       final existing = _highlights.where(
-        (value) => value.verseReference == verseReference,
+        (value) => value.verseReference == verseReference &&
+            value.versionId.toUpperCase() == normalizedVersion,
       );
       _addTombstones('highlight', existing.map((value) => value.toJson()));
-      _highlights
-          .removeWhere((value) => value.verseReference == verseReference);
+      _highlights.removeWhere((value) =>
+          value.verseReference == verseReference &&
+          value.versionId.toUpperCase() == normalizedVersion);
       await _saveFallback();
     }
     notifyListeners();
   }
 
-  Future<void> addNote(String verseReference, String text) async {
-    final existing = getNoteForVerse(verseReference);
+  Future<void> addNote(
+    String verseReference,
+    String text, {
+    String versionId = 'WEB',
+  }) async {
+    final normalizedVersion = versionId.toUpperCase();
+    final existing = getNoteForVerse(
+      verseReference,
+      versionId: normalizedVersion,
+    );
     if (existing != null) {
       await updateNote(
         existing.copyWith(text: text, updatedAt: DateTime.now().toUtc()),
@@ -118,6 +136,7 @@ class StudyProvider with ChangeNotifier {
       text: text,
       createdAt: DateTime.now().toUtc(),
       updatedAt: DateTime.now().toUtc(),
+      versionId: normalizedVersion,
     );
     if (_usesSqlite) {
       await _database.insertNote(item);
@@ -155,54 +174,101 @@ class StudyProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addBookmark(String verseReference, String text) async {
-    if (isBookmarked(verseReference)) return;
+  Future<void> addBookmark(
+    String verseReference,
+    String text, {
+    String versionId = 'WEB',
+  }) async {
+    final normalizedVersion = versionId.toUpperCase();
+    if (isBookmarked(
+      verseReference,
+      versionId: normalizedVersion,
+    )) return;
     final item = Bookmark(
       id: _uuid.v4(),
       verseReference: verseReference,
       text: text,
       createdAt: DateTime.now().toUtc(),
+      versionId: normalizedVersion,
     );
     if (_usesSqlite) {
       await _database.insertBookmark(item);
       _bookmarks = await _database.getBookmarks();
     } else {
+      _bookmarks.removeWhere((value) =>
+          value.verseReference == verseReference &&
+          value.versionId.toUpperCase() == normalizedVersion);
       _bookmarks.add(item);
       await _saveFallback();
     }
     notifyListeners();
   }
 
-  Future<void> removeBookmark(String verseReference) async {
+  Future<void> removeBookmark(
+    String verseReference, {
+    String versionId = 'WEB',
+  }) async {
+    final normalizedVersion = versionId.toUpperCase();
     if (_usesSqlite) {
-      await _database.deleteBookmark(verseReference);
+      await _database.deleteBookmark(verseReference, normalizedVersion);
       _bookmarks = await _database.getBookmarks();
     } else {
       final existing = _bookmarks.where(
-        (value) => value.verseReference == verseReference,
+        (value) => value.verseReference == verseReference &&
+            value.versionId.toUpperCase() == normalizedVersion,
       );
       _addTombstones('bookmark', existing.map((value) => value.toJson()));
-      _bookmarks.removeWhere((value) => value.verseReference == verseReference);
+      _bookmarks.removeWhere((value) =>
+          value.verseReference == verseReference &&
+          value.versionId.toUpperCase() == normalizedVersion);
       await _saveFallback();
     }
     notifyListeners();
   }
 
-  bool isHighlighted(String reference) =>
-      _highlights.any((value) => value.verseReference == reference);
+  bool isHighlighted(
+    String reference, {
+    String versionId = 'WEB',
+  }) {
+    return _highlights.any(
+      (value) =>
+          value.verseReference == reference &&
+          value.versionId.toUpperCase() == versionId.toUpperCase(),
+    );
+  }
 
-  Color? getHighlightColor(String reference) {
-    final index =
-        _highlights.indexWhere((value) => value.verseReference == reference);
+  Color? getHighlightColor(
+    String reference, {
+    String versionId = 'WEB',
+  }) {
+    final index = _highlights.indexWhere(
+      (value) =>
+          value.verseReference == reference &&
+          value.versionId.toUpperCase() == versionId.toUpperCase(),
+    );
     return index == -1 ? null : Color(_highlights[index].color);
   }
 
-  bool isBookmarked(String reference) =>
-      _bookmarks.any((value) => value.verseReference == reference);
+  bool isBookmarked(
+    String reference, {
+    String versionId = 'WEB',
+  }) {
+    return _bookmarks.any(
+      (value) =>
+          value.verseReference == reference &&
+          value.versionId.toUpperCase() == versionId.toUpperCase(),
+    );
+  }
 
-  Note? getNoteForVerse(String reference) {
-    final index =
-        _notes.indexWhere((value) => value.verseReference == reference);
+  Note? getNoteForVerse(
+    String reference, {
+    String versionId = 'WEB',
+  }) {
+    final index = _notes.indexWhere(
+      (value) =>
+          value.verseReference == reference &&
+          value.versionId.toUpperCase() == versionId.toUpperCase(),
+    );
     return index == -1 ? null : _notes[index];
   }
 
@@ -319,17 +385,25 @@ class StudyProvider with ChangeNotifier {
       } else if (record.kind == 'bookmark') {
         final item = Bookmark.fromJson(data);
         if (record.deletedAt != null) {
-          await removeBookmark(item.verseReference);
+          await removeBookmark(
+            item.verseReference,
+            versionId: item.versionId,
+          );
         } else if (!_bookmarks.any(
           (local) =>
               local.id == item.id && local.updatedAt.isAfter(item.updatedAt),
         )) {
           if (_usesSqlite) {
-            await _database.deleteBookmark(item.verseReference);
+            await _database.deleteBookmark(
+              item.verseReference,
+              item.versionId,
+            );
             await _database.insertBookmark(item);
           } else {
             _bookmarks.removeWhere(
-              (local) => local.verseReference == item.verseReference,
+              (local) =>
+                  local.verseReference == item.verseReference &&
+                  local.versionId == item.versionId,
             );
             _bookmarks.add(item);
           }

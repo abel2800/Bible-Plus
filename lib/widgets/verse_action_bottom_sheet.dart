@@ -14,11 +14,13 @@ import 'design/bp_widgets.dart';
 class VerseActionBottomSheet extends StatefulWidget {
   final BibleVerse verse;
   final String reference;
+  final String versionId;
 
   const VerseActionBottomSheet({
     super.key,
     required this.verse,
     required this.reference,
+    required this.versionId,
   });
 
   @override
@@ -33,7 +35,10 @@ class _VerseActionBottomSheetState extends State<VerseActionBottomSheet> {
   void initState() {
     super.initState();
     final studyProvider = Provider.of<StudyProvider>(context, listen: false);
-    final existingNote = studyProvider.getNoteForVerse(widget.reference);
+    final existingNote = studyProvider.getNoteForVerse(
+      widget.reference,
+      versionId: widget.versionId,
+    );
     if (existingNote != null) {
       _noteController.text = existingNote.text;
       _showNoteField = true;
@@ -84,8 +89,14 @@ class _VerseActionBottomSheetState extends State<VerseActionBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final studyProvider = Provider.of<StudyProvider>(context);
-    final isHighlighted = studyProvider.isHighlighted(widget.reference);
-    final isBookmarked = studyProvider.isBookmarked(widget.reference);
+    final isHighlighted = studyProvider.isHighlighted(
+      widget.reference,
+      versionId: widget.versionId,
+    );
+    final isBookmarked = studyProvider.isBookmarked(
+      widget.reference,
+      versionId: widget.versionId,
+    );
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final surface = isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight;
     final ink = isDark ? AppTheme.inkDark : AppTheme.ink;
@@ -201,7 +212,10 @@ class _VerseActionBottomSheetState extends State<VerseActionBottomSheet> {
                     _HighlightSwatch(
                       color: color,
                       isSelected: studyProvider
-                              .getHighlightColor(widget.reference)
+                              .getHighlightColor(
+                                widget.reference,
+                                versionId: widget.versionId,
+                              )
                               ?.toARGB32() ==
                           color.toARGB32(),
                       onTap: () async {
@@ -209,6 +223,7 @@ class _VerseActionBottomSheetState extends State<VerseActionBottomSheet> {
                           widget.reference,
                           widget.verse.text,
                           color,
+                          versionId: widget.versionId,
                         );
                         if (!mounted) return;
                         _closeWithMessage('Verse highlighted',
@@ -250,13 +265,17 @@ class _VerseActionBottomSheetState extends State<VerseActionBottomSheet> {
                 color: AppTheme.gold,
                 onTap: () async {
                   if (isBookmarked) {
-                    await studyProvider.removeBookmark(widget.reference);
+                    await studyProvider.removeBookmark(
+                      widget.reference,
+                      versionId: widget.versionId,
+                    );
                     if (!mounted) return;
                     _closeWithMessage('Bookmark removed');
                   } else {
                     await studyProvider.addBookmark(
                       widget.reference,
                       widget.verse.text,
+                      versionId: widget.versionId,
                     );
                     if (!mounted) return;
                     _closeWithMessage('Verse bookmarked');
@@ -303,7 +322,10 @@ class _VerseActionBottomSheetState extends State<VerseActionBottomSheet> {
                   color: AppTheme.vermilion,
                   labelColor: AppTheme.vermilion,
                   onTap: () async {
-                    await studyProvider.removeHighlight(widget.reference);
+                    await studyProvider.removeHighlight(
+                      widget.reference,
+                      versionId: widget.versionId,
+                    );
                     if (!mounted) return;
                     _closeWithMessage(
                       'Highlight removed',
@@ -344,6 +366,7 @@ class _VerseActionBottomSheetState extends State<VerseActionBottomSheet> {
     await studyProvider.addNote(
       widget.reference,
       _noteController.text.trim(),
+      versionId: widget.versionId,
     );
     if (!mounted) return;
     _closeWithMessage('Note saved');

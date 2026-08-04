@@ -85,6 +85,7 @@ class HighlightListItem extends StatelessWidget {
                   if (confirm == true) {
                     await studyProvider.removeHighlight(
                       highlight.verseReference,
+                      versionId: highlight.versionId,
                     );
                   }
                 },
