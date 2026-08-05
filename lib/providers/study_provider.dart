@@ -102,7 +102,8 @@ class StudyProvider with ChangeNotifier {
       _highlights = await _database.getHighlights();
     } else {
       final existing = _highlights.where(
-        (value) => value.verseReference == verseReference &&
+        (value) =>
+            value.verseReference == verseReference &&
             value.versionId.toUpperCase() == normalizedVersion,
       );
       _addTombstones('highlight', existing.map((value) => value.toJson()));
@@ -216,7 +217,8 @@ class StudyProvider with ChangeNotifier {
       _bookmarks = await _database.getBookmarks();
     } else {
       final existing = _bookmarks.where(
-        (value) => value.verseReference == verseReference &&
+        (value) =>
+            value.verseReference == verseReference &&
             value.versionId.toUpperCase() == normalizedVersion,
       );
       _addTombstones('bookmark', existing.map((value) => value.toJson()));

@@ -250,16 +250,18 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                                       bibleProvider.currentChapter[index];
                                   final reference =
                                       bibleProvider.getVerseReference(verse);
-                                  final versionId = bibleProvider.currentVersion;
-                                  final isHighlighted = studyProvider.isHighlighted(
-                                      reference,
-                                      versionId: versionId,
+                                  final versionId =
+                                      bibleProvider.currentVersion;
+                                  final isHighlighted =
+                                      studyProvider.isHighlighted(
+                                    reference,
+                                    versionId: versionId,
                                   );
-                                  final highlightColor = studyProvider
-                                      .getHighlightColor(
-                                        reference,
-                                        versionId: versionId,
-                                      );
+                                  final highlightColor =
+                                      studyProvider.getHighlightColor(
+                                    reference,
+                                    versionId: versionId,
+                                  );
                                   final isSpoken = audioMatchesReader &&
                                       audioService.currentVerse == verse.verse;
                                   final secondary = parallel.enabled
@@ -281,17 +283,17 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                                           versionId: versionId,
                                           isHighlighted: isHighlighted,
                                           highlightColor: highlightColor,
-                                          isBookmarked: studyProvider
-                                              .isBookmarked(
-                                                reference,
-                                                versionId: versionId,
-                                              ),
-                                          hasNote: studyProvider
-                                                  .getNoteForVerse(
+                                          isBookmarked:
+                                              studyProvider.isBookmarked(
+                                            reference,
+                                            versionId: versionId,
+                                          ),
+                                          hasNote:
+                                              studyProvider.getNoteForVerse(
                                                     reference,
                                                     versionId: versionId,
                                                   ) !=
-                                              null,
+                                                  null,
                                           isAudioActive: isSpoken,
                                           textColor: readerTheme.textColor,
                                           verseNumberColor:

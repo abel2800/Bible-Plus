@@ -523,7 +523,8 @@ class BiblePackageService {
           chapterNum = (chapter['number'] is num)
               ? (chapter['number'] as num).toInt()
               : (int.tryParse(chapter['number']?.toString() ?? '') ??
-                  (int.tryParse(chapter['chapter']?.toString() ?? '') ?? ci + 1));
+                  (int.tryParse(chapter['chapter']?.toString() ?? '') ??
+                      ci + 1));
           versesRaw = chapter.containsKey('verses') ? chapter['verses'] : null;
           // if chapter is actually a list-like map with numeric keys, try its values
           if (versesRaw == null && chapter.values.any((v) => v is List)) {
@@ -549,8 +550,10 @@ class BiblePackageService {
                 ? (verseMap['verse'] as num).toInt()
                 : (int.tryParse(verseMap['verse']?.toString() ?? '') ??
                     (int.tryParse(verseMap['id']?.toString() ?? '') ?? vi + 1));
-            text = (verseMap['text'] ?? verseMap['verse_text'] ??
-                    verseMap['content'] ?? '')
+            text = (verseMap['text'] ??
+                    verseMap['verse_text'] ??
+                    verseMap['content'] ??
+                    '')
                 .toString();
           } else {
             // verse represented as plain string
