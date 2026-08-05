@@ -208,16 +208,16 @@ class _TextureOverlay extends StatelessWidget {
           child: CustomPaint(painter: _DustPainter(count: 40, radius: 2)),
         );
       case StudioTextureId.gold:
-        return IgnorePointer(
+        return const IgnorePointer(
           child: DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  const Color(0x33C08A28),
+                  Color(0x33C08A28),
                   Colors.transparent,
-                  const Color(0x22E8C766),
+                  Color(0x22E8C766),
                 ],
               ),
             ),

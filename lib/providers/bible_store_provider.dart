@@ -53,6 +53,7 @@ class BibleStoreProvider with ChangeNotifier {
   List<BiblePackageInfo> get visiblePackages {
     final q = _query.trim().toLowerCase();
     return catalog.where((pkg) {
+      if (pkg.install.type == 'unavailable') return false;
       if (_language != 'all' && pkg.language != _language) return false;
       if (_category != 'all' && !pkg.category.contains(_category)) return false;
       if (q.isEmpty) return true;

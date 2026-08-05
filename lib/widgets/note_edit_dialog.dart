@@ -6,6 +6,7 @@ import '../utils/app_theme.dart';
 
 class NoteEditDialog extends StatefulWidget {
   const NoteEditDialog({
+    super.key,
     required this.note,
     required this.provider,
   });

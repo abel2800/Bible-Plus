@@ -505,7 +505,7 @@ class BiblePackageService {
       final dynamic bookRaw = books[bi];
       if (bookRaw == null) continue;
       if (bookRaw is! Map) continue;
-      final book = Map<String, dynamic>.from(bookRaw as Map);
+      final book = Map<String, dynamic>.from(bookRaw);
       final bookId = (book['id'] is num)
           ? (book['id'] as num).toInt()
           : (int.tryParse(book['id']?.toString() ?? '') ?? bi + 1);
@@ -518,7 +518,7 @@ class BiblePackageService {
         dynamic versesRaw;
 
         if (chapterRaw is Map) {
-          final chapter = Map<String, dynamic>.from(chapterRaw as Map);
+          final chapter = Map<String, dynamic>.from(chapterRaw);
           // support both 'number' and 'chapter' keys
           chapterNum = (chapter['number'] is num)
               ? (chapter['number'] as num).toInt()
@@ -537,14 +537,14 @@ class BiblePackageService {
         }
 
         if (versesRaw is! List) continue;
-        final verses = versesRaw as List;
+        final verses = versesRaw;
         for (var vi = 0; vi < verses.length; vi++) {
           final dynamic vRaw = verses[vi];
           int verseNum = vi + 1;
           String text = '';
 
           if (vRaw is Map) {
-            final verseMap = Map<String, dynamic>.from(vRaw as Map);
+            final verseMap = Map<String, dynamic>.from(vRaw);
             verseNum = (verseMap['verse'] is num)
                 ? (verseMap['verse'] as num).toInt()
                 : (int.tryParse(verseMap['verse']?.toString() ?? '') ??

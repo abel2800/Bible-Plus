@@ -183,7 +183,9 @@ class StudyProvider with ChangeNotifier {
     if (isBookmarked(
       verseReference,
       versionId: normalizedVersion,
-    )) return;
+    )) {
+      return;
+    }
     final item = Bookmark(
       id: _uuid.v4(),
       verseReference: verseReference,

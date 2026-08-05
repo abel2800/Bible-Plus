@@ -73,7 +73,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                         const SizedBox(height: 10),
                         DropdownButtonFormField<String>(
-                          value: _selectedVersion,
+                          initialValue: _selectedVersion,
                           decoration:
                               const InputDecoration(labelText: 'Version'),
                           items: [
@@ -137,10 +137,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     child: BpPrimaryButton(
                       label: 'Start reading',
                       onPressed: () async {
+                        final navigator = Navigator.of(context);
                         await prefs.setPreferredBible(_selectedVersion);
                         await prefs.completeOnboarding();
                         if (!mounted) return;
-                        Navigator.of(context).pushReplacementNamed('/home');
+                        navigator.pushReplacementNamed('/home');
                       },
                     ),
                   ),
