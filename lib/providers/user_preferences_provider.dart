@@ -26,7 +26,7 @@ class UserPreferencesProvider with ChangeNotifier {
         prefs.getString('preferred_audio_package') ?? 'web-henson-en';
     final lang = prefs.getString('languageCode') ?? 'en';
     _appLanguageCode = supportedLanguageCodes.contains(lang) ? lang : 'en';
-    _hasCompletedOnboarding = prefs.getBool('onboarding_completed') ?? false;
+    _hasCompletedOnboarding = prefs.getBool('onboarding_completed') ?? true;
     _ready = true;
     notifyListeners();
   }

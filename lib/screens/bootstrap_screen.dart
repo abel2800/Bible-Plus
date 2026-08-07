@@ -62,7 +62,7 @@ class _BootstrapScreenState extends State<BootstrapScreen> {
       if (prefs.hasCompletedOnboarding) {
         Navigator.of(context).pushReplacementNamed('/home');
       } else {
-        Navigator.of(context).pushReplacementNamed('/onboarding');
+        Navigator.of(context).pushReplacementNamed('/home');
       }
     } catch (error) {
       if (!mounted) return;

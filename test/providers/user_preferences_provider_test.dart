@@ -9,11 +9,18 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
+  test('defaults onboarding to completed for first-time launches', () async {
+    final provider = UserPreferencesProvider();
+    await provider.initialize();
+
+    expect(provider.hasCompletedOnboarding, isTrue);
+  });
+
   test('persists onboarding completion state', () async {
     final provider = UserPreferencesProvider();
     await provider.initialize();
 
-    expect(provider.hasCompletedOnboarding, isFalse);
+    expect(provider.hasCompletedOnboarding, isTrue);
 
     await provider.completeOnboarding();
     expect(provider.hasCompletedOnboarding, isTrue);
