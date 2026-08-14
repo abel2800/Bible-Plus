@@ -162,6 +162,29 @@
         "type": "asset",
         "path": "assets/bible/amh.json"
       }
+    },
+    {
+      "id": "navs-placeholder",
+      "versionId": "NAVS",
+      "name": "NAVS Bible",
+      "abbreviation": "NAVS",
+      "language": "en",
+      "languageName": "English",
+      "description": "Text version available when the NAVS JSON asset or licensed Bible Brain mapping is supplied. This app recognizes the version ID so it can be enabled once the text data is available.",
+      "license": "Copyright — stream via Bible Brain or obtain redistribution rights",
+      "attribution": "Rights holder / Bible Brain terms",
+      "source": "https://4.dbt.io/",
+      "commercialUse": false,
+      "redistribution": false,
+      "approved": false,
+      "category": ["new"],
+      "fileSizeBytes": 0,
+      "offlineSizeBytes": 0,
+      "updatedAt": "2026-08-12",
+      "install": {
+        "type": "unavailable",
+        "reason": "requires_bible_brain_or_license"
+      }
     }
   ]
 }

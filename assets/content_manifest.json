@@ -65,6 +65,22 @@
       "approved": true,
       "expiresAt": null,
       "sha256": "498e40cdfe554f89d03863de27b054b9ab0f608b9c38f50f43ada8c4af614f36"
+    },
+    {
+      "id": "scripture.navs",
+      "feature": "scripture",
+      "path": "assets/bible/navs.json",
+      "versionId": "NAVS",
+      "language": "en",
+      "canon": "protestant-66",
+      "source": "placeholder",
+      "license": "Requires licensed data or Bible Brain access",
+      "attribution": "Pending rights-holder approval",
+      "commercialUse": false,
+      "redistribution": false,
+      "approved": false,
+      "expiresAt": null,
+      "sha256": null
     }
   ]
 }
