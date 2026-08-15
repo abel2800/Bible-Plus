@@ -160,23 +160,22 @@
       "abbreviation": "AMH",
       "language": "am",
       "languageName": "Amharic",
-      "description": "Amharic Bible (bundled asset).",
-      "license": "Public Domain",
+      "description": "Amharic Bible available for download. Host the minimized package and set `install.url` to point to it.",
+      "license": "See hosted package",
       "attribution": "Unknown",
       "source": "",
       "commercialUse": true,
       "redistribution": true,
       "approved": true,
       "category": [
-        "new",
-        "bundled"
+        "new"
       ],
       "fileSizeBytes": 5708077,
       "offlineSizeBytes": 5708077,
       "updatedAt": "2026-08-03",
       "install": {
-        "type": "asset",
-        "path": "assets/bible/amh.json"
+        "type": "url",
+        "url": "https://raw.githubusercontent.com/abel2800/Bible-Plus/main/dist/AMH.json"
       }
     },
     {
@@ -227,8 +226,8 @@
       "offlineSizeBytes": 173007,
       "updatedAt": "2026-08-15",
       "install": {
-        "type": "asset",
-        "path": "assets/bible/youversion_1786818012066_youversion_1260.json"
+        "type": "url",
+        "url": "https://raw.githubusercontent.com/abel2800/Bible-Plus/main/dist/NASV.json"
       }
     },
     {
@@ -238,8 +237,8 @@
       "abbreviation": "ORM",
       "language": "om",
       "languageName": "Afaan Oromo",
-      "description": "Afaan Oromo Bible (imported local asset).",
-      "license": "Bible Brain / rights holder terms",
+      "description": "Afaan Oromo Bible available for download. Host the minimized package and set `install.url` to point to it.",
+      "license": "See hosted package",
       "attribution": "Content via Bible Brain",
       "source": "https://4.dbt.io/",
       "commercialUse": true,
@@ -247,15 +246,14 @@
       "approved": true,
       "category": [
         "new",
-        "bible_brain",
-        "bundled"
+        "bible_brain"
       ],
       "fileSizeBytes": 3525393,
       "offlineSizeBytes": 3525393,
       "updatedAt": "2026-08-15",
       "install": {
-        "type": "asset",
-        "path": "assets/bible/youversion_1786818884154_youversion_4125.json"
+        "type": "url",
+        "url": "https://raw.githubusercontent.com/abel2800/Bible-Plus/main/dist/ORM.json"
       }
     }
   ]
