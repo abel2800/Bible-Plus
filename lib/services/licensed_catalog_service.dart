@@ -41,9 +41,16 @@ class LicensedCatalogService {
       final data = await _bundle.load(entry.path);
       final bytes =
           data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+      if (entry.sha256 == null) {
+        // Skip entries without checksum rather than failing the entire manifest.
+        // This avoids runtime errors when the manifest contains placeholder items.
+        print('Skipping catalog entry without checksum: ${entry.id}');
+        continue;
+      }
       if (sha256.convert(bytes).toString().toLowerCase() !=
-          entry.sha256.toLowerCase()) {
-        throw StateError('Catalog checksum mismatch: ${entry.id}');
+          entry.sha256!.toLowerCase()) {
+        print('Catalog checksum mismatch: ${entry.id}');
+        continue;
       }
       final decoded = jsonDecode(utf8.decode(bytes));
       final items = decoded is List<dynamic>

@@ -76,3 +76,5 @@ flutter:
     - assets/catalog/bible_catalog.json
     - assets/catalog/audio_catalog.json
     - assets/catalog/web_henson_audio_manifest.json
+    - assets/bible/youversion_1786818012066_youversion_1260.json
+    - assets/bible/youversion_1786818884154_youversion_4125.json

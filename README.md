@@ -350,11 +350,14 @@ BIBLEPULSE_ENABLE_COMMUNITY=true
 
 Firestore rules and emulator tests are in `firestore.rules` and `firebase-tests/`.
 
+
 ### Bible Brain
 
 ```text
 BIBLE_BRAIN_API_KEY
-BIBLE_BRAIN_BIBLE_IDS_JSON={"WEB":"approved-bible-id","AMH":"AMHABC"}
+# Example mapping of local version keys to Bible Brain bible IDs.
+# Do NOT commit your API key. Rotate if accidentally exposed.
+BIBLE_BRAIN_BIBLE_IDS_JSON={"WEB":"approved-bible-id","AMH":"AMHABC","NASV":"1260","ORM":"4125"}
 BIBLE_BRAIN_MEDIA_HOSTS=approved.cdn.host
 ```
 

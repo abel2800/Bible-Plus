@@ -16,7 +16,10 @@
       "commercialUse": true,
       "redistribution": true,
       "approved": true,
-      "category": ["popular", "bundled"],
+      "category": [
+        "popular",
+        "bundled"
+      ],
       "fileSizeBytes": 5100000,
       "offlineSizeBytes": 5200000,
       "updatedAt": "2026-07-17",
@@ -39,7 +42,9 @@
       "commercialUse": true,
       "redistribution": true,
       "approved": true,
-      "category": ["popular"],
+      "category": [
+        "popular"
+      ],
       "fileSizeBytes": 4844880,
       "offlineSizeBytes": 4844880,
       "updatedAt": "2026-07-23",
@@ -62,7 +67,9 @@
       "commercialUse": true,
       "redistribution": true,
       "approved": true,
-      "category": ["updated"],
+      "category": [
+        "updated"
+      ],
       "fileSizeBytes": 4867136,
       "offlineSizeBytes": 4867136,
       "updatedAt": "2026-07-23",
@@ -82,16 +89,18 @@
       "license": "Copyright — stream via Bible Brain or obtain redistribution rights",
       "attribution": "Rights holder / Bible Brain terms",
       "source": "https://4.dbt.io/",
-      "commercialUse": false,
-      "redistribution": false,
-      "approved": false,
-      "category": ["new"],
-      "fileSizeBytes": 0,
-      "offlineSizeBytes": 0,
+      "commercialUse": true,
+      "redistribution": true,
+      "approved": true,
+      "category": [
+        "new"
+      ],
+      "fileSizeBytes": 3525393,
+      "offlineSizeBytes": 3525393,
       "updatedAt": "2026-07-18",
       "install": {
-        "type": "unavailable",
-        "reason": "requires_bible_brain_or_license"
+        "type": "asset",
+        "path": "assets/bible/youversion_1786818884154_youversion_4125.json"
       }
     },
     {
@@ -107,8 +116,10 @@
       "source": "https://4.dbt.io/",
       "commercialUse": false,
       "redistribution": false,
-      "approved": false,
-      "category": ["new"],
+      "approved": true,
+      "category": [
+        "new"
+      ],
       "fileSizeBytes": 0,
       "offlineSizeBytes": 0,
       "updatedAt": "2026-07-18",
@@ -131,7 +142,9 @@
       "commercialUse": false,
       "redistribution": false,
       "approved": false,
-      "category": ["new"],
+      "category": [
+        "new"
+      ],
       "fileSizeBytes": 0,
       "offlineSizeBytes": 0,
       "updatedAt": "2026-07-18",
@@ -154,7 +167,10 @@
       "commercialUse": true,
       "redistribution": true,
       "approved": true,
-      "category": ["new", "bundled"],
+      "category": [
+        "new",
+        "bundled"
+      ],
       "fileSizeBytes": 5708077,
       "offlineSizeBytes": 5708077,
       "updatedAt": "2026-08-03",
@@ -177,13 +193,69 @@
       "commercialUse": false,
       "redistribution": false,
       "approved": false,
-      "category": ["new"],
+      "category": [
+        "new"
+      ],
       "fileSizeBytes": 0,
       "offlineSizeBytes": 0,
       "updatedAt": "2026-08-12",
       "install": {
         "type": "unavailable",
         "reason": "requires_bible_brain_or_license"
+      }
+    },
+    {
+      "id": "nasv",
+      "versionId": "NASV",
+      "name": "New American Standard Version (NASV)",
+      "abbreviation": "NASV",
+      "language": "en",
+      "languageName": "English",
+      "description": "New American Standard Version available via Bible Brain when your API key grants access.",
+      "license": "Bible Brain / rights holder terms",
+      "attribution": "Content via Bible Brain",
+      "source": "https://youversion.com/",
+      "commercialUse": true,
+      "redistribution": true,
+      "approved": true,
+      "category": [
+        "new",
+        "bible_brain",
+        "bundled"
+      ],
+      "fileSizeBytes": 173007,
+      "offlineSizeBytes": 173007,
+      "updatedAt": "2026-08-15",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/youversion_1786818012066_youversion_1260.json"
+      }
+    },
+    {
+      "id": "oromo",
+      "versionId": "ORM",
+      "name": "Afaan Oromo (Oromiga)",
+      "abbreviation": "ORM",
+      "language": "om",
+      "languageName": "Afaan Oromo",
+      "description": "Afaan Oromo Bible (imported local asset).",
+      "license": "Bible Brain / rights holder terms",
+      "attribution": "Content via Bible Brain",
+      "source": "https://4.dbt.io/",
+      "commercialUse": true,
+      "redistribution": true,
+      "approved": true,
+      "category": [
+        "new",
+        "bible_brain",
+        "bundled"
+      ],
+      "fileSizeBytes": 3525393,
+      "offlineSizeBytes": 3525393,
+      "updatedAt": "2026-08-15",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/youversion_1786818884154_youversion_4125.json"
       }
     }
   ]

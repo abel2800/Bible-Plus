@@ -6,7 +6,7 @@ class LicensedContentMetadata {
     required this.source,
     required this.license,
     required this.attribution,
-    required this.sha256,
+    this.sha256,
     required this.language,
     required this.approved,
     required this.commercialUse,
@@ -22,7 +22,7 @@ class LicensedContentMetadata {
   final String source;
   final String license;
   final String attribution;
-  final String sha256;
+  final String? sha256;
   final String language;
   final bool approved;
   final bool commercialUse;

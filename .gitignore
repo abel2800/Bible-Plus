@@ -80,3 +80,10 @@ android/local.properties
 venv/
 __pycache__/
 
+# Local environment files (do not commit secrets)
+.env
+.env.*
+
+# Debug API responses
+scripts/debug/
+

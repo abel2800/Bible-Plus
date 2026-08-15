@@ -86,6 +86,21 @@ void main() async {
   final licensedFeatures = <String>{};
   final brainVersions = BibleBrainVersionRegistry();
   await brainVersions.load();
+  // In debug/dev runs, auto-enable any bible mappings provided via
+  // `BIBLE_BRAIN_BIBLE_IDS_JSON` so packages appear installed for testing.
+  if (kDebugMode && AudioConfig.bibleIds.isNotEmpty) {
+    try {
+      for (final entry in AudioConfig.bibleIds.entries) {
+        final versionId = entry.key.toUpperCase();
+        final bibleId = entry.value;
+        if (!brainVersions.isEnabled(versionId)) {
+          await brainVersions.enable(versionId: versionId, bibleId: bibleId);
+        }
+      }
+    } catch (error) {
+      debugPrint('Auto-enable bible mappings failed: $error');
+    }
+  }
   BibleBrainCatalogService? brainCatalog;
   BibleBrainTextGateway? brainText;
 
