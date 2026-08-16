@@ -95,12 +95,12 @@
       "category": [
         "new"
       ],
-      "fileSizeBytes": 3525393,
-      "offlineSizeBytes": 3525393,
+      "fileSizeBytes": 252,
+      "offlineSizeBytes": 252,
       "updatedAt": "2026-07-18",
       "install": {
         "type": "asset",
-        "path": "assets/bible/youversion_1786818884154_youversion_4125.json"
+        "path": "assets/bible/youversion_1786910116735_ORM.json"
       }
     },
     {
@@ -222,12 +222,12 @@
         "bible_brain",
         "bundled"
       ],
-      "fileSizeBytes": 173007,
-      "offlineSizeBytes": 173007,
+      "fileSizeBytes": 252,
+      "offlineSizeBytes": 252,
       "updatedAt": "2026-08-15",
       "install": {
-        "type": "url",
-        "url": "https://raw.githubusercontent.com/abel2800/Bible-Plus/main/dist/NASV.json"
+        "type": "asset",
+        "path": "assets/bible/youversion_1786910116609_NASV.json"
       }
     },
     {

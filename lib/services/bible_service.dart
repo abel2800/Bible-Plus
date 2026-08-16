@@ -338,7 +338,14 @@ class BibleService {
     final packagePath = _packageService?.sourceForVersion(version);
     if (packagePath != null) {
       if (packagePath.startsWith('asset:')) {
-        final assetPath = packagePath.substring('asset:'.length);
+        var assetPath = packagePath.substring('asset:'.length);
+        // On web the asset loader will prefix with `assets/` automatically.
+        // If the stored path already includes `assets/`, strip it to avoid
+        // requesting `/assets/assets/...` which returns 404.
+        assetPath = assetPath.replaceFirst(RegExp(r'^/'), '');
+        if (assetPath.startsWith('assets/')) {
+          assetPath = assetPath.substring('assets/'.length);
+        }
         final jsonString = await rootBundle.loadString(assetPath);
         _bibleCache[version] = json.decode(jsonString) as Map<String, dynamic>;
         return;
