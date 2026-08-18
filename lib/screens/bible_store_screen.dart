@@ -60,6 +60,13 @@ class BibleStoreScreen extends StatelessWidget {
                         onTap: () => store.setCategoryFilter('new'),
                       ),
                       _Chip(
+                        label: 'YouVersion',
+                        selected: store.categoryFilter == 'youversion',
+                        onTap: () => store.setCategoryFilter(
+                          store.categoryFilter == 'youversion' ? 'all' : 'youversion',
+                        ),
+                      ),
+                      _Chip(
                         label: l10n.categoryUpdated,
                         selected: store.categoryFilter == 'updated',
                         onTap: () => store.setCategoryFilter('updated'),
@@ -170,8 +177,12 @@ class _BiblePackageCard extends StatelessWidget {
     final prefs = context.watch<UserPreferencesProvider>();
     final bible = context.watch<BibleProvider>();
     final t = context.colors;
-    final installed = store.isInstalled(package.id);
+    final installedPackage = store.installed[package.id];
+    final installed = installedPackage != null || store.isInstalled(package.id);
     final progress = store.progress[package.id];
+    final fileSizeBytes = installedPackage?.sizeBytes ?? package.fileSizeBytes;
+    final offlineSizeBytes =
+        installedPackage?.sizeBytes ?? package.offlineSizeBytes;
     final downloading = progress?.state == PackageDownloadState.downloading ||
         progress?.state == PackageDownloadState.verifying ||
         progress?.state == PackageDownloadState.installing;
@@ -232,10 +243,12 @@ class _BiblePackageCard extends StatelessWidget {
             spacing: 12,
             runSpacing: 6,
             children: [
-              Text('${l10n.fileSize}: ${_formatBytes(package.fileSizeBytes)}',
-                  style: AppText.uiFaint(context)),
               Text(
-                '${l10n.offlineSize}: ${_formatBytes(package.offlineSizeBytes)}',
+                '${l10n.fileSize}: ${_formatBytes(fileSizeBytes)}',
+                style: AppText.uiFaint(context),
+              ),
+              Text(
+                '${l10n.offlineSize}: ${_formatBytes(offlineSizeBytes)}',
                 style: AppText.uiFaint(context),
               ),
               Text('${l10n.lastUpdated}: ${package.updatedAt}',

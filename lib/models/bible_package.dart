@@ -26,9 +26,11 @@ class BiblePackageInstall {
   bool get isDownloadable =>
       type == 'asset' ||
       type == 'bible_brain' ||
+      type == 'youversion' ||
       (type == 'url' && (url?.isNotEmpty ?? false));
   bool get requiresLicense => type == 'unavailable';
   bool get isBibleBrain => type == 'bible_brain';
+  bool get isYouVersion => type == 'youversion';
 }
 
 class BiblePackageInfo {
@@ -104,6 +106,12 @@ class BiblePackageInfo {
   bool get canInstall {
     if (install.type == 'bible_brain') {
       return approved && install.path != null && install.path!.isNotEmpty;
+    }
+    if (install.type == 'youversion') {
+      return approved &&
+          install.path != null &&
+          install.path!.isNotEmpty &&
+          install.path != '0';
     }
     return approved &&
         commercialUse &&

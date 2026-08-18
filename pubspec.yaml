@@ -71,6 +71,7 @@ flutter:
     - assets/bible/web.json
     - assets/bible/kjv.json
     - assets/bible/asv.json
+    - assets/bible/amh.json
     - assets/bible/navs.json
     - assets/catalog/bible_catalog.json
     - assets/catalog/audio_catalog.json

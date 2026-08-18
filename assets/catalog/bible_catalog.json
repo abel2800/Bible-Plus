@@ -79,31 +79,6 @@
       }
     },
     {
-      "id": "oromo-placeholder",
-      "versionId": "ORM",
-      "name": "Afaan Oromo Bible",
-      "abbreviation": "ORM",
-      "language": "om",
-      "languageName": "Afaan Oromo",
-      "description": "Listed for discovery. With a Bible Brain API key, available Oromo Bibles are listed for online reading and audio. Bundled redistribution still requires a separate license.",
-      "license": "Copyright — stream via Bible Brain or obtain redistribution rights",
-      "attribution": "Rights holder / Bible Brain terms",
-      "source": "https://4.dbt.io/",
-      "commercialUse": true,
-      "redistribution": true,
-      "approved": true,
-      "category": [
-        "new"
-      ],
-      "fileSizeBytes": 252,
-      "offlineSizeBytes": 252,
-      "updatedAt": "2026-07-18",
-      "install": {
-        "type": "asset",
-        "path": "assets/bible/youversion_1786910116735_ORM.json"
-      }
-    },
-    {
       "id": "tigrinya-placeholder",
       "versionId": "TIR",
       "name": "Tigrinya Bible",
@@ -160,22 +135,23 @@
       "abbreviation": "AMH",
       "language": "am",
       "languageName": "Amharic",
-      "description": "Amharic Bible available for download. Host the minimized package and set `install.url` to point to it.",
-      "license": "See hosted package",
-      "attribution": "Unknown",
-      "source": "",
+      "description": "Amharic Bible bundled for offline reading.",
+      "license": "Public domain",
+      "attribution": "Amharic Bible",
+      "source": "https://ebible.org/amh/",
       "commercialUse": true,
       "redistribution": true,
       "approved": true,
       "category": [
-        "new"
+        "new",
+        "bundled"
       ],
       "fileSizeBytes": 5708077,
       "offlineSizeBytes": 5708077,
       "updatedAt": "2026-08-03",
       "install": {
-        "type": "url",
-        "url": "https://raw.githubusercontent.com/abel2800/Bible-Plus/main/dist/AMH.json"
+        "type": "asset",
+        "path": "assets/bible/amh.json"
       }
     },
     {
@@ -201,59 +177,6 @@
       "install": {
         "type": "unavailable",
         "reason": "requires_bible_brain_or_license"
-      }
-    },
-    {
-      "id": "nasv",
-      "versionId": "NASV",
-      "name": "New American Standard Version (NASV)",
-      "abbreviation": "NASV",
-      "language": "en",
-      "languageName": "English",
-      "description": "New American Standard Version available via Bible Brain when your API key grants access.",
-      "license": "Bible Brain / rights holder terms",
-      "attribution": "Content via Bible Brain",
-      "source": "https://youversion.com/",
-      "commercialUse": true,
-      "redistribution": true,
-      "approved": true,
-      "category": [
-        "new",
-        "bible_brain",
-        "bundled"
-      ],
-      "fileSizeBytes": 252,
-      "offlineSizeBytes": 252,
-      "updatedAt": "2026-08-15",
-      "install": {
-        "type": "asset",
-        "path": "assets/bible/youversion_1786910116609_NASV.json"
-      }
-    },
-    {
-      "id": "oromo",
-      "versionId": "ORM",
-      "name": "Afaan Oromo (Oromiga)",
-      "abbreviation": "ORM",
-      "language": "om",
-      "languageName": "Afaan Oromo",
-      "description": "Afaan Oromo Bible available for download. Host the minimized package and set `install.url` to point to it.",
-      "license": "See hosted package",
-      "attribution": "Content via Bible Brain",
-      "source": "https://4.dbt.io/",
-      "commercialUse": true,
-      "redistribution": true,
-      "approved": true,
-      "category": [
-        "new",
-        "bible_brain"
-      ],
-      "fileSizeBytes": 3525393,
-      "offlineSizeBytes": 3525393,
-      "updatedAt": "2026-08-15",
-      "install": {
-        "type": "url",
-        "url": "https://raw.githubusercontent.com/abel2800/Bible-Plus/main/dist/ORM.json"
       }
     }
   ]

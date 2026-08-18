@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -9,11 +10,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/bible_package.dart';
 import '../config/audio_config.dart';
+import '../config/youversion_config.dart';
 import 'package_storage.dart';
 import 'bible_brain_catalog_service.dart';
 import 'bible_brain_version_registry.dart';
 import 'bible_package_io.dart' if (dart.library.html) 'bible_package_web.dart'
     as fs;
+import 'youversion/youversion_bible_download_service.dart';
 
 typedef DownloadProgressCallback = void Function(double progress);
 
@@ -46,6 +49,7 @@ class BiblePackageService {
   Future<void> initialize() async {
     await _brainVersions?.load();
     await _loadCatalog();
+    await _mergeYouVersionCatalog();
     await _mergeBibleBrainCatalog();
     await _loadRegistry();
     await ensureBundledPackagesInstalled();
@@ -60,6 +64,98 @@ class BiblePackageService {
         .map((e) =>
             BiblePackageInfo.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList();
+  }
+
+  Future<void> _mergeYouVersionCatalog() async {
+    if (!YouVersionConfig.isConfigured || kIsWeb) return;
+
+    final remote = <BiblePackageInfo>[];
+    const languages = <String>['am', 'om', 'ti', 'so', 'en'];
+
+    for (final language in languages) {
+      try {
+        final uri = Uri.parse(
+          '${YouVersionConfig.baseUrl}/bibles?language_ranges%5B%5D=${Uri.encodeQueryComponent(language)}&limit=25',
+        );
+        final response = await http.get(
+          uri,
+          headers: {'X-YVP-App-Key': YouVersionConfig.appKey},
+        );
+        if (response.statusCode < 200 || response.statusCode >= 300) {
+          continue;
+        }
+
+        final decoded = jsonDecode(response.body);
+        final items = decoded is Map && decoded['data'] is List
+            ? decoded['data'] as List<dynamic>
+            : const <dynamic>[];
+
+        for (final item in items) {
+          if (item is! Map) continue;
+          final map = Map<String, dynamic>.from(item);
+          final versionId = map['id']?.toString();
+          if (versionId == null || versionId.isEmpty) continue;
+          final abbreviation = (map['abbreviation'] ?? map['id'])?.toString() ?? 'N/A';
+          final name = (map['name'] ?? abbreviation).toString();
+          final langCode = (map['language_iso'] ?? language).toString();
+          final versionCode = abbreviation.toUpperCase();
+
+          remote.add(
+            BiblePackageInfo(
+              id: 'yv-$versionId',
+              versionId: versionCode,
+              name: name,
+              abbreviation: versionCode,
+              language: langCode,
+              languageName: langCode,
+              description:
+                  'Download this YouVersion translation for offline reading. License check required before bulk redistribution.',
+              license: 'YouVersion rights-holder terms',
+              attribution: 'Content provided by YouVersion',
+              source: 'https://api.youversion.com',
+                commercialUse: YouVersionConfig.isOfflineVersionLicensed(versionId),
+                redistribution: YouVersionConfig.isOfflineVersionLicensed(versionId),
+                approved: YouVersionConfig.isOfflineVersionLicensed(versionId),
+                category: YouVersionConfig.isOfflineVersionLicensed(versionId)
+                  ? const ['new', 'youversion', 'offline']
+                  : const ['new', 'youversion', 'online'],
+              fileSizeBytes: 0,
+              offlineSizeBytes: 0,
+              updatedAt: DateTime.now().toUtc().toIso8601String().split('T').first,
+              install: BiblePackageInstall(
+                type: 'youversion',
+                path: versionId,
+              ),
+            ),
+          );
+        }
+      } catch (error) {
+        debugPrint('YouVersion catalog unavailable for $language: $error');
+      }
+    }
+
+    if (remote.isEmpty) return;
+    final byId = <String, BiblePackageInfo>{
+      for (final pkg in _catalog)
+        if (pkg.install.type != 'unavailable') pkg.id: pkg,
+    };
+    final existingYouVersionPackages = <String, BiblePackageInfo>{
+      for (final pkg in _catalog)
+        if (pkg.install.type == 'youversion' &&
+            pkg.install.path != null &&
+            pkg.install.path!.isNotEmpty)
+          pkg.install.path!: pkg,
+    };
+    for (final pkg in remote) {
+      if (pkg.install.path != null && pkg.install.path!.isNotEmpty) {
+        final existing = existingYouVersionPackages[pkg.install.path!];
+        if (existing != null) {
+          byId.remove(existing.id);
+        }
+      }
+      byId.putIfAbsent(pkg.id, () => pkg);
+    }
+    _catalog = byId.values.toList()..sort((a, b) => a.name.compareTo(b.name));
   }
 
   Future<void> _mergeBibleBrainCatalog() async {
@@ -245,6 +341,10 @@ class BiblePackageService {
       await _enableBibleBrainPackage(pkg, onProgress: onProgress);
       return;
     }
+    if (pkg.install.type == 'youversion') {
+      await _enableYouVersionPackage(pkg, onProgress: onProgress);
+      return;
+    }
     if (kIsWeb && pkg.install.type == 'url') {
       throw UnsupportedError(
         'This translation must be installed from a bundled package on web. '
@@ -393,6 +493,154 @@ class BiblePackageService {
       progress: 1,
     );
     onProgress?.call(1);
+  }
+
+  Future<void> _enableYouVersionPackage(
+    BiblePackageInfo pkg, {
+    DownloadProgressCallback? onProgress,
+  }) async {
+    if (!YouVersionConfig.isConfigured) {
+      throw StateError(
+        'YouVersion app key required. Set --dart-define=YOUVERSION_APP_KEY=... before enabling downloads.',
+      );
+    }
+    if (!YouVersionConfig.licenseConfirmedForBulkDownload) {
+      throw StateError(
+        'YouVersion bulk download is disabled until YOUVERSION_BULK_DOWNLOAD_LICENSED=true is set.',
+      );
+    }
+
+    final versionId = int.tryParse(pkg.install.path ?? '');
+    if (versionId == null || versionId <= 0) {
+      throw StateError('Package ${pkg.id} is missing a valid YouVersion version id.');
+    }
+    if (!YouVersionConfig.isOfflineVersionLicensed(versionId.toString())) {
+      throw StateError(
+        'This YouVersion translation is not in the licensed offline allowlist.',
+      );
+    }
+
+    _progress[pkg.id] = PackageDownloadProgress(
+      packageId: pkg.id,
+      state: PackageDownloadState.downloading,
+      progress: 0.05,
+    );
+    onProgress?.call(0.05);
+
+    final downloader = YouVersionBibleDownloadService();
+    await downloader.downloadFullBible(
+      versionId: versionId,
+      onProgress: (progress) {
+        _progress[pkg.id] = PackageDownloadProgress(
+          packageId: pkg.id,
+          state: PackageDownloadState.downloading,
+          progress: progress.fraction,
+        );
+        onProgress?.call(progress.fraction);
+      },
+    );
+
+    final support = await getApplicationSupportDirectory();
+    final langDir = p.join(support.path, 'bibles', pkg.language);
+    await fs.ensureDir(langDir);
+    final outPath = p.join(langDir, '${pkg.versionId.toLowerCase()}.json');
+    final merged = await _mergeYouVersionBookFiles(versionId, pkg.versionId, pkg.name, pkg.language);
+    await fs.writeString(outPath, jsonEncode(merged));
+
+    final size = await fs.fileLength(outPath);
+    _installed[pkg.id] = InstalledBiblePackage(
+      packageId: pkg.id,
+      versionId: pkg.versionId,
+      language: pkg.language,
+      localPath: outPath,
+      installedAt: DateTime.now().toUtc().toIso8601String(),
+      sizeBytes: size,
+      bundled: false,
+    );
+    await _saveRegistry();
+    _progress[pkg.id] = PackageDownloadProgress(
+      packageId: pkg.id,
+      state: PackageDownloadState.completed,
+      progress: 1,
+    );
+    onProgress?.call(1);
+  }
+
+  Future<Map<String, dynamic>> _mergeYouVersionBookFiles(
+    int versionId,
+    String versionLabel,
+    String name,
+    String language,
+  ) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final baseDir = Directory('${dir.path}/youversion_bibles/$versionId');
+    if (!await baseDir.exists()) {
+      throw StateError('No YouVersion book files were created for $versionId');
+    }
+
+    final books = <Map<String, dynamic>>[];
+    final files = (await baseDir.list().toList())
+        .whereType<File>()
+        .where((file) => file.path.endsWith('.json'))
+        .where((file) => !file.path.endsWith('_progress.json'))
+        .toList()
+      ..sort((a, b) => a.path.compareTo(b.path));
+
+    for (final file in files) {
+      final content = await file.readAsString();
+      final decoded = jsonDecode(content) as Map<String, dynamic>;
+      final bookId = (decoded['book'] ?? decoded['id'] ?? '').toString();
+      final chaptersRaw = decoded['chapters'];
+      final normalizedChapters = <Map<String, dynamic>>[];
+
+      if (chaptersRaw is Map) {
+        final keys = chaptersRaw.keys.toList()
+          ..sort((a, b) => int.parse(a.toString()).compareTo(int.parse(b.toString())));
+        for (final key in keys) {
+          final chapterMap = chaptersRaw[key] as Map<String, dynamic>? ?? const {};
+          final versesList = chapterMap['verses'];
+          final verses = <Map<String, dynamic>>[];
+          if (versesList is List) {
+            for (final item in versesList) {
+              if (item is Map) {
+                final verseNumber = item['verse'] ?? item['id'] ?? item['number'];
+                final text = item['text'] ?? item['verse_text'] ?? item['content'] ?? '';
+                if (verseNumber != null) {
+                  verses.add({
+                    'verse': int.tryParse(verseNumber.toString()) ?? 1,
+                    'text': text.toString(),
+                  });
+                }
+              }
+            }
+          }
+          normalizedChapters.add({
+            'number': int.tryParse(key.toString()) ?? 1,
+            'verses': verses,
+          });
+        }
+      }
+
+      books.add({
+        'id': bookId,
+        'name': decoded['name'] ?? bookId,
+        'testament': bookId.startsWith('1') || bookId.startsWith('2') || bookId.startsWith('3') || bookId == 'MAT' || bookId == 'MRK' || bookId == 'LUK' || bookId == 'JHN' || bookId == 'ACT' || bookId == 'ROM' || bookId == '1CO' || bookId == '2CO' || bookId == 'GAL' || bookId == 'EPH' || bookId == 'PHP' || bookId == 'COL' || bookId == '1TH' || bookId == '2TH' || bookId == '1TI' || bookId == '2TI' || bookId == 'TIT' || bookId == 'PHM' || bookId == 'HEB' || bookId == 'JAS' || bookId == '1PE' || bookId == '2PE' || bookId == '1JN' || bookId == '2JN' || bookId == '3JN' || bookId == 'JUD' || bookId == 'REV'
+            ? 'NT'
+            : 'OT',
+        'chapters': normalizedChapters,
+      });
+    }
+
+    return {
+      'schemaVersion': 1,
+      'translation': {
+        'id': versionLabel,
+        'name': name,
+        'language': language,
+        'license': 'YouVersion rights-holder terms',
+      },
+      'books': books,
+    };
   }
 
   Future<void> uninstallPackage(String packageId) async {

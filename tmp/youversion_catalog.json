@@ -1,4 +1,152 @@
 {
-  "generatedAt": "2026-08-15T21:19:16.643Z",
-  "results": []
+  "generatedAt": "2026-08-18T19:24:16.613Z",
+  "results": [
+    {
+      "id": 1260,
+      "abbreviation": "NASV",
+      "hasText": false,
+      "hasAudio": false,
+      "copyright": null
+    },
+    {
+      "id": 12,
+      "abbreviation": "ASV",
+      "hasText": false,
+      "hasAudio": false,
+      "copyright": null
+    },
+    {
+      "id": 42,
+      "abbreviation": "CPDV",
+      "hasText": false,
+      "hasAudio": false,
+      "copyright": null
+    },
+    {
+      "id": 100,
+      "abbreviation": "NASB1995",
+      "hasText": false,
+      "hasAudio": false,
+      "copyright": null
+    },
+    {
+      "id": 110,
+      "abbreviation": "NIrV",
+      "hasText": false,
+      "hasAudio": false,
+      "copyright": null
+    },
+    {
+      "id": 111,
+      "abbreviation": "NIV11",
+      "hasText": false,
+      "hasAudio": false,
+      "copyright": null
+    },
+    {
+      "id": 113,
+      "abbreviation": "NIVUK11",
+      "hasText": false,
+      "hasAudio": false,
+      "copyright": null
+    },
+    {
+      "id": 130,
+      "abbreviation": "TOJB2011",
+      "hasText": false,
+      "hasAudio": false,
+      "copyright": null
+    },
+    {
+      "id": 206,
+      "abbreviation": "engWEBUS",
+      "hasText": false,
+      "hasAudio": false,
+      "copyright": null
+    },
+    {
+      "id": 1207,
+      "abbreviation": "WMBBE",
+      "hasText": false,
+      "hasAudio": false,
+      "copyright": null
+    },
+    {
+      "id": 1209,
+      "abbreviation": "WMB",
+      "hasText": false,
+      "hasAudio": false,
+      "copyright": null
+    },
+    {
+      "id": 1588,
+      "abbreviation": "AMP",
+      "hasText": false,
+      "hasAudio": false,
+      "copyright": null
+    },
+    {
+      "id": 1849,
+      "abbreviation": "TPT",
+      "hasText": false,
+      "hasAudio": false,
+      "copyright": null
+    },
+    {
+      "id": 1932,
+      "abbreviation": "FBV",
+      "hasText": false,
+      "hasAudio": false,
+      "copyright": null
+    },
+    {
+      "id": 2079,
+      "abbreviation": "EASY",
+      "hasText": false,
+      "hasAudio": false,
+      "copyright": null
+    },
+    {
+      "id": 2163,
+      "abbreviation": "enggnv",
+      "hasText": false,
+      "hasAudio": false,
+      "copyright": null
+    },
+    {
+      "id": 2530,
+      "abbreviation": "PEV",
+      "hasText": false,
+      "hasAudio": false,
+      "copyright": null
+    },
+    {
+      "id": 2660,
+      "abbreviation": "LSV",
+      "hasText": false,
+      "hasAudio": false,
+      "copyright": null
+    },
+    {
+      "id": 2692,
+      "abbreviation": "NASB2020",
+      "hasText": false,
+      "hasAudio": false,
+      "copyright": null
+    },
+    {
+      "id": 3034,
+      "abbreviation": "BSB",
+      "hasText": false,
+      "hasAudio": false,
+      "copyright": null
+    },
+    {
+      "id": 3427,
+      "abbreviation": "TCENT",
+      "hasText": false,
+      "hasAudio": false,
+      "copyright": null
+    }
+  ]
 }

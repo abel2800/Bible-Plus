@@ -45,7 +45,7 @@ class LicensedContentMetadata {
       source: json['source'] as String,
       license: json['license'] as String,
       attribution: json['attribution'] as String,
-      sha256: json['sha256'] as String,
+      sha256: json['sha256'] as String?,
       language: json['language'] as String? ?? 'und',
       approved: json['approved'] as bool? ?? false,
       commercialUse: json['commercialUse'] as bool? ?? false,

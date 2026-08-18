@@ -55,10 +55,20 @@ function httpGetJson(url, headers) {
 }
 
 async function listBiblesForLanguage(lang) {
-  const url = `https://api.youversion.com/v1/bibles?language_iso=${encodeURIComponent(lang)}&limit=${limit}`;
+  const url = `https://api.youversion.com/v1/bibles?language_ranges%5B%5D=${encodeURIComponent(lang)}&limit=${limit}`;
   const headers = { 'X-YVP-App-Key': KEY };
-  const json = await httpGetJson(url, headers);
-  return json && json.data ? json.data : [];
+  for (let attempt = 1; attempt <= 4; attempt++) {
+    try {
+      const json = await httpGetJson(url, headers);
+      return json && json.data ? json.data : [];
+    } catch (error) {
+      if (attempt === 4) throw error;
+      const wait = attempt * 1500;
+      console.error(`Retrying ${lang} in ${wait}ms: ${error.message || error}`);
+      await new Promise((resolve) => setTimeout(resolve, wait));
+    }
+  }
+  return [];
 }
 
 (async () => {
