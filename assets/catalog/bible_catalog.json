@@ -70,12 +70,12 @@
       "category": [
         "updated"
       ],
-      "fileSizeBytes": 4867136,
-      "offlineSizeBytes": 4867136,
+      "fileSizeBytes": 3770247,
+      "offlineSizeBytes": 3770247,
       "updatedAt": "2026-07-23",
       "install": {
         "type": "asset",
-        "path": "assets/bible/asv.json"
+        "path": "assets/bible/youversion_1787172003588_youversion_12.json"
       }
     },
     {
@@ -177,6 +177,466 @@
       "install": {
         "type": "unavailable",
         "reason": "requires_bible_brain_or_license"
+      }
+    },
+    {
+      "id": "nasv",
+      "versionId": "NASV",
+      "name": "New Amharic Standard Version 2024",
+      "abbreviation": "NASV",
+      "language": "am",
+      "languageName": "Amharic",
+      "description": "New Amharic Standard Version 2024 for offline reading.",
+      "license": "Lockman Foundation Fast-track Bible License - v1",
+      "attribution": "New Amharic Standard Version 2024",
+      "source": "https://www.lockman.org/",
+      "commercialUse": true,
+      "redistribution": true,
+      "approved": true,
+      "category": [
+        "bundled"
+      ],
+      "fileSizeBytes": 4843664,
+      "offlineSizeBytes": 4843664,
+      "updatedAt": "2026-08-19",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/youversion_1787158115564_youversion_1260.json"
+      }
+    },
+    {
+      "id": "eotc",
+      "versionId": "EOTC",
+      "name": "Ethiopian Orthodox Bible",
+      "abbreviation": "EOTC",
+      "language": "am",
+      "languageName": "Amharic",
+      "description": "Ethiopian Orthodox Bible data from the EOTCOpenSource BibleAPI repository.",
+      "license": "CC BY-NC-ND 4.0; non-commercial use only",
+      "attribution": "EOTCOpenSource/BibleAPI",
+      "source": "https://github.com/EOTCOpenSource/BibleAPI",
+      "commercialUse": false,
+      "redistribution": true,
+      "approved": true,
+      "category": [
+        "ethiopian-orthodox",
+        "bundled"
+      ],
+      "fileSizeBytes": 11427840,
+      "offlineSizeBytes": 11427840,
+      "updatedAt": "2026-08-19",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/eotc_80_weahadu.json"
+      }
+    },
+    {
+      "id": "weahadu-am-2000",
+      "versionId": "WEAHADU_AM_2000",
+      "name": "Amharic Bible 2000 EC (89 books)",
+      "abbreviation": "AM-2000",
+      "language": "am",
+      "languageName": "Amharic",
+      "description": "Ethiopian Orthodox Tewahedo canon from 80-weahadu.",
+      "license": "CC BY-NC-ND 4.0; non-commercial use only",
+      "attribution": "EOTCOpenSource/80-weahadu; Ethiopian Bible Society",
+      "source": "https://github.com/EOTCOpenSource/80-weahadu",
+      "commercialUse": false,
+      "redistribution": true,
+      "approved": true,
+      "category": [
+        "ethiopian-orthodox",
+        "amharic"
+      ],
+      "fileSizeBytes": 10831559,
+      "offlineSizeBytes": 10831559,
+      "updatedAt": "2026-08-20",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/weahadu_am-2000.json"
+      }
+    },
+    {
+      "id": "weahadu-am-1980",
+      "versionId": "WEAHADU_AM_1980",
+      "name": "Amharic Bible 1980 EC (93 books)",
+      "abbreviation": "AM-1980",
+      "language": "am",
+      "languageName": "Amharic",
+      "description": "Ethiopian Orthodox Tewahedo canon from 80-weahadu.",
+      "license": "CC BY-NC-ND 4.0; non-commercial use only",
+      "attribution": "EOTCOpenSource/80-weahadu; Ethiopian Bible Society",
+      "source": "https://github.com/EOTCOpenSource/80-weahadu",
+      "commercialUse": false,
+      "redistribution": true,
+      "approved": true,
+      "category": [
+        "ethiopian-orthodox",
+        "amharic"
+      ],
+      "fileSizeBytes": 10709998,
+      "offlineSizeBytes": 10709998,
+      "updatedAt": "2026-08-20",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/weahadu_am-1980.json"
+      }
+    },
+    {
+      "id": "weahadu-gez-1980",
+      "versionId": "WEAHADU_GEZ_1980",
+      "name": "Ge’ez Bible 1980 EC (93 books)",
+      "abbreviation": "GEZ-1980",
+      "language": "gez",
+      "languageName": "Ge’ez",
+      "description": "Ethiopian Orthodox Tewahedo canon from 80-weahadu.",
+      "license": "CC BY-NC-ND 4.0; non-commercial use only",
+      "attribution": "EOTCOpenSource/80-weahadu; Ethiopian Bible Society",
+      "source": "https://github.com/EOTCOpenSource/80-weahadu",
+      "commercialUse": false,
+      "redistribution": true,
+      "approved": true,
+      "category": [
+        "ethiopian-orthodox",
+        "geez"
+      ],
+      "fileSizeBytes": 9824771,
+      "offlineSizeBytes": 9824771,
+      "updatedAt": "2026-08-20",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/weahadu_gez-1980.json"
+      }
+    },
+    {
+      "id": "weahadu-gez-2014",
+      "versionId": "WEAHADU_GEZ_2014",
+      "name": "Ge’ez New Testament 2014 EC",
+      "abbreviation": "GEZ-2014",
+      "language": "gez",
+      "languageName": "Ge’ez",
+      "description": "Ethiopian Orthodox New Testament from 80-weahadu.",
+      "license": "CC BY-NC-ND 4.0; non-commercial use only",
+      "attribution": "EOTCOpenSource/80-weahadu; Ethiopian Bible Society",
+      "source": "https://github.com/EOTCOpenSource/80-weahadu",
+      "commercialUse": false,
+      "redistribution": true,
+      "approved": true,
+      "category": [
+        "ethiopian-orthodox",
+        "geez"
+      ],
+      "fileSizeBytes": 1557793,
+      "offlineSizeBytes": 1557793,
+      "updatedAt": "2026-08-20",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/weahadu_gez-2014.json"
+      }
+    },
+    {
+      "id": "weahadu-en-kjv",
+      "versionId": "WEAHADU_EN_KJV",
+      "name": "King James Version with Apocrypha",
+      "abbreviation": "KJV-81",
+      "language": "en",
+      "languageName": "English",
+      "description": "Public-domain King James Version edition with the Ethiopian Orthodox book collection.",
+      "license": "Public Domain",
+      "attribution": "EOTCOpenSource/80-weahadu",
+      "source": "https://github.com/EOTCOpenSource/80-weahadu",
+      "commercialUse": true,
+      "redistribution": true,
+      "approved": true,
+      "category": [
+        "ethiopian-orthodox",
+        "english"
+      ],
+      "fileSizeBytes": 6038118,
+      "offlineSizeBytes": 6038118,
+      "updatedAt": "2026-08-20",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/weahadu_en-kjv.json"
+      }
+    },
+    {
+      "id": "weahadu-am-nasv-2001",
+      "versionId": "WEAHADU_AM_NASV_2001",
+      "name": "Amharic New Standard Translation 2001",
+      "abbreviation": "AM-NASV-2001",
+      "language": "am",
+      "languageName": "Amharic",
+      "description": "Amharic 66-book edition from 80-weahadu.",
+      "license": "CC BY-NC-ND 4.0; non-commercial use only",
+      "attribution": "EOTCOpenSource/80-weahadu; International Bible Society",
+      "source": "https://github.com/EOTCOpenSource/80-weahadu",
+      "commercialUse": false,
+      "redistribution": true,
+      "approved": true,
+      "category": [
+        "ethiopian-orthodox",
+        "amharic"
+      ],
+      "fileSizeBytes": 7186133,
+      "offlineSizeBytes": 7186133,
+      "updatedAt": "2026-08-20",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/weahadu_am-nasv-2001.json"
+      }
+    },
+    {
+      "id": "weahadu-am-1962",
+      "versionId": "WEAHADU_AM_1962",
+      "name": "Amharic Bible 1962 EC",
+      "abbreviation": "AM-1962",
+      "language": "am",
+      "languageName": "Amharic",
+      "description": "Amharic 66-book edition from 80-weahadu.",
+      "license": "CC BY-NC-ND 4.0; non-commercial use only",
+      "attribution": "EOTCOpenSource/80-weahadu; Ethiopian Bible Society",
+      "source": "https://github.com/EOTCOpenSource/80-weahadu",
+      "commercialUse": false,
+      "redistribution": true,
+      "approved": true,
+      "category": [
+        "ethiopian-orthodox",
+        "amharic"
+      ],
+      "fileSizeBytes": 6704431,
+      "offlineSizeBytes": 6704431,
+      "updatedAt": "2026-08-20",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/weahadu_am-1962.json"
+      }
+    },
+    {
+      "id": "weahadu-ti-1997",
+      "versionId": "WEAHADU_TI_1997",
+      "name": "Tigrinya Bible 1997 EC",
+      "abbreviation": "TI-1997",
+      "language": "ti",
+      "languageName": "Tigrinya",
+      "description": "Tigrinya 66-book edition from 80-weahadu.",
+      "license": "CC BY-NC-ND 4.0; non-commercial use only",
+      "attribution": "EOTCOpenSource/80-weahadu; Ethiopian Bible Society",
+      "source": "https://github.com/EOTCOpenSource/80-weahadu",
+      "commercialUse": false,
+      "redistribution": true,
+      "approved": true,
+      "category": [
+        "ethiopian-orthodox",
+        "tigrinya"
+      ],
+      "fileSizeBytes": 7243727,
+      "offlineSizeBytes": 7243727,
+      "updatedAt": "2026-08-20",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/weahadu_ti-1997.json"
+      }
+    },
+    {
+      "id": "weahadu-om-kitaaba",
+      "versionId": "WEAHADU_OM_KITAABA",
+      "name": "Kitaaba Qulqulluu Afaan Oromoo",
+      "abbreviation": "OM-KITAABA",
+      "language": "om",
+      "languageName": "Afaan Oromoo",
+      "description": "Oromo 66-book edition from 80-weahadu.",
+      "license": "CC BY-NC-ND 4.0; non-commercial use only",
+      "attribution": "EOTCOpenSource/80-weahadu; Waldaa Kitaaba Qulqulluu Ethiopia",
+      "source": "https://github.com/EOTCOpenSource/80-weahadu",
+      "commercialUse": false,
+      "redistribution": true,
+      "approved": true,
+      "category": [
+        "ethiopian-orthodox",
+        "oromo"
+      ],
+      "fileSizeBytes": 5703743,
+      "offlineSizeBytes": 5703743,
+      "updatedAt": "2026-08-20",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/weahadu_om-kitaaba.json"
+      }
+    },
+    {
+      "id": "ccb2023t",
+      "versionId": "CCB2023T",
+      "name": "CCB2023T",
+      "abbreviation": "CCB2023T",
+      "language": "und",
+      "languageName": "Unknown",
+      "description": "Imported local asset youversion_1787171339205_youversion_1392.json",
+      "license": "",
+      "attribution": "",
+      "source": "",
+      "commercialUse": false,
+      "redistribution": false,
+      "approved": true,
+      "category": [
+        "bundled"
+      ],
+      "fileSizeBytes": 0,
+      "offlineSizeBytes": 0,
+      "updatedAt": "2026-08-19",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/youversion_1787171339205_youversion_1392.json"
+      }
+    },
+    {
+      "id": "amp",
+      "versionId": "AMP",
+      "name": "AMP",
+      "abbreviation": "AMP",
+      "language": "und",
+      "languageName": "Unknown",
+      "description": "Imported local asset youversion_1787176804618_youversion_1588.json",
+      "license": "",
+      "attribution": "",
+      "source": "",
+      "commercialUse": false,
+      "redistribution": false,
+      "approved": true,
+      "category": [
+        "bundled"
+      ],
+      "fileSizeBytes": 0,
+      "offlineSizeBytes": 0,
+      "updatedAt": "2026-08-19",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/youversion_1787176804618_youversion_1588.json"
+      }
+    },
+    {
+      "id": "cpdv",
+      "versionId": "CPDV",
+      "name": "CPDV",
+      "abbreviation": "CPDV",
+      "language": "und",
+      "languageName": "Unknown",
+      "description": "Imported local asset youversion_1787184289066_youversion_42.json",
+      "license": "",
+      "attribution": "",
+      "source": "",
+      "commercialUse": false,
+      "redistribution": false,
+      "approved": true,
+      "category": [
+        "bundled"
+      ],
+      "fileSizeBytes": 0,
+      "offlineSizeBytes": 0,
+      "updatedAt": "2026-08-20",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/youversion_1787184289066_youversion_42.json"
+      }
+    },
+    {
+      "id": "nasb1995",
+      "versionId": "NASB1995",
+      "name": "NASB1995",
+      "abbreviation": "NASB1995",
+      "language": "und",
+      "languageName": "Unknown",
+      "description": "Imported local asset youversion_1787199377123_youversion_100.json",
+      "license": "",
+      "attribution": "",
+      "source": "",
+      "commercialUse": false,
+      "redistribution": false,
+      "approved": true,
+      "category": [
+        "bundled"
+      ],
+      "fileSizeBytes": 0,
+      "offlineSizeBytes": 0,
+      "updatedAt": "2026-08-20",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/youversion_1787199377123_youversion_100.json"
+      }
+    },
+    {
+      "id": "nasb2020",
+      "versionId": "NASB2020",
+      "name": "NASB2020",
+      "abbreviation": "NASB2020",
+      "language": "und",
+      "languageName": "Unknown",
+      "description": "Imported local asset youversion_1787214512121_youversion_2692.json",
+      "license": "",
+      "attribution": "",
+      "source": "",
+      "commercialUse": false,
+      "redistribution": false,
+      "approved": true,
+      "category": [
+        "bundled"
+      ],
+      "fileSizeBytes": 0,
+      "offlineSizeBytes": 0,
+      "updatedAt": "2026-08-20",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/youversion_1787214512121_youversion_2692.json"
+      }
+    },
+    {
+      "id": "ojb",
+      "versionId": "OJB",
+      "name": "OJB",
+      "abbreviation": "OJB",
+      "language": "und",
+      "languageName": "Unknown",
+      "description": "Imported local asset youversion_1787226249615_youversion_130.json",
+      "license": "",
+      "attribution": "",
+      "source": "",
+      "commercialUse": false,
+      "redistribution": false,
+      "approved": true,
+      "category": [
+        "bundled"
+      ],
+      "fileSizeBytes": 6925271,
+      "offlineSizeBytes": 6925271,
+      "updatedAt": "2026-08-20",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/youversion_1787241092408_youversion_130.json"
+      }
+    },
+    {
+      "id": "orm",
+      "versionId": "ORM",
+      "name": "ORM",
+      "abbreviation": "ORM",
+      "language": "und",
+      "languageName": "Unknown",
+      "description": "Imported local asset youversion_1787253529049_youversion_4125.json",
+      "license": "",
+      "attribution": "",
+      "source": "",
+      "commercialUse": false,
+      "redistribution": false,
+      "approved": true,
+      "category": [
+        "bundled"
+      ],
+      "fileSizeBytes": 0,
+      "offlineSizeBytes": 0,
+      "updatedAt": "2026-08-20",
+      "install": {
+        "type": "asset",
+        "path": "assets/bible/youversion_1787253529049_youversion_4125.json"
       }
     }
   ]

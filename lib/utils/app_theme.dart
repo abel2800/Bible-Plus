@@ -8,27 +8,29 @@ export '../theme/app_colors.dart';
 export '../theme/app_theme.dart' show AppText;
 
 class AppTheme {
-  static const Color gold = Color(0xFFC08A28);
-  static const Color goldSoft = Color(0xFFE8C766);
-  static const Color vermilion = Color(0xFFA83232);
-  static const Color teal = Color(0xFF1E7F72);
-  static const Color onGold = Color(0xFF241804);
+  static const Color gold = Color(0xFFB4842B);
+  static const Color goldSoft = Color(0xFFDCC48C);
+  static const Color vermilion = Color(0xFF9C3B2A);
+  static const Color indigo = Color(0xFF232C4D);
+  static const Color moss = Color(0xFF556B45);
+  static const Color teal = moss;
+  static const Color onGold = Color(0xFF1E1A15);
 
   static const Color appBgLight = Color(0xFFF6F0E1);
-  static const Color surfaceLight = Color(0xFFFFFDF8);
-  static const Color surface2Light = Color(0xFFFBF4E4);
-  static const Color borderLight = Color(0xFFDED0AC);
-  static const Color ink = Color(0xFF201A10);
-  static const Color inkSoft = Color(0xFF6B5D42);
-  static const Color inkFaint = Color(0xFF9C8D6C);
+  static const Color surfaceLight = Color(0xFFF6F0E1);
+  static const Color surface2Light = Color(0xFFEFE7D2);
+  static const Color borderLight = Color(0xFFDED2B5);
+  static const Color ink = Color(0xFF1E1A15);
+  static const Color inkSoft = Color(0xFF5A5245);
+  static const Color inkFaint = Color(0xFF9C9079);
 
-  static const Color appBgDark = Color(0xFF10182A);
-  static const Color surfaceDark = Color(0xFF161F33);
-  static const Color surface2Dark = Color(0xFF1B2540);
-  static const Color borderDark = Color(0xFF2A3654);
-  static const Color inkDark = Color(0xFFF1E9D6);
-  static const Color inkSoftDark = Color(0xFFB7AD90);
-  static const Color inkFaintDark = Color(0xFF6E7793);
+  static const Color appBgDark = Color(0xFF15171F);
+  static const Color surfaceDark = Color(0xFF1E2131);
+  static const Color surface2Dark = Color(0xFF26293A);
+  static const Color borderDark = Color(0xFF33364A);
+  static const Color inkDark = Color(0xFFF3ECDA);
+  static const Color inkSoftDark = Color(0xFFB9AF97);
+  static const Color inkFaintDark = Color(0xFF817A6A);
 
   static const Color success = Color(0xFF27AE60);
   static const Color warning = Color(0xFFF39C12);
@@ -271,7 +273,7 @@ class AppTheme {
     brightness: Brightness.light,
     colorScheme: const ColorScheme.light(
       primary: gold,
-      secondary: teal,
+      secondary: indigo,
       surface: surfaceLight,
       surfaceContainerHighest: surface2Light,
       outline: borderLight,
@@ -298,7 +300,7 @@ class AppTheme {
       elevation: 0,
       color: surfaceLight,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(10),
         side: const BorderSide(color: borderLight),
       ),
       margin: EdgeInsets.zero,
@@ -313,12 +315,12 @@ class AppTheme {
         return ui(
           fontSize: 10,
           weight: FontWeight.w600,
-          color: active ? gold : inkFaint,
+          color: active ? indigo : inkFaint,
         );
       }),
       iconTheme: WidgetStateProperty.resolveWith((states) {
         final active = states.contains(WidgetState.selected);
-        return IconThemeData(color: active ? gold : inkFaint, size: 22);
+        return IconThemeData(color: active ? indigo : inkFaint, size: 22);
       }),
     ),
     navigationRailTheme: NavigationRailThemeData(
@@ -328,7 +330,7 @@ class AppTheme {
       selectedLabelTextStyle:
           ui(fontSize: 12, weight: FontWeight.w600, color: ink),
       unselectedLabelTextStyle: ui(fontSize: 12, color: inkSoft),
-      indicatorColor: gold,
+      indicatorColor: indigo,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
@@ -370,7 +372,7 @@ class AppTheme {
     ),
     chipTheme: ChipThemeData(
       backgroundColor: surface2Light,
-      selectedColor: teal,
+      selectedColor: indigo,
       side: const BorderSide(color: borderLight),
       labelStyle: ui(fontSize: 11.5, weight: FontWeight.w600, color: inkSoft),
       secondaryLabelStyle:
@@ -417,7 +419,7 @@ class AppTheme {
     brightness: Brightness.dark,
     colorScheme: const ColorScheme.dark(
       primary: gold,
-      secondary: teal,
+      secondary: indigo,
       surface: surfaceDark,
       surfaceContainerHighest: surface2Dark,
       outline: borderDark,
@@ -444,7 +446,7 @@ class AppTheme {
       elevation: 0,
       color: surfaceDark,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(10),
         side: const BorderSide(color: borderDark),
       ),
       margin: EdgeInsets.zero,
@@ -459,13 +461,13 @@ class AppTheme {
         return ui(
           fontSize: 10,
           weight: FontWeight.w600,
-          color: active ? gold : inkFaintDark,
+          color: active ? goldSoft : inkFaintDark,
         );
       }),
       iconTheme: WidgetStateProperty.resolveWith((states) {
         final active = states.contains(WidgetState.selected);
         return IconThemeData(
-          color: active ? gold : inkFaintDark,
+          color: active ? goldSoft : inkFaintDark,
           size: 22,
         );
       }),
@@ -477,7 +479,7 @@ class AppTheme {
       selectedLabelTextStyle:
           ui(fontSize: 12, weight: FontWeight.w600, color: inkDark),
       unselectedLabelTextStyle: ui(fontSize: 12, color: inkSoftDark),
-      indicatorColor: gold,
+      indicatorColor: indigo,
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
@@ -519,7 +521,7 @@ class AppTheme {
     ),
     chipTheme: ChipThemeData(
       backgroundColor: surface2Dark,
-      selectedColor: teal,
+      selectedColor: indigo,
       side: const BorderSide(color: borderDark),
       labelStyle:
           ui(fontSize: 11.5, weight: FontWeight.w600, color: inkSoftDark),
@@ -564,7 +566,7 @@ class AppTheme {
 
   static const List<Color> highlightColors = [
     gold,
-    teal,
+    indigo,
     vermilion,
     Color(0xFF6E8B3D),
     Color(0xFF7B5EA7),

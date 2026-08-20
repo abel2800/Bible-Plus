@@ -490,15 +490,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             height: 64,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(14),
-                              gradient: const LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [AppTheme.goldSoft, AppTheme.gold],
-                              ),
+                              color: AppTheme.indigo,
+                              border: Border.all(color: AppTheme.gold),
                             ),
                             child: const Icon(
                               Icons.menu_book_rounded,
-                              color: AppTheme.onGold,
+                              color: AppTheme.goldSoft,
                             ),
                           ),
                         ],
@@ -675,62 +672,86 @@ class _VerseOfDayCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onOpen,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(6),
         child: Ink(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: isDark
-                  ? const [AppTheme.surface2Dark, AppTheme.appBgDark]
-                  : const [AppTheme.surface2Light, AppTheme.appBgLight],
-            ),
-            border: Border.all(
-              color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
-            ),
+            color: AppTheme.indigo,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(color: AppTheme.gold),
+            boxShadow: const [
+              BoxShadow(
+                color: AppTheme.goldSoft,
+                blurRadius: 0,
+                spreadRadius: 4,
+              ),
+            ],
           ),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.auto_awesome,
-                        size: 14, color: AppTheme.gold),
-                    const SizedBox(width: 6),
                     Text(
-                      'Verse of the Day',
+                      'VERSE OF THE DAY',
                       style: AppTheme.ui(
-                        fontSize: 12,
+                        fontSize: 10,
                         weight: FontWeight.w700,
-                        color: AppTheme.gold,
+                        color: AppTheme.goldSoft,
+                        letterSpacing: 1.5,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  reference,
-                  style: AppTheme.ui(
-                    fontSize: 12,
-                    weight: FontWeight.w600,
-                    color: isDark ? AppTheme.inkSoftDark : AppTheme.inkSoft,
-                  ),
+                const SizedBox(height: 14),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      verse.isEmpty ? '' : verse.substring(0, 1),
+                      style: AppTheme.brandTitle(
+                        fontSize: 46,
+                        weight: FontWeight.w500,
+                        color: AppTheme.gold,
+                      ).copyWith(height: 0.8),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        verse.isEmpty ? '' : verse.substring(1),
+                        style: AppTheme.brandTitle(
+                          fontSize: 17,
+                          weight: FontWeight.w400,
+                          color: AppTheme.appBgLight,
+                        ).copyWith(height: 1.5),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 14),
-                Text(
-                  verse,
-                  style: AppTheme.scripture(
-                    fontSize: 19,
-                    color: isDark ? AppTheme.inkDark : AppTheme.ink,
+                Center(
+                  child: Text(
+                    reference.toUpperCase(),
+                    style: AppTheme.ui(
+                      fontSize: 10,
+                      weight: FontWeight.w600,
+                      color: AppTheme.goldSoft,
+                      letterSpacing: 0.8,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 1,
+                    color: AppTheme.goldSoft.withValues(alpha: 0.6),
                   ),
                 ),
               ],

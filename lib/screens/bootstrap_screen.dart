@@ -86,17 +86,9 @@ class _BootstrapScreenState extends State<BootstrapScreen> {
     final soft = isDark ? AppTheme.inkSoftDark : AppTheme.inkSoft;
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: RadialGradient(
-            center: const Alignment(0, -0.7),
-            radius: 1.1,
-            colors: [surface2, appBg],
-            stops: const [0.0, 0.7],
-          ),
-        ),
-        child: SafeArea(
-          child: Center(
+      backgroundColor: appBg,
+      body: SafeArea(
+        child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 420),
               child: Padding(
@@ -162,7 +154,6 @@ class _BootstrapScreenState extends State<BootstrapScreen> {
               ),
             ),
           ),
-        ),
       ),
     );
   }

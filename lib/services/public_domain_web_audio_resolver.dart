@@ -50,7 +50,7 @@ class PublicDomainWebAudioResolver implements AudioChapterResolver {
   final bool downloadPermitted;
   final Map<int, _BookAudio> _books;
 
-  static const supportedVersionIds = {'WEB', 'KJV', 'ASV'};
+  static const supportedVersionIds = {'WEB'};
 
   static const _fcbhNtNames = <String>[
     'Matthew',

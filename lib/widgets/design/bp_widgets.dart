@@ -21,7 +21,7 @@ class BpCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final border = isDark ? AppTheme.borderDark : AppTheme.borderLight;
     final surface = isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight;
-    final radius = BorderRadius.circular(16);
+    final radius = BorderRadius.circular(10);
 
     final body = Padding(
       padding: padding ?? const EdgeInsets.all(16),
@@ -214,16 +214,7 @@ class BpBrandMark extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(size * 0.23),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppTheme.goldSoft,
-            AppTheme.gold,
-            AppTheme.vermilion,
-          ],
-          stops: [0, 0.55, 1],
-        ),
+        color: AppTheme.indigo,
         boxShadow: [
           BoxShadow(
             color: AppTheme.gold.withValues(alpha: 0.45),
@@ -239,7 +230,7 @@ class BpBrandMark extends StatelessWidget {
         style: AppTheme.brandTitle(
           fontSize: letterSize,
           weight: FontWeight.w700,
-          color: AppTheme.onGold,
+          color: AppTheme.goldSoft,
         ),
       ),
     );
@@ -260,18 +251,14 @@ class BpPrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppTheme.goldSoft, AppTheme.gold],
-        ),
+        borderRadius: BorderRadius.circular(8),
+        color: AppTheme.gold,
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onPressed,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(8),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 14),
             child: Center(
@@ -328,7 +315,7 @@ class BpSectionLabel extends StatelessWidget {
                 style: AppTheme.ui(
                   fontSize: 11,
                   weight: FontWeight.w600,
-                  color: AppTheme.teal,
+                  color: AppTheme.gold,
                 ),
               ),
             ),

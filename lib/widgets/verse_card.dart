@@ -47,15 +47,13 @@ class VerseCard extends StatelessWidget {
             : AppTheme.ink);
     final numberColor = verseNumberColor ?? AppTheme.gold;
     final tint = isAudioActive
-        ? AppTheme.teal.withValues(alpha: 0.18)
+      ? AppTheme.goldSoft.withValues(alpha: 0.22)
         : isHighlighted
-            ? (highlightColor ?? AppTheme.gold).withValues(alpha: 0.16)
+        ? (highlightColor ?? AppTheme.goldSoft).withValues(alpha: 0.28)
             : Colors.transparent;
     final borderColor = isAudioActive
-        ? AppTheme.teal.withValues(alpha: 0.45)
-        : isHighlighted
-            ? (highlightColor ?? AppTheme.gold).withValues(alpha: 0.28)
-            : Colors.transparent;
+      ? AppTheme.vermilion
+      : Colors.transparent;
 
     return GestureDetector(
       onTap: () {
@@ -68,22 +66,22 @@ class VerseCard extends StatelessWidget {
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: EdgeInsets.symmetric(
-          vertical: 9,
-          horizontal: tint == Colors.transparent ? 0 : 10,
+        padding: EdgeInsets.only(
+          top: 8,
+          bottom: 8,
+          left: tint == Colors.transparent ? 0 : 10,
         ),
         decoration: BoxDecoration(
           color: tint,
-          borderRadius: BorderRadius.circular(10),
           border: borderColor == Colors.transparent
               ? null
-              : Border.all(color: borderColor, width: 1.1),
+              : Border(left: BorderSide(color: borderColor, width: 3)),
           boxShadow: isAudioActive
               ? [
                   BoxShadow(
-                    color: AppTheme.teal.withValues(alpha: 0.16),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
+                    color: AppTheme.goldSoft.withValues(alpha: 0.16),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
                   ),
                 ]
               : null,
@@ -134,7 +132,7 @@ class VerseCard extends StatelessWidget {
                       child: Icon(
                         Icons.note_alt_rounded,
                         size: 14,
-                        color: AppTheme.teal.withValues(alpha: 0.9),
+                        color: AppTheme.vermilion.withValues(alpha: 0.9),
                       ),
                     ),
                 ],

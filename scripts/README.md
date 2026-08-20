@@ -8,23 +8,21 @@ Scripts
 - `add_local_bible_asset.js` — copies a local bible JSON into `assets/bible/`, updates `assets/catalog/bible_catalog.json`, and adds the asset to `pubspec.yaml`.
 - `fetch_and_add_bible.js` — convenience wrapper that runs the fetch script then automatically calls the add script.
 
-Quick example (PowerShell):
+Quick example (PowerShell, with credentials configured outside this repository):
 
 ```powershell
-$env:YVP_KEY="(your-api-key)"
 $env:YVP_DEBUG=1
 node scripts/fetch_and_add_bible.js --bible 4125 --version ORM --all
 ```
 
 Notes
-- Keep your API key secret; rotate/revoke after use.
-- If the rights-holder does not permit redistribution, do not bundle the asset; instead use streaming via Bible Brain by setting `BIBLE_BRAIN_API_KEY` and `BIBLE_BRAIN_BIBLE_IDS_JSON` at runtime.
+- Keep credentials outside this repository and follow the rights-holder's redistribution terms.
 - After adding an asset run `flutter pub get` and rebuild the app.
 
 Prepare small downloadable packages for hosting
 - `prepare_offline_bibles.js` — normalize and minify an existing bible JSON into `dist/` for hosting. It also creates per-book files to allow smaller incremental downloads.
 
- - `generate_youversion_catalog.js` — list available YouVersion bibles for selected languages and produce a candidate catalog JSON. Requires `YVP_KEY` in the environment. Use to discover which bibles have text/audio before fetching or hosting.
+ - `generate_youversion_catalog.js` — list available YouVersion bibles for selected languages and produce a candidate catalog JSON.
 
  - `batch_fetch_bible_books.js` — safer batch fetch wrapper that calls `fetch_youversion_bible.js` per book with a configurable delay to avoid rate limiting.
 

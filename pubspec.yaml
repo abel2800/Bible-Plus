@@ -57,8 +57,6 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  integration_test:
-    sdk: flutter
   flutter_lints: ^6.0.0
   sqflite_common_ffi: ^2.3.6
 
@@ -78,4 +76,25 @@ flutter:
     - assets/catalog/web_henson_audio_manifest.json
     - assets/bible/youversion_1786910116609_NASV.json
     - assets/bible/youversion_1786910116735_ORM.json
+    - assets/bible/youversion_1787156150497_youversion_1260.json
+    - assets/bible/youversion_1787158115564_youversion_1260.json
+    - assets/bible/eotc_80_weahadu.json
+    - assets/bible/weahadu_am-2000.json
+    - assets/bible/weahadu_am-1980.json
+    - assets/bible/weahadu_gez-1980.json
+    - assets/bible/weahadu_gez-2014.json
+    - assets/bible/weahadu_en-kjv.json
+    - assets/bible/weahadu_am-nasv-2001.json
+    - assets/bible/weahadu_am-1962.json
+    - assets/bible/weahadu_ti-1997.json
+    - assets/bible/weahadu_om-kitaaba.json
+    - assets/bible/youversion_1787171339205_youversion_1392.json
+    - assets/bible/youversion_1787172003588_youversion_12.json
+    - assets/bible/youversion_1787176804618_youversion_1588.json
+    - assets/bible/youversion_1787184289066_youversion_42.json
+    - assets/bible/youversion_1787199377123_youversion_100.json
+    - assets/bible/youversion_1787214512121_youversion_2692.json
+    - assets/bible/youversion_1787226249615_youversion_130.json
+    - assets/bible/youversion_1787241092408_youversion_130.json
+    - assets/bible/youversion_1787253529049_youversion_4125.json
     # large language packages are downloadable (not bundled)

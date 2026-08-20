@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../theme/app_colors.dart';
+import '../utils/app_theme.dart';
 import '../utils/font_env_stub.dart'
     if (dart.library.io) '../utils/font_env_io.dart';
 
@@ -33,12 +33,12 @@ class _SplashScreenState extends State<SplashScreen>
             fontFamily: 'serif',
             fontSize: 44,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF241804),
+            color: AppTheme.goldSoft,
           )
         : GoogleFonts.fraunces(
             fontSize: 44,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF241804),
+            color: AppTheme.goldSoft,
           );
     final titleStyle = isFlutterTest
         ? TextStyle(
@@ -71,15 +71,7 @@ class _SplashScreenState extends State<SplashScreen>
 
     return Scaffold(
       backgroundColor: t.appBg,
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: RadialGradient(
-            center: const Alignment(0, -0.7),
-            radius: 1.1,
-            colors: [t.surface2, t.appBg],
-          ),
-        ),
-        child: Center(
+      body: Center(
           child: FadeTransition(
             opacity: _controller,
             child: ScaleTransition(
@@ -97,19 +89,12 @@ class _SplashScreenState extends State<SplashScreen>
                     height: 96,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(22),
-                      gradient: const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFFE8C766),
-                          Color(0xFFC08A28),
-                          Color(0xFFA83232),
-                        ],
-                      ),
+                      color: AppTheme.indigo,
+                      border: Border.all(color: AppTheme.gold),
                       boxShadow: [
                         BoxShadow(
                           color:
-                              const Color(0xFFC08A28).withValues(alpha: 0.45),
+                              AppTheme.gold.withValues(alpha: 0.25),
                           blurRadius: 50,
                           offset: const Offset(0, 20),
                         ),
@@ -135,7 +120,7 @@ class _SplashScreenState extends State<SplashScreen>
                       widthFactor: 0.45,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: const Color(0xFFC08A28),
+                          color: AppTheme.gold,
                           borderRadius: BorderRadius.circular(1),
                         ),
                       ),
@@ -146,7 +131,6 @@ class _SplashScreenState extends State<SplashScreen>
             ),
           ),
         ),
-      ),
     );
   }
 }

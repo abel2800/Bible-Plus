@@ -78,15 +78,8 @@ class _AuthScreenState extends State<AuthScreen> {
                     height: 56,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
-                      gradient: const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          Color(0xFFE8C766),
-                          Color(0xFFC08A28),
-                          Color(0xFFA83232),
-                        ],
-                      ),
+                      color: AppTheme.indigo,
+                      border: Border.all(color: AppTheme.gold),
                     ),
                     alignment: Alignment.center,
                     child: Text(
@@ -94,7 +87,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       style: AppTheme.brandTitle(
                         fontSize: 26,
                         weight: FontWeight.w700,
-                        color: AppBrand.onGold,
+                        color: AppTheme.goldSoft,
                       ),
                     ),
                   ),

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 class AppBrand {
-  static const gold = Color(0xFFC08A28);
-  static const goldSoft = Color(0xFFE8C766);
-  static const vermilion = Color(0xFFA83232);
-  static const teal = Color(0xFF1E7F72);
-  static const onGold = Color(0xFF241804);
+  static const gold = Color(0xFFB4842B);
+  static const goldSoft = Color(0xFFDCC48C);
+  static const vermilion = Color(0xFF9C3B2A);
+  static const indigo = Color(0xFF232C4D);
+  static const moss = Color(0xFF556B45);
+  static const teal = moss;
+  static const onGold = Color(0xFF1E1A15);
   static const success = Color(0xFF27AE60);
   static const warning = Color(0xFFF39C12);
   static const error = Color(0xFFE15252);
@@ -35,12 +37,12 @@ class AppColors extends ThemeExtension<AppColors> {
   static const light = AppColors(
     bg: Color(0xFFEFE7D2),
     appBg: Color(0xFFF6F0E1),
-    surface: Color(0xFFFFFDF8),
-    surface2: Color(0xFFFBF4E4),
-    border: Color(0xFFDED0AC),
-    ink: Color(0xFF201A10),
-    inkSoft: Color(0xFF6B5D42),
-    inkFaint: Color(0xFF9C8D6C),
+    surface: Color(0xFFF6F0E1),
+    surface2: Color(0xFFEFE7D2),
+    border: Color(0xFFDED2B5),
+    ink: Color(0xFF1E1A15),
+    inkSoft: Color(0xFF5A5245),
+    inkFaint: Color(0xFF9C9079),
   );
 
   static const dark = AppColors(

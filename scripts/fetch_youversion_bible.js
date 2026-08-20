@@ -79,6 +79,7 @@ function httpGetText(url, attempt = 1, maxAttempts = 6) {
           return reject(new Error(`HTTP ${res.statusCode}: ${data.slice(0,2000)}`));
         });
       });
+      req.setTimeout(20000, () => req.destroy(new Error(`Request timed out: ${url}`)));
       req.on('error', (err) => reject(err));
       req.end();
     } catch (err) {
@@ -158,6 +159,7 @@ async function listVerses(bibleId, chapterId, bookId, chapterNumber) {
 async function fetchPassageText(passageId, bibleId) {
   if (!passageId) return '';
   const attempts = [];
+  attempts.push(`${API_BASE}/bibles/${bibleId}/passages/${encodeURIComponent(passageId)}`);
   // try common passage endpoints
   attempts.push(`${API_BASE}/passages/${encodeURIComponent(passageId)}`);
   attempts.push(`${API_BASE}/passages?passage_id=${encodeURIComponent(passageId)}&bible_id=${bibleId}`);
@@ -235,20 +237,27 @@ function normalizeBook(book) {
                   ? ch.Verses
                   : [];
           const versesWithText = [];
-          for (const v of vArr) {
+          const chapterNumber = ch.number || ch.chapter_number || ch.chapter || ch.index || chapterId;
+          for (let i = 0; i < vArr.length; i += 8) {
+            const batch = vArr.slice(i, i + 8);
+            const batchResults = await Promise.all(batch.map(async (v) => {
             let text = v.text || v.content || v.verse || v.body || v.passages || '';
-            if (!text && (v.passage_id || v.passageId || v.passage)) {
-              text = await fetchPassageText(v.passage_id || v.passageId || v.passage, BIBLE_ID);
+            if (!text) {
+              const passageId = v.passage_id || v.passageId || v.passage ||
+                `${b.id}.${ch.number}.${v.number}`;
+              text = await fetchPassageText(passageId, BIBLE_ID);
             }
-            versesWithText.push({
+            return {
               id: v.id || v.verse_id || v.verseId || v.title || v.number,
               number: v.number || v.verse || v.title || v.verse_number,
               text: text || ''
-            });
+            };
+            }));
+            versesWithText.push(...batchResults);
           }
           chOut.push({
             id: chapterId,
-            number: ch.number || ch.chapter_number || ch.chapter || ch.index || ch.title || chapterId,
+            number: chapterNumber,
             verses: versesWithText,
           });
         }
@@ -261,20 +270,27 @@ function normalizeBook(book) {
           const verses = await listVerses(BIBLE_ID, chapterId, book.id || book.book_id || b.id, ch.number || ch.chapter_number || ch.chapter || ch.index || ch.id);
           const vArr = Array.isArray(verses) ? verses : [];
           const versesWithText = [];
-          for (const v of vArr) {
+          const chapterNumber = ch.number || ch.chapter_number || ch.chapter || ch.index || ch.id;
+          for (let i = 0; i < vArr.length; i += 8) {
+            const batch = vArr.slice(i, i + 8);
+            const batchResults = await Promise.all(batch.map(async (v) => {
             let text = v.text || v.content || v.verse || v.body || '';
-            if (!text && (v.passage_id || v.passageId || v.passage)) {
-              text = await fetchPassageText(v.passage_id || v.passageId || v.passage, BIBLE_ID);
+            if (!text) {
+              const passageId = v.passage_id || v.passageId || v.passage ||
+                `${book.id || book.book_id || b.id}.${ch.number || ch.chapter_number || ch.chapter || ch.index || ch.id}.${v.number || v.verse || v.verse_number}`;
+              text = await fetchPassageText(passageId, BIBLE_ID);
             }
-            versesWithText.push({
+            return {
               id: v.id || v.verse_id || v.verseId || v.number,
               number: v.number || v.verse || v.verse_number,
               text: text || ''
-            });
+            };
+            }));
+            versesWithText.push(...batchResults);
           }
           chOut.push({
             id: chapterId,
-            number: ch.number || ch.chapter_number || ch.chapter || ch.index || ch.id,
+            number: chapterNumber,
             verses: versesWithText,
           });
         }

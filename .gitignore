@@ -80,6 +80,10 @@ android/local.properties
 venv/
 __pycache__/
 
+# Local generated exports and command-line define artifacts
+tmp/
+--dart-define=*
+
 # Local environment files (do not commit secrets)
 .env
 .env.*

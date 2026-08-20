@@ -114,7 +114,6 @@ class BiblePackageInfo {
           install.path != '0';
     }
     return approved &&
-        commercialUse &&
         redistribution &&
         install.isDownloadable;
   }

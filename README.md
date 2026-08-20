@@ -40,7 +40,7 @@ BiblePulse combines an offline Scripture reader with study tools, audio playback
 
 ### Audio Bible
 
-- Public-domain WEB audio support without API keys.
+- Public-domain WEB audio support.
 - Chapter queue with auto-advance.
 - Full audio player with artwork, playback controls, queue, speed, sleep timer, and sharing.
 - Mini player while audio is active.
@@ -202,24 +202,10 @@ flutter build web --release --no-wasm-dry-run
 
 ## Optional Integrations
 
-### Bible Brain
-
-Bible Brain unlocks online discovery, streaming text, and audio when configured.
-Required build defines:
-
-```text
-BIBLE_BRAIN_API_KEY
-BIBLE_BRAIN_BIBLE_IDS_JSON
-BIBLE_BRAIN_MEDIA_HOSTS
-```
-
-If only `BIBLE_BRAIN_API_KEY` is provided, the app can discover available translations and enable online text where permitted.
-
 ### Firebase
 
 Firebase is optional and requires Dart define values for production configuration.
 
-- `FIREBASE_API_KEY`
 - `FIREBASE_APP_ID`
 - `FIREBASE_MESSAGING_SENDER_ID`
 - `FIREBASE_PROJECT_ID`
@@ -338,7 +324,6 @@ Full setup notes are in [docs/INTEGRATIONS_AND_RELEASE.md](docs/INTEGRATIONS_AND
 Pass Firebase values with `--dart-define`. Do not commit secrets.
 
 ```text
-FIREBASE_API_KEY
 FIREBASE_APP_ID
 FIREBASE_MESSAGING_SENDER_ID
 FIREBASE_PROJECT_ID
@@ -350,18 +335,6 @@ BIBLEPULSE_ENABLE_COMMUNITY=true
 
 Firestore rules and emulator tests are in `firestore.rules` and `firebase-tests/`.
 
-
-### Bible Brain
-
-```text
-BIBLE_BRAIN_API_KEY
-# Example mapping of local version keys to Bible Brain bible IDs.
-# Do NOT commit your API key. Rotate if accidentally exposed.
-BIBLE_BRAIN_BIBLE_IDS_JSON={"WEB":"approved-bible-id","AMH":"AMHABC","NASV":"1260","ORM":"4125"}
-BIBLE_BRAIN_MEDIA_HOSTS=approved.cdn.host
-```
-
-Without these values, the app still uses public-domain WEB Henson audio.
 
 ### Notifications
 
@@ -418,7 +391,7 @@ CI artifacts are verification builds.
 - Do not install the `.aab` file directly.
 - Windows signing is documented in the integrations guide.
 - Confirm ownership of `app.biblepulse.reader` before store submission.
-- Do not commit keystores, API keys, or production secrets.
+- Do not commit keystores or production secrets.
 
 ## Security
 
