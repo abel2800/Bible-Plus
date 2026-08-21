@@ -28,7 +28,7 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
+    html { min-width: 320px; scroll-behavior: smooth; }
     body {
       background: var(--black);
       color: var(--cream);
@@ -39,7 +39,7 @@
     a { color: inherit; text-decoration: none; }
     button { color: inherit; font: inherit; }
     ::selection { background: var(--gold); color: var(--black); }
-    .container { width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
+    .container { margin: 0 auto; max-width: 1280px; padding: 0 clamp(17px, 3vw, 48px); width: 100%; }
     .eyebrow { color: var(--gold); font-size: 11px; font-weight: 700; letter-spacing: .24em; text-transform: uppercase; }
     .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
     .reveal.visible { opacity: 1; transform: translateY(0); }
@@ -63,16 +63,16 @@
     .download-link:hover { background: var(--gold-bright); transform: translateY(-2px); }
     .menu-button { background: none; border: 1px solid var(--line); cursor: pointer; display: none; height: 40px; width: 40px; }
 
-    .hero { min-height: 100vh; overflow: hidden; padding: 150px 0 90px; position: relative; }
+    .hero { min-height: 100svh; overflow: hidden; padding: clamp(110px, 14vh, 150px) 0 clamp(48px, 8vh, 90px); position: relative; }
     .hero::before { background: radial-gradient(circle, rgba(201, 162, 75, .16), transparent 68%); content: ""; height: 760px; left: 50%; position: absolute; top: 34%; transform: translate(-50%, -50%); width: 760px; }
-    .hero-grid { align-items: center; display: grid; gap: 72px; grid-template-columns: 1.1fr .9fr; min-height: calc(100vh - 240px); position: relative; }
+    .hero-grid { align-items: center; display: grid; gap: clamp(34px, 6vw, 90px); grid-template-columns: minmax(0, 1.08fr) minmax(250px, .92fr); min-height: calc(100svh - 190px); position: relative; }
     .hero-copy { position: relative; z-index: 1; }
     .hero-kicker { align-items: center; color: var(--gold); display: flex; font-size: 11px; font-weight: 700; gap: 12px; letter-spacing: .24em; text-transform: uppercase; }
     .hero-kicker::before { background: var(--red); content: ""; height: 1px; width: 38px; }
-    h1 { color: var(--cream); font: 600 clamp(40px, 6vw, 74px)/1.08 var(--display); letter-spacing: .08em; margin: 25px 0 22px; max-width: 740px; }
+    h1 { color: var(--cream); font: 600 clamp(38px, 5.5vw, 74px)/1.08 var(--display); letter-spacing: .08em; margin: 25px 0 22px; max-width: 740px; }
     h1 span { color: var(--gold); }
     .hero-lede { color: var(--paper); font: italic clamp(22px, 3vw, 31px)/1.2 var(--serif); max-width: 570px; }
-    .hero-description { color: var(--muted); font-size: 15px; line-height: 1.8; margin-top: 24px; max-width: 490px; }
+    .hero-description { color: var(--muted); font-size: clamp(13px, 1.2vw, 15px); line-height: 1.8; margin-top: 24px; max-width: 490px; }
     .hero-buttons { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 34px; }
     .button { align-items: center; display: inline-flex; font-size: 13px; font-weight: 700; gap: 10px; justify-content: center; min-height: 50px; padding: 0 24px; transition: background .25s ease, border-color .25s ease, color .25s ease, transform .25s ease; }
     .button-gold { background: var(--gold); color: var(--black); }
@@ -89,16 +89,16 @@
 
     .device-stage { display: flex; justify-content: center; position: relative; }
     .device-stage::after { background: var(--red); bottom: 8%; content: ""; filter: blur(36px); height: 100px; opacity: .2; position: absolute; right: 12%; transform: rotate(-18deg); width: 190px; }
-    .phone { background: #0e0c09; border: 2px solid rgba(201, 162, 75, .6); border-radius: 32px; box-shadow: 0 22px 80px rgba(0, 0, 0, .55), 0 0 65px rgba(201, 162, 75, .12); height: 530px; overflow: hidden; padding: 11px; position: relative; transform: rotate(4deg); width: 270px; }
+    .phone { background: #0e0c09; border: 2px solid rgba(201, 162, 75, .6); border-radius: clamp(24px, 2.5vw, 32px); box-shadow: 0 22px 80px rgba(0, 0, 0, .55), 0 0 65px rgba(201, 162, 75, .12); height: min(530px, 66svh); min-height: 390px; overflow: hidden; padding: clamp(8px, 1vw, 11px); position: relative; transform: rotate(4deg); width: clamp(210px, 20vw, 270px); }
     .phone::before { background: #21190f; border-radius: 0 0 12px 12px; content: ""; height: 20px; left: 50%; position: absolute; top: 0; transform: translateX(-50%); width: 94px; z-index: 2; }
-    .phone-screen { background: #18140f; border-radius: 22px; height: 100%; overflow: hidden; padding: 42px 15px 15px; }
+    .phone-screen { background: #18140f; border-radius: clamp(17px, 1.8vw, 22px); height: 100%; overflow: hidden; padding: clamp(33px, 5svh, 42px) clamp(10px, 1.2vw, 15px) 15px; }
     .screen-top { align-items: center; display: flex; justify-content: space-between; }
     .screen-greeting { color: var(--muted); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; }
     .screen-avatar { border: 1px solid var(--gold); border-radius: 50%; height: 23px; width: 23px; }
-    .screen-heading { color: var(--paper); font: 500 25px var(--serif); margin: 17px 0 16px; }
-    .screen-card { border: 1px solid var(--line); margin-bottom: 12px; padding: 15px; }
+    .screen-heading { color: var(--paper); font: 500 clamp(21px, 2vw, 25px) var(--serif); margin: 17px 0 16px; }
+    .screen-card { border: 1px solid var(--line); margin-bottom: 12px; padding: clamp(10px, 1.2vw, 15px); }
     .screen-label { color: var(--gold); font-size: 8px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
-    .screen-quote { color: var(--paper); font: italic 17px/1.24 var(--serif); margin: 10px 0; }
+    .screen-quote { color: var(--paper); font: italic clamp(14px, 1.35vw, 17px)/1.24 var(--serif); margin: 10px 0; }
     .screen-ref { color: var(--muted); font-size: 8px; letter-spacing: .12em; text-transform: uppercase; }
     .streak-row { align-items: center; display: flex; gap: 13px; }
     .streak-number { color: var(--gold-bright); font: 500 38px var(--serif); }
@@ -164,20 +164,20 @@
       .nav-actions { gap: 10px; }
       .mobile-open .nav-links { background: rgba(10, 9, 8, .97); border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 0; left: 0; padding: 12px 24px 18px; position: absolute; right: 0; top: 67px; }
       .mobile-open .nav-links li a { display: block; padding: 12px 0; }
-      .hero { padding-top: 120px; }
+        .hero { padding-top: 105px; }
       .hero-grid, .download-layout { gap: 55px; grid-template-columns: 1fr; }
       .hero-copy { text-align: center; }
       .hero-kicker, .hero-buttons, .verse-divider { justify-content: center; }
       .hero-description, .hero-lede { margin-left: auto; margin-right: auto; }
       .device-stage { order: -1; }
-      .phone { height: 465px; width: 238px; }
+      .phone { height: min(465px, 65svh); min-height: 370px; width: min(238px, 64vw); }
       .feature-grid { grid-template-columns: 1fr; }
       .language-grid { grid-template-columns: 1fr; }
       .language.native { padding-top: 42px; }
       section.band { padding: 80px 0; }
     }
     @media (max-width: 480px) {
-      .container { width: min(100% - 34px, 1180px); }
+      .container { padding-left: 17px; padding-right: 17px; }
       .brand-name { font-size: 14px; }
       .download-link { padding: 10px 12px; }
       h1 { font-size: 35px; }
@@ -185,6 +185,13 @@
       .button { width: 100%; }
       .hero-buttons { align-items: stretch; }
       .release-meta { align-items: flex-start; flex-direction: column; gap: 6px; }
+    }
+    @media (max-height: 700px) and (min-width: 821px) {
+      .hero { padding-bottom: 32px; padding-top: 105px; }
+      .hero-grid { min-height: calc(100svh - 137px); }
+      .hero-verse { font-size: 20px; }
+      .hero-description { margin-top: 15px; }
+      .hero-buttons { margin-top: 24px; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
