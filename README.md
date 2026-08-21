@@ -1,235 +1,156 @@
 # BiblePulse
 
-BiblePulse is an offline-first Bible reading and study app built with Flutter. It supports Android, iOS, web, Windows, macOS, and Linux.
+BiblePulse is a Flutter Bible reading and study application with an Android project in this repository. Its core reading experience is designed to work offline, with local study tools, daily reading progress, and optional audio and cloud services.
 
-The app is designed to keep Scripture reading and study focused while enabling optional audio, reminders, journaling, and artwork export. Core Bible reading works offline, and optional integrations such as Firebase, Bible Brain, and licensed catalogs are hidden until configured.
+## Current scope
 
-## Project Info
+The maintained platform target in this checkout is Android. The repository does not include an iOS project or claim a release process for desktop or web platforms.
 
 | Item | Value |
-|---|---|
-| Package | `bible_pulse` |
-| App ID | `app.biblepulse.reader` |
+| --- | --- |
+| Application ID | `app.biblepulse.reader` |
+| Flutter package | `bible_pulse` |
 | Version | `1.0.1+2` |
-| Flutter | 3.44.1 (CI); compatible with `>=3.27.0` |
-| Dart | `>=3.6.0 <4.0.0` |
-| Repository | [abel2800/Bible-Plus](https://github.com/abel2800/Bible-Plus) |
+| Dart constraint | `>=3.6.0 <4.0.0` |
+| Flutter constraint | `>=3.27.0` |
+| Android namespace | `app.biblepulse.reader` |
 
-## App Overview
+## Features
 
-BiblePulse combines an offline Scripture reader with study tools, audio playback, daily reading features, and scripture artwork creation.
+### Bible reading
 
-### Core Reading
+- Local Bible reading with book and chapter navigation
+- Bundled WEB, KJV, ASV, and Amharic Bible data
+- Additional Bible packages declared in the catalog and bundled as configured assets
+- Search and direct navigation to Scripture results
+- Adjustable reading appearance and text comfort settings
+- Verse actions for copying, sharing, highlighting, bookmarking, and notes
+- Parallel reading support when a second installed version is available
 
-- Offline World English Bible (WEB) bundled with the app.
-- Optional KJV and ASV installs from the in-app Bible Store.
-- Book and chapter navigation with persistent last-read restore.
-- Scripture search with direct verse navigation.
-- Reader themes and adjustable text size, spacing, and font.
-- Clean verse display with Strong's markup removed.
+### Daily reading and study
 
-### Study Tools
+- Verse of the Day
+- Reading streak, milestone progress, and reading heatmap
+- Local prayer journal
+- Study screen for saved notes, bookmarks, and highlights
+- Limited built-in cross-reference data for supported passages
 
-- Highlight verses.
-- Add, edit, and delete notes.
-- Bookmark verses.
-- Copy or share verse text.
-- Create verse cards and wallpapers.
-- View cross-references when available.
-- Local study storage by default; optional cloud sync is gated.
+### Audio
 
+- World English Bible audio streamed from eBible.org
+- Chapter playback, queue, speed control, sleep timer, and sharing
+- Local caching and download handling where the audio source permits it
+- Optional Bible Brain text and audio integrations through build-time configuration
 
-### Daily Reading
+Audio is not bundled in the repository as a complete offline audio library. The default WEB audio catalog entry is a public-domain stream that can be cached as chapters are played or downloaded.
 
-- Verse of the Day.
-- Reading streak tracker with a weekly grace day.
-- Milestone progress and heatmap.
-- Prayer journal with verse links.
+### Verse Studio
 
-- Design Scripture cards and wallpapers.
-- Customize layouts, fonts, colors, and photo backgrounds.
-- Export still images for sharing.
-- Export MP4 when FFmpeg is available.
-- GIF fallback on platforms without MP4 support.
+- Scripture artwork and wallpaper creation
+- Templates, typography, colors, and photo backgrounds on supported Android devices
+- Still-image sharing and export
+- Animation export support through the configured media pipeline
 
-### Localization
+### Android integration
 
-- UI support for English, Amharic, Afaan Oromo, Tigrinya, and Somali.
-- Adjustable text size and comfort modes.
-- Unavailable licensed translations are hidden from the Bible Store.
+- Background audio playback
+- Local notifications and scheduled reminders
+- Android home-screen widget integration
+- App links for supported shared audio links
 
-## Platforms
+## Content and availability
 
-| Platform | Storage | Notifications | Export | Audio | Cloud |
-|---|---|---|---|---|---|
-| Android | SQLite | Yes | Yes | Yes | Optional |
-| iOS | SQLite | Yes | Yes | Yes | Optional |
-| macOS | SQLite | No | No | Yes | Optional |
-| Windows | Preferences | No | No | Yes | Optional |
-| Linux | Preferences | No | No | Yes | Optional |
-| Web | Preferences | No | No | Yes | Optional |
+The Bible Store catalog describes the available Bible packages, their licenses, and their installation mode. Some entries are bundled assets; others are placeholders that require licensed data or Bible Brain access. A catalog entry does not by itself mean that a translation is installed or available offline.
 
-The app ships with public-domain WEB reading and audio. Optional Bible Brain and Firebase capabilities require build-time configuration.
+The user interface includes English, Amharic, Afaan Oromo, Tigrinya, and Somali localizations. This does not mean that Scripture text or audio is available in every listed language.
 
-## Screens and Flows
+Content metadata is stored in:
 
-| Screen | Purpose |
-|---|---|
-| Home | Greeting, streak, heatmap, Verse of the Day, continue reading/listening |
-| Bible | Scripture reader, book/version picker, verse actions, playback controls |
-| Now Playing | Audio player with queue, sleep timer, speed, download, and share |
-| Bible Store | Install optional Bible texts and discover available translations |
-| Audio Store | Install or enable audio packages |
-| Prayer Journal | Private prayer entries |
-| Verse Studio | Design and export Scripture artwork |
-| Discover | Search Scripture and browse results |
-| You | Settings, appearance, language, reminders, cache, and preferences |
+- `assets/catalog/bible_catalog.json`
+- `assets/catalog/audio_catalog.json`
+- `assets/content_manifest.json`
 
-Optional auth, community, and licensed catalogs appear only after their required configuration is present.
+Rights and redistribution status must be checked before adding or shipping new content.
 
-## Architecture
-
-BiblePulse follows a layered Flutter architecture with `provider` for state management.
-
-```text
-UI screens and widgets
-  -> Providers
-  -> Services and repositories
-  -> Local database, preferences, assets, and optional cloud services
-```
-
-Core principles:
-
-- Offline-first reading and study.
-- Optional integrations remain hidden until configured.
-- Content is declared in `assets/content_manifest.json`.
-- Platform features are gated through `AppCapabilities`.
-
-## Key Packages
-
-| Area | Packages |
-|---|---|
-| State | `provider` |
-| Storage | `sqflite`, `shared_preferences` |
-| Paths | `path_provider` |
-| Audio | `just_audio`, `just_audio_background`, `audio_session`, `audio_service` |
-| Deep links | `app_links` |
-| Notifications | `flutter_local_notifications`, `timezone`, `flutter_timezone` |
-| Home widget | `home_widget` |
-| Fonts | `google_fonts` |
-
-lib/
-  config/          App capabilities, audio, and cloud configuration
-  l10n/            Localization strings
-  screens/         UI screens
-  services/        Bible, audio, search, cache, links, and sync services
-  studio/          Verse Studio features
-  utils/           Theme helpers and utilities
-  widgets/         Shared UI components
-
-assets/
-  bible/           Bible JSON payloads
-  catalog/         Store and audio catalog metadata
-  content_manifest.json
-
-tools/
-  ci/
-  content/
-  scripture/
-
-test/
-integration_test/
-firebase-tests/
-.github/workflows/ci.yml
-```
-
-## Build and Run
-
-### Requirements
-
-- Flutter 3.44.1 or compatible stable release.
-- Dart SDK `>=3.6.0 <4.0.0`.
-- Python 3 for content generation scripts.
-- Android SDK for Android builds.
-
-### Setup
-
-```powershell
-flutter pub get
-```
-
-### Run locally
-
-```powershell
-flutter run -d chrome --no-web-resources-cdn
-flutter run -d android
-flutter run -d windows
-```
-
-### Build release
-
-```powershell
-flutter build apk --release
-flutter build ios --release --no-codesign
-flutter build macos --release
-flutter build windows --release --no-pub
-flutter build linux --release
-flutter build web --release --no-wasm-dry-run
-```
-
-## Optional Integrations
+## Optional services
 
 ### Firebase
 
-Firebase is optional and requires Dart define values for production configuration.
+Firebase is disabled unless all required build-time values are supplied:
 
-- `FIREBASE_APP_ID`
-- `FIREBASE_MESSAGING_SENDER_ID`
-- `FIREBASE_PROJECT_ID`
-- `FIREBASE_AUTH_DOMAIN` (optional)
-- `FIREBASE_STORAGE_BUCKET` (optional)
-
-For local emulator tests:
-
-```powershell
-FIREBASE_USE_EMULATORS=true
-FIREBASE_EMULATOR_HOST=localhost
+```text
+FIREBASE_API_KEY
+FIREBASE_APP_ID
+FIREBASE_MESSAGING_SENDER_ID
+FIREBASE_PROJECT_ID
 ```
 
-### Notifications and Widgets
+When configured, the app can initialize Firebase Authentication and Cloud Firestore. Cloud-dependent community, group, and synchronization features remain configuration-gated.
 
-- Notifications request permission on supported mobile platforms.
-- Android widgets are supported via `HomeWidgetService`.
-- iOS widget support is available when a Widget Extension is added in Xcode.
+### Bible Brain
 
-## Content and Licensing
+Bible Brain text access requires `BIBLE_BRAIN_API_KEY`. Bible Brain audio additionally requires:
 
-The app ships with public-domain WEB text and audio. Optional KJV/ASV texts are available in the Bible Store. Unavailable or licensed translations are hidden unless access is configured.
-
-All shipped content must be declared in `assets/content_manifest.json`.
-
-## Local Checks
-
-Perform local project validation with:
-
-```powershell
-dart format --output=none --set-exit-if-changed lib test integration_test
-flutter analyze lib test integration_test --no-fatal-infos
-flutter test --exclude-tags golden
-flutter build web --release --no-wasm-dry-run
+```text
+BIBLE_BRAIN_BIBLE_IDS_JSON
+BIBLE_BRAIN_MEDIA_HOSTS
 ```
 
-Android release build:
+These values are supplied with `--dart-define` and must not be committed.
 
-```powershell
-flutter build apk --release --no-pub
+## Architecture
+
+The app uses a layered Flutter structure with `provider` for application state:
+
+```text
+Screens and widgets
+  -> Providers
+  -> Services and repositories
+  -> Local database, preferences, bundled assets, and optional cloud services
 ```
 
-## Signing
+Important areas of the codebase:
 
-### Android release signing
+```text
+lib/config/       Build-time configuration and capability flags
+lib/l10n/         Generated and fallback localization resources
+lib/models/       Bible and study domain models
+lib/providers/    Application state providers
+lib/repositories/ Persistence and data access abstractions
+lib/screens/      App screens and navigation destinations
+lib/services/     Bible, audio, study, notification, and integration services
+lib/studio/       Verse Studio rendering and export logic
+lib/widgets/      Shared interface components
+android/          Android application and Gradle configuration
+assets/           Bible packages and catalog metadata
+test/             Flutter widget tests
+tools/            Content and maintenance scripts
+```
 
-Use environment variables for Play Store signing:
+The primary navigation destinations are Home, Read, Study, Search, and Settings. Other screens are opened from those destinations or when their corresponding capability is enabled.
+
+## Setup
+
+Install Flutter and configure an Android SDK, device, or emulator. Then run:
+
+```bash
+flutter pub get
+flutter run -d android
+```
+
+For a local release artifact:
+
+```bash
+flutter build apk --release
+```
+
+For an Android App Bundle:
+
+```bash
+flutter build appbundle --release
+```
+
+Release signing uses these environment variables when a publishable signed artifact is required:
 
 ```text
 BIBLEPULSE_ANDROID_KEYSTORE
@@ -238,162 +159,23 @@ BIBLEPULSE_ANDROID_KEY_ALIAS
 BIBLEPULSE_ANDROID_KEY_PASSWORD
 ```
 
-### Windows signing
+Without those values, the Android release configuration falls back to the debug keystore for local or verification builds. Such artifacts are not suitable for store publication.
 
-If signing is required after build:
+## Verification
 
-```powershell
-BIBLEPULSE_WINDOWS_CERTIFICATE
-BIBLEPULSE_WINDOWS_CERTIFICATE_PASSWORD
-BIBLEPULSE_WINDOWS_TIMESTAMP_URL
-powershell -ExecutionPolicy Bypass -File tools/release/sign_windows.ps1
-```
+The repository’s local checks are:
 
-## Notes
-
-- The repository no longer contains separate docs folders; the main app documentation is consolidated in this README.
-- Generated folders such as `.dart_tool`, `build`, `.idea`, and `.vscode` have been removed from the repository.
-
-
-```powershell
-dart format --output=none --set-exit-if-changed lib test integration_test
-flutter analyze lib test integration_test
-python tools/content/validate_manifest.py
+```bash
+dart format --output=none --set-exit-if-changed lib test
+flutter analyze lib test --no-fatal-infos
 flutter test --exclude-tags golden
-flutter test test/goldens
-flutter build web --release --no-wasm-dry-run
 ```
 
-## Build APK
+GitHub Actions is configured to run formatting, analysis, Flutter tests, content-manifest validation, and Android APK/App Bundle builds. The current Flutter test directory contains the shared widget test; Firebase rule tests live separately under `firebase-tests`.
 
-```powershell
-flutter build apk --release
-```
+## Project information
 
-Output:
-
-```text
-build/app/outputs/flutter-apk/app-release.apk
-```
-
-GitHub Actions also uploads unsigned Android verification builds on every push.
-
-## Rebuild WEB Scripture
-
-```powershell
-powershell -ExecutionPolicy Bypass -File tools/scripture/fetch_web.ps1
-```
-
-Output:
-
-```text
-assets/bible/web.json
-```
-
-The converter requires approved redistribution information before generated Scripture assets can be used.
-
-## Optional Integrations
-
-Full setup notes are in [docs/INTEGRATIONS_AND_RELEASE.md](docs/INTEGRATIONS_AND_RELEASE.md).
-
-### Firebase
-
-Pass Firebase values with `--dart-define`. Do not commit secrets.
-
-```text
-FIREBASE_APP_ID
-FIREBASE_MESSAGING_SENDER_ID
-FIREBASE_PROJECT_ID
-FIREBASE_AUTH_DOMAIN
-FIREBASE_STORAGE_BUCKET
-FIREBASE_USE_EMULATORS=true
-BIBLEPULSE_ENABLE_COMMUNITY=true
-```
-
-Firestore rules and emulator tests are in `firestore.rules` and `firebase-tests/`.
-
-
-### Notifications
-
-Android and iOS request notification permission when the user enables Verse and streak reminders in Settings.
-
-## Content and Licensing
-
-Only content with verified redistribution rights should be shipped with the app. Each content file must be listed in `assets/content_manifest.json` with attribution, redistribution status, and SHA-256 checksum.
-
-| Content | Status |
-|---|---|
-| World English Bible | Bundled, public domain |
-| King James Version | Store install, public domain |
-| American Standard Version | Store install, public domain |
-| WEB Henson audio | Default stream/cache, public domain |
-| Amharic, Oromo, Tigrinya, Somali Scripture | Not bundled yet |
-| Bible Brain audio | Available only with configuration and rights record |
-| Devotionals, plans, hymns | Catalog support exists, no licensed payloads bundled |
-
-See [docs/CONTENT_SOURCES.md](docs/CONTENT_SOURCES.md) for details.
-
-## Testing and CI
-
-GitHub Actions runs on pushes and pull requests.
-
-| Job | Checks |
-|---|---|
-| verify | Format, analyze, manifest validation, tests, web build |
-| android | APK and App Bundle |
-| windows | Windows build and golden tests |
-| linux | Linux release build |
-| apple | iOS no-codesign build and macOS release build |
-| firebase-emulators | Firestore security rules |
-| web-integration | Chrome smoke test |
-| publish-builds | Packages release artifacts on `main` |
-
-Golden tests run on Windows runners to reduce pixel differences.
-
-Windows CI strips the FFmpeg Kit desktop plugin before building so desktop verification does not need the heavy native download.
-
-Run Firestore rule tests locally with:
-
-```powershell
-npm ci --prefix firebase-tests
-npx firebase-tools@latest emulators:exec --only firestore "npm --prefix firebase-tests test"
-```
-
-## Release Notes
-
-CI artifacts are verification builds.
-
-- Android builds use debug signing unless release keystore secrets are configured.
-- Download `android-verification-apk`, unzip it, and install `app-release.apk`.
-- Do not install the `.aab` file directly.
-- Windows signing is documented in the integrations guide.
-- Confirm ownership of `app.biblepulse.reader` before store submission.
-- Do not commit keystores or production secrets.
-
-## Security
-
-- Publishable Android builds require explicit release keystore environment variables.
-- Firestore rules isolate user study data by owner.
-- Bible Brain audio only accepts configured HTTPS media hosts.
-- Exact-alarm Android permissions are not requested.
-- Content checksums protect bundled assets from accidental changes.
-
-## Documentation
-
-| Document | Contents |
-|---|---|
-| [docs/CONTENT_SOURCES.md](docs/CONTENT_SOURCES.md) | Scripture sources, licensing notes, and catalog policy |
-| [docs/INTEGRATIONS_AND_RELEASE.md](docs/INTEGRATIONS_AND_RELEASE.md) | Firebase, Bible Brain, notifications, and signing |
-
-## License and Contributions
-
-This repository contains the application code for BiblePulse. Bundled Scripture and public-domain audio remain under their original upstream terms.
-
-Before adding translations, devotionals, hymns, or proprietary audio, update the content manifest and document redistribution rights.
-
-When contributing:
-
-- Keep changes focused.
-- Preserve offline reading and local study behavior.
-- Keep optional integrations behind configuration.
-- Run format, analyze, and tests before submitting changes.
+- Repository: [abel2800/Bible-Plus](https://github.com/abel2800/Bible-Plus)
+- Package metadata: `pubspec.yaml`
+- Android build configuration: `android/app/build.gradle.kts`
+- CI workflow: `.github/workflows/ci.yml`
