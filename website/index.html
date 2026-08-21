@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="BiblePulse is an Android Bible reading and study app with offline Scripture, daily reading rhythm, notes, audio, and Verse Studio.">
+  <meta name="theme-color" content="#0a0908">
+  <title>BiblePulse | Read. Listen. Reflect.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Manrope:wght@400;500;600;700&family=Noto+Serif+Ethiopic:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --black: #0a0908;
+      --brown-black: #131009;
+      --panel: #17120b;
+      --gold: #c9a24b;
+      --gold-bright: #e8cc85;
+      --red: #9c3b2e;
+      --paper: #ead9b4;
+      --cream: #f4eedf;
+      --muted: #948a76;
+      --line: rgba(201, 162, 75, .2);
+      --display: "Cinzel", Georgia, serif;
+      --serif: "Cormorant Garamond", Georgia, serif;
+      --ethiopic: "Noto Serif Ethiopic", serif;
+      --sans: "Manrope", sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--black);
+      color: var(--cream);
+      font-family: var(--sans);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { color: inherit; font: inherit; }
+    ::selection { background: var(--gold); color: var(--black); }
+    .container { width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
+    .eyebrow { color: var(--gold); font-size: 11px; font-weight: 700; letter-spacing: .24em; text-transform: uppercase; }
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .focusable:focus-visible, a:focus-visible, button:focus-visible { outline: 2px solid var(--gold-bright); outline-offset: 4px; }
+
+    header {
+      position: fixed; inset: 0 0 auto; z-index: 10; padding: 22px 0;
+      border-bottom: 1px solid transparent; transition: background .35s ease, padding .35s ease, border-color .35s ease;
+    }
+    header.scrolled { background: rgba(10, 9, 8, .9); border-color: var(--line); padding: 14px 0; backdrop-filter: blur(12px); }
+    .nav-row { align-items: center; display: flex; justify-content: space-between; }
+    .brand { align-items: center; display: flex; gap: 10px; }
+    .brand-mark { height: 27px; width: 27px; }
+    .brand-name { color: var(--paper); font: 600 16px var(--display); letter-spacing: .14em; }
+    .brand-name span { color: var(--gold); }
+    .nav-actions { align-items: center; display: flex; gap: 32px; }
+    .nav-links { display: flex; gap: 30px; list-style: none; }
+    .nav-links a { color: var(--muted); font-size: 13px; transition: color .25s ease; }
+    .nav-links a:hover { color: var(--gold-bright); }
+    .download-link { background: var(--gold); color: var(--black); font-size: 13px; font-weight: 700; padding: 11px 19px; transition: background .25s ease, transform .25s ease; }
+    .download-link:hover { background: var(--gold-bright); transform: translateY(-2px); }
+    .menu-button { background: none; border: 1px solid var(--line); cursor: pointer; display: none; height: 40px; width: 40px; }
+
+    .hero { min-height: 100vh; overflow: hidden; padding: 150px 0 90px; position: relative; }
+    .hero::before { background: radial-gradient(circle, rgba(201, 162, 75, .16), transparent 68%); content: ""; height: 760px; left: 50%; position: absolute; top: 34%; transform: translate(-50%, -50%); width: 760px; }
+    .hero-grid { align-items: center; display: grid; gap: 72px; grid-template-columns: 1.1fr .9fr; min-height: calc(100vh - 240px); position: relative; }
+    .hero-copy { position: relative; z-index: 1; }
+    .hero-kicker { align-items: center; color: var(--gold); display: flex; font-size: 11px; font-weight: 700; gap: 12px; letter-spacing: .24em; text-transform: uppercase; }
+    .hero-kicker::before { background: var(--red); content: ""; height: 1px; width: 38px; }
+    h1 { color: var(--cream); font: 600 clamp(40px, 6vw, 74px)/1.08 var(--display); letter-spacing: .08em; margin: 25px 0 22px; max-width: 740px; }
+    h1 span { color: var(--gold); }
+    .hero-lede { color: var(--paper); font: italic clamp(22px, 3vw, 31px)/1.2 var(--serif); max-width: 570px; }
+    .hero-description { color: var(--muted); font-size: 15px; line-height: 1.8; margin-top: 24px; max-width: 490px; }
+    .hero-buttons { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 34px; }
+    .button { align-items: center; display: inline-flex; font-size: 13px; font-weight: 700; gap: 10px; justify-content: center; min-height: 50px; padding: 0 24px; transition: background .25s ease, border-color .25s ease, color .25s ease, transform .25s ease; }
+    .button-gold { background: var(--gold); color: var(--black); }
+    .button-gold:hover { background: var(--gold-bright); transform: translateY(-2px); }
+    .button-outline { border: 1px solid var(--line); color: var(--paper); }
+    .button-outline:hover { border-color: var(--gold); color: var(--gold-bright); }
+    .hero-note { color: var(--muted); font-size: 11px; letter-spacing: .1em; margin-top: 17px; text-transform: uppercase; }
+    .hero-verse { color: var(--gold-bright); font: 500 25px/1.6 var(--ethiopic); margin-bottom: 10px; }
+    .hero-verse-english { color: var(--paper); font: italic 20px/1.35 var(--serif); }
+    .hero-reference { color: var(--muted); font-size: 11px; letter-spacing: .2em; margin-top: 13px; text-transform: uppercase; }
+    .verse-divider { align-items: center; display: flex; gap: 11px; margin: 25px 0 0; }
+    .verse-divider::before, .verse-divider::after { background: var(--line); content: ""; height: 1px; width: 48px; }
+    .diamond { background: var(--gold); height: 6px; transform: rotate(45deg); width: 6px; }
+
+    .device-stage { display: flex; justify-content: center; position: relative; }
+    .device-stage::after { background: var(--red); bottom: 8%; content: ""; filter: blur(36px); height: 100px; opacity: .2; position: absolute; right: 12%; transform: rotate(-18deg); width: 190px; }
+    .phone { background: #0e0c09; border: 2px solid rgba(201, 162, 75, .6); border-radius: 32px; box-shadow: 0 22px 80px rgba(0, 0, 0, .55), 0 0 65px rgba(201, 162, 75, .12); height: 530px; overflow: hidden; padding: 11px; position: relative; transform: rotate(4deg); width: 270px; }
+    .phone::before { background: #21190f; border-radius: 0 0 12px 12px; content: ""; height: 20px; left: 50%; position: absolute; top: 0; transform: translateX(-50%); width: 94px; z-index: 2; }
+    .phone-screen { background: #18140f; border-radius: 22px; height: 100%; overflow: hidden; padding: 42px 15px 15px; }
+    .screen-top { align-items: center; display: flex; justify-content: space-between; }
+    .screen-greeting { color: var(--muted); font-size: 9px; letter-spacing: .12em; text-transform: uppercase; }
+    .screen-avatar { border: 1px solid var(--gold); border-radius: 50%; height: 23px; width: 23px; }
+    .screen-heading { color: var(--paper); font: 500 25px var(--serif); margin: 17px 0 16px; }
+    .screen-card { border: 1px solid var(--line); margin-bottom: 12px; padding: 15px; }
+    .screen-label { color: var(--gold); font-size: 8px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+    .screen-quote { color: var(--paper); font: italic 17px/1.24 var(--serif); margin: 10px 0; }
+    .screen-ref { color: var(--muted); font-size: 8px; letter-spacing: .12em; text-transform: uppercase; }
+    .streak-row { align-items: center; display: flex; gap: 13px; }
+    .streak-number { color: var(--gold-bright); font: 500 38px var(--serif); }
+    .streak-copy { color: var(--paper); font-size: 10px; line-height: 1.4; }
+    .heatmap { display: grid; gap: 4px; grid-template-columns: repeat(10, 1fr); margin-top: 13px; }
+    .heatmap i { aspect-ratio: 1; background: #2a2115; display: block; }
+    .heatmap i:nth-child(3n) { background: #725a2b; }
+    .heatmap i:nth-child(5n) { background: var(--gold); }
+    .screen-nav { border-top: 1px solid var(--line); bottom: 0; display: flex; justify-content: space-around; left: 0; padding: 11px 2px; position: absolute; right: 0; }
+    .screen-nav span { color: var(--muted); font-size: 8px; }
+    .screen-nav span:first-child { color: var(--gold); }
+
+    .ornament { align-items: center; display: flex; gap: 12px; justify-content: center; padding: 17px 0; }
+    .ornament::before, .ornament::after { background: var(--line); content: ""; height: 1px; max-width: 150px; width: 18vw; }
+    .ornament span { border: 1px solid var(--gold); height: 9px; transform: rotate(45deg); width: 9px; }
+
+    section.band { border-top: 1px solid var(--line); padding: 110px 0; }
+    .band-alt { background: var(--brown-black); }
+    .section-heading { margin: 0 auto 58px; max-width: 650px; text-align: center; }
+    .section-heading h2 { color: var(--cream); font: 500 clamp(34px, 4vw, 50px)/1.1 var(--serif); margin-top: 15px; }
+    .section-heading p { color: var(--muted); font-size: 15px; line-height: 1.8; margin-top: 17px; }
+    .feature-grid { display: grid; gap: 1px; grid-template-columns: repeat(3, 1fr); }
+    .feature { border: 1px solid var(--line); padding: 35px 31px; }
+    .feature-number { color: var(--gold); font: 600 12px var(--display); letter-spacing: .18em; }
+    .feature-icon { color: var(--gold); height: 32px; margin: 25px 0 22px; width: 32px; }
+    .feature h3 { color: var(--paper); font: 500 27px var(--serif); margin-bottom: 10px; }
+    .feature p { color: var(--muted); font-size: 14px; line-height: 1.75; }
+
+    .language-grid { display: grid; gap: 20px; grid-template-columns: repeat(3, 1fr); }
+    .language { background: rgba(201, 162, 75, .03); border: 1px solid var(--line); padding: 42px 24px 34px; text-align: center; }
+    .language.native { padding-top: 58px; }
+    .language-name { color: var(--gold-bright); font: 500 27px var(--ethiopic); margin-bottom: 10px; }
+    .language.latin .language-name { font: italic 28px var(--serif); }
+    .language-label { color: var(--muted); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; }
+
+    .votd { align-items: center; display: flex; flex-direction: column; padding: 75px 24px; text-align: center; }
+    .votd-text { color: var(--paper); font: italic clamp(27px, 4vw, 42px)/1.15 var(--serif); margin-top: 25px; max-width: 720px; transition: opacity .35s ease; }
+    .votd-ref { color: var(--gold); font-size: 11px; letter-spacing: .2em; margin-top: 20px; text-transform: uppercase; transition: opacity .35s ease; }
+    .fading { opacity: 0; }
+
+    .download-band { background: var(--panel); border-bottom: 1px solid var(--line); border-top: 1px solid var(--line); padding: 100px 0; }
+    .download-layout { align-items: center; display: grid; gap: 70px; grid-template-columns: 1fr 1fr; }
+    .download-copy h2 { color: var(--cream); font: 500 clamp(35px, 4vw, 52px)/1.08 var(--serif); margin: 15px 0 20px; }
+    .download-copy p { color: var(--muted); font-size: 15px; line-height: 1.8; max-width: 500px; }
+    .download-list { display: grid; gap: 12px; list-style: none; margin: 26px 0 30px; }
+    .download-list li { align-items: center; color: var(--paper); display: flex; font-size: 14px; gap: 12px; }
+    .download-list li::before { background: var(--gold); content: ""; height: 6px; transform: rotate(45deg); width: 6px; }
+    .release-card { border: 1px solid var(--line); padding: 28px; }
+    .release-card h3 { color: var(--paper); font: 500 29px var(--serif); margin: 12px 0 8px; }
+    .release-card p { color: var(--muted); font-size: 13px; line-height: 1.7; }
+    .release-meta { border-top: 1px solid var(--line); color: var(--muted); display: flex; font-size: 11px; justify-content: space-between; letter-spacing: .08em; margin-top: 22px; padding-top: 15px; text-transform: uppercase; }
+
+    footer { padding: 65px 0 35px; text-align: center; }
+    .footer-mark { color: var(--gold); height: 30px; margin: 0 auto 20px; width: 30px; }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 26px; justify-content: center; list-style: none; margin: 25px 0; }
+    .footer-links a { color: var(--muted); font-size: 13px; }
+    .footer-links a:hover { color: var(--gold-bright); }
+    .copyright { color: var(--muted); font-size: 11px; letter-spacing: .08em; }
+
+    @media (max-width: 820px) {
+      .nav-links { display: none; }
+      .menu-button { display: block; }
+      .nav-actions { gap: 10px; }
+      .mobile-open .nav-links { background: rgba(10, 9, 8, .97); border-bottom: 1px solid var(--line); display: flex; flex-direction: column; gap: 0; left: 0; padding: 12px 24px 18px; position: absolute; right: 0; top: 67px; }
+      .mobile-open .nav-links li a { display: block; padding: 12px 0; }
+      .hero { padding-top: 120px; }
+      .hero-grid, .download-layout { gap: 55px; grid-template-columns: 1fr; }
+      .hero-copy { text-align: center; }
+      .hero-kicker, .hero-buttons, .verse-divider { justify-content: center; }
+      .hero-description, .hero-lede { margin-left: auto; margin-right: auto; }
+      .device-stage { order: -1; }
+      .phone { height: 465px; width: 238px; }
+      .feature-grid { grid-template-columns: 1fr; }
+      .language-grid { grid-template-columns: 1fr; }
+      .language.native { padding-top: 42px; }
+      section.band { padding: 80px 0; }
+    }
+    @media (max-width: 480px) {
+      .container { width: min(100% - 34px, 1180px); }
+      .brand-name { font-size: 14px; }
+      .download-link { padding: 10px 12px; }
+      h1 { font-size: 35px; }
+      .hero-verse { font-size: 20px; }
+      .button { width: 100%; }
+      .hero-buttons { align-items: stretch; }
+      .release-meta { align-items: flex-start; flex-direction: column; gap: 6px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+    }
+  </style>
+</head>
+<body>
+  <header id="header">
+    <div class="container nav-row">
+      <a class="brand" href="#top" aria-label="BiblePulse home">
+        <svg class="brand-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+          <path d="M20 3v34M8 12h24M11 12s-2 8 9 8 9-8 9-8" stroke="currentColor" stroke-width="1.4"/>
+          <circle cx="20" cy="3" r="2" fill="currentColor"/>
+        </svg>
+        <span class="brand-name">BIBLE <span>PULSE</span></span>
+      </a>
+      <div class="nav-actions">
+        <nav aria-label="Primary navigation">
+          <ul class="nav-links">
+            <li><a href="#read">Read</a></li>
+            <li><a href="#languages">Languages</a></li>
+            <li><a href="#listen">Listen</a></li>
+            <li><a href="#download">Download</a></li>
+          </ul>
+        </nav>
+        <a class="download-link" href="https://github.com/abel2800/Bible-Plus/releases/download/v1.0.1/biblepulse-v1.0.1.apk">Get the APK</a>
+        <button class="menu-button" id="menuButton" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <div class="hero-kicker">A Bible for the daily rhythm</div>
+          <h1>READ THE WORD.<br><span>CARRY THE LIGHT.</span></h1>
+          <p class="hero-lede">A quiet place for Scripture, wherever the day finds you.</p>
+          <p class="hero-description">BiblePulse brings offline Bible reading, daily progress, personal study tools, and audio together in one focused Android experience.</p>
+          <div class="hero-buttons">
+            <a class="button button-gold" href="https://github.com/abel2800/Bible-Plus/releases/download/v1.0.1/biblepulse-v1.0.1.apk">Download for Android <span aria-hidden="true">↓</span></a>
+            <a class="button button-outline" href="#read">Explore the app <span aria-hidden="true">↘</span></a>
+          </div>
+          <p class="hero-note">Free Android release · v1.0.1</p>
+          <div class="verse-divider" aria-hidden="true"><span class="diamond"></span></div>
+          <p class="hero-verse">ቃልህ ለእግሬ መብራት፣<br>ለመንገዴም ብርሃን ነው።</p>
+          <p class="hero-verse-english">“Your word is a lamp to my feet and a light to my path.”</p>
+          <p class="hero-reference">Psalm 119:105</p>
+        </div>
+
+        <div class="device-stage" aria-label="BiblePulse app preview">
+          <div class="phone">
+            <div class="phone-screen">
+              <div class="screen-top"><span class="screen-greeting">Good morning</span><span class="screen-avatar"></span></div>
+              <div class="screen-heading">Your daily rhythm</div>
+              <div class="screen-card">
+                <div class="screen-label">Verse of the day</div>
+                <div class="screen-quote">“Be still, and know that I am God.”</div>
+                <div class="screen-ref">Psalm 46:10</div>
+              </div>
+              <div class="screen-card">
+                <div class="screen-label">Reading streak</div>
+                <div class="streak-row"><span class="streak-number">07</span><span class="streak-copy">days of returning<br>to the Word</span></div>
+                <div class="heatmap" id="previewHeatmap" aria-hidden="true"></div>
+              </div>
+              <div class="screen-card"><div class="screen-label">Continue reading</div><div class="screen-quote">Matthew 5</div><div class="screen-ref">The Sermon on the Mount</div></div>
+              <div class="screen-nav"><span>Home</span><span>Read</span><span>Study</span><span>Search</span><span>You</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="ornament" aria-hidden="true"><span></span></div>
+
+    <section class="votd band-alt" aria-labelledby="votd-heading">
+      <span class="eyebrow" id="votd-heading">Verse of the day</span>
+      <p class="votd-text" id="votdText">“Be still, and know that I am God.”</p>
+      <p class="votd-ref" id="votdRef">Psalm 46:10</p>
+    </section>
+
+    <section class="band" id="read">
+      <div class="container">
+        <div class="section-heading reveal"><span class="eyebrow">The practice</span><h2>Three ways to meet the Word</h2><p>Built for the same page, the same verse, morning after morning.</p></div>
+        <div class="feature-grid">
+          <article class="feature reveal"><span class="feature-number">I</span><svg class="feature-icon" viewBox="0 0 34 34" fill="none" aria-hidden="true"><path d="M4 6s8-3 13 2c5-5 13-2 13-2v20s-8-3-13 2c-5-5-13-2-13-2V6Z" stroke="currentColor" stroke-width="1.2"/><path d="M17 8v20" stroke="currentColor"/></svg><h3>Read</h3><p>Read bundled Scripture offline with book and chapter navigation, search, adjustable comfort settings, and parallel reading when available.</p></article>
+          <article class="feature reveal"><span class="feature-number">II</span><svg class="feature-icon" viewBox="0 0 34 34" fill="none" aria-hidden="true"><path d="M6 20s0-8 11-8 11 8 11 8" stroke="currentColor" stroke-width="1.2"/><rect x="4" y="18" width="6" height="10" rx="2" stroke="currentColor" stroke-width="1.2"/><rect x="24" y="18" width="6" height="10" rx="2" stroke="currentColor" stroke-width="1.2"/></svg><h3>Listen</h3><p>Listen to the public-domain WEB audio stream with chapter playback, queue, speed control, sleep timer, and caching where permitted.</p></article>
+          <article class="feature reveal"><span class="feature-number">III</span><svg class="feature-icon" viewBox="0 0 34 34" fill="none" aria-hidden="true"><path d="M17 4v26M6 12h22" stroke="currentColor" stroke-width="1.2"/><circle cx="17" cy="17" r="13" stroke="currentColor"/></svg><h3>Reflect</h3><p>Keep notes, highlights, bookmarks, a prayer journal, and a reading streak in a private study space on your device.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="band band-alt" id="languages">
+      <div class="container">
+        <div class="section-heading reveal"><span class="eyebrow">Built for more voices</span><h2>The Word speaks your language</h2><p>The interface is localized for English, Amharic, Afaan Oromo, Tigrinya, and Somali. Scripture availability depends on the installed package and its rights.</p></div>
+        <div class="language-grid reveal"><div class="language native"><div class="language-name">አማርኛ</div><div class="language-label">Amharic</div></div><div class="language"><div class="language-name">Afaan Oromoo</div><div class="language-label">Afaan Oromo</div></div><div class="language latin"><div class="language-name">English</div><div class="language-label">English</div></div></div>
+      </div>
+    </section>
+
+    <section class="band" id="listen">
+      <div class="container">
+        <div class="section-heading reveal"><span class="eyebrow">Audio Bible</span><h2>Close your eyes.<br>Let the Word speak.</h2><p>Start listening inside the Android app. WEB audio is streamed from eBible.org and chapters can cache as you play or download them.</p></div>
+        <div class="feature-grid reveal"><article class="feature"><span class="feature-number">01</span><h3>Play a chapter</h3><p>Use the reader controls or audio player to begin a chapter and keep the text close while you listen.</p></article><article class="feature"><span class="feature-number">02</span><h3>Keep the flow</h3><p>Queue chapters, adjust playback speed, and set a sleep timer for a listening rhythm that fits your day.</p></article><article class="feature"><span class="feature-number">03</span><h3>Take it offline</h3><p>Cache and download handling is available where the source permits it. The audio library itself is not bundled in the APK.</p></article></div>
+      </div>
+    </section>
+
+    <section class="download-band" id="download">
+      <div class="container download-layout">
+        <div class="download-copy reveal"><span class="eyebrow">The Android release</span><h2>Take the Word<br>with you.</h2><p>Install BiblePulse directly from the first GitHub release and keep your daily reading space close, online or offline.</p><ul class="download-list"><li>Offline reading with bundled Bible packages</li><li>Daily verse, streak, and reading heatmap</li><li>Notes, bookmarks, highlights, and prayer journal</li><li>Audio playback and Verse Studio artwork</li></ul><a class="button button-gold" href="https://github.com/abel2800/Bible-Plus/releases/download/v1.0.1/biblepulse-v1.0.1.apk">Download BiblePulse APK <span aria-hidden="true">↓</span></a></div>
+        <div class="release-card reveal"><span class="eyebrow">Latest release</span><h3>BiblePulse v1.0.1</h3><p>The first Android release. Download the APK for direct sideload testing on an Android device.</p><div class="release-meta"><span>Android</span><span>Published 2026</span></div><a class="button button-outline" href="https://github.com/abel2800/Bible-Plus/releases/tag/v1.0.1" style="margin-top: 22px; width: 100%;">View release notes <span aria-hidden="true">↗</span></a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <svg class="footer-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="M20 6v28M11 15h18M13 15s-1 6 7 6 7-6 7-6" stroke="currentColor" stroke-width="1.2"/><circle cx="20" cy="6" r="1.5" fill="currentColor"/></svg>
+    <div class="brand-name">BIBLE <span>PULSE</span></div>
+    <ul class="footer-links"><li><a href="#read">Read</a></li><li><a href="#listen">Listen</a></li><li><a href="#download">Download</a></li><li><a href="https://github.com/abel2800/Bible-Plus">GitHub</a></li></ul>
+    <p class="copyright">Read. Listen. Reflect. · Android</p>
+  </footer>
+
+  <script>
+    const downloadUrl = 'https://github.com/abel2800/Bible-Plus/releases/download/v1.0.1/biblepulse-v1.0.1.apk';
+    document.querySelectorAll('a[href="#"]').forEach(link => link.href = downloadUrl);
+
+    const header = document.getElementById('header');
+    window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 36), { passive: true });
+
+    const menuButton = document.getElementById('menuButton');
+    menuButton.addEventListener('click', () => {
+      const open = document.body.classList.toggle('mobile-open');
+      menuButton.setAttribute('aria-expanded', String(open));
+      menuButton.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+    });
+    document.querySelectorAll('.nav-links a').forEach(link => link.addEventListener('click', () => {
+      document.body.classList.remove('mobile-open');
+      menuButton.setAttribute('aria-expanded', 'false');
+      menuButton.setAttribute('aria-label', 'Open navigation');
+    }));
+
+    const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+      if (entry.isIntersecting) { entry.target.classList.add('visible'); observer.unobserve(entry.target); }
+    }), { threshold: .12 });
+    document.querySelectorAll('.reveal').forEach(element => observer.observe(element));
+
+    const previewHeatmap = document.getElementById('previewHeatmap');
+    for (let index = 0; index < 40; index += 1) previewHeatmap.appendChild(document.createElement('i'));
+
+    const verses = [
+      ['“Be still, and know that I am God.”', 'Psalm 46:10'],
+      ['“The Lord is my shepherd; I shall not want.”', 'Psalm 23:1'],
+      ['“Trust in the Lord with all your heart.”', 'Proverbs 3:5'],
+      ['“I can do all things through Christ who strengthens me.”', 'Philippians 4:13']
+    ];
+    let verseIndex = 0;
+    const verseText = document.getElementById('votdText');
+    const verseReference = document.getElementById('votdRef');
+    setInterval(() => {
+      verseText.classList.add('fading');
+      verseReference.classList.add('fading');
+      setTimeout(() => {
+        verseIndex = (verseIndex + 1) % verses.length;
+        verseText.textContent = verses[verseIndex][0];
+        verseReference.textContent = verses[verseIndex][1];
+        verseText.classList.remove('fading');
+        verseReference.classList.remove('fading');
+      }, 350);
+    }, 6000);
+  </script>
+</body>
+</html>
