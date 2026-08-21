@@ -22,24 +22,40 @@ class BibleStoreScreen extends StatelessWidget {
       backgroundColor: t.appBg,
       appBar: AppBar(
         title: Text(l10n.bibleStore),
+        titleSpacing: 20,
       ),
       body: !store.ready
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
                   child: TextField(
                     onChanged: store.setQuery,
+                    style: AppTheme.ui(fontSize: 13, color: t.ink),
                     decoration: InputDecoration(
                       hintText: l10n.searchVersions,
-                      prefixIcon: const Icon(Icons.search, size: 20),
+                      hintStyle: AppTheme.ui(fontSize: 13, color: t.inkFaint),
+                      prefixIcon: Icon(Icons.search, size: 19, color: t.inkSoft),
                       isDense: true,
+                      filled: false,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 12,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: t.border),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: t.border),
+                      ),
                     ),
                   ),
                 ),
                 SizedBox(
-                  height: 42,
+                  height: 40,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -111,7 +127,7 @@ class BibleStoreScreen extends StatelessWidget {
                 ),
                 Expanded(
                   child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
                     itemCount: store.visiblePackages.length,
                     itemBuilder: (context, index) {
                       final pkg = store.visiblePackages[index];
@@ -188,12 +204,11 @@ class _BiblePackageCard extends StatelessWidget {
         progress?.state == PackageDownloadState.installing;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 0),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
         color: t.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: t.border),
+        border: Border(bottom: BorderSide(color: t.border)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

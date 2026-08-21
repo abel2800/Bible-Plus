@@ -38,15 +38,6 @@ BiblePulse combines an offline Scripture reader with study tools, audio playback
 - View cross-references when available.
 - Local study storage by default; optional cloud sync is gated.
 
-### Audio Bible
-
-- Public-domain WEB audio support.
-- Chapter queue with auto-advance.
-- Full audio player with artwork, playback controls, queue, speed, sleep timer, and sharing.
-- Mini player while audio is active.
-- Background playback on mobile.
-- Offline audio caching for supported chapters.
-- Optional Bible Brain online audio and text when configured.
 
 ### Daily Reading
 
@@ -54,10 +45,6 @@ BiblePulse combines an offline Scripture reader with study tools, audio playback
 - Reading streak tracker with a weekly grace day.
 - Milestone progress and heatmap.
 - Prayer journal with verse links.
-- Optional morning and evening reminders on Android and iOS.
-- Home widget support on Android and iOS.
-
-### Verse Studio
 
 - Design Scripture cards and wallpapers.
 - Customize layouts, fonts, colors, and photo backgrounds.
@@ -128,22 +115,12 @@ Core principles:
 | Audio | `just_audio`, `just_audio_background`, `audio_session`, `audio_service` |
 | Deep links | `app_links` |
 | Notifications | `flutter_local_notifications`, `timezone`, `flutter_timezone` |
-| Cloud | `firebase_core`, `firebase_auth`, `cloud_firestore` |
-| Networking | `http`, `connectivity_plus` |
-| Sharing | `screenshot`, `image_gallery_saver_plus`, `share_plus`, `permission_handler`, `image_picker` |
-| Export | `ffmpeg_kit_flutter_new` |
 | Home widget | `home_widget` |
 | Fonts | `google_fonts` |
 
-## Project Structure
-
-```text
 lib/
   config/          App capabilities, audio, and cloud configuration
   l10n/            Localization strings
-  models/          Domain models
-  providers/       Application state providers
-  repositories/    Data repositories and storage adapters
   screens/         UI screens
   services/        Bible, audio, search, cache, links, and sync services
   studio/          Verse Studio features

@@ -100,6 +100,7 @@ class BiblePackageService {
           final langCode = (map['language_iso'] ?? language).toString();
           final versionCode = abbreviation.toUpperCase();
 
+          final licensed = YouVersionConfig.isOfflineVersionLicensed(versionId);
           remote.add(
             BiblePackageInfo(
               id: 'yv-$versionId',
@@ -109,14 +110,14 @@ class BiblePackageService {
               language: langCode,
               languageName: langCode,
               description:
-                  'Download this YouVersion translation for offline reading. License check required before bulk redistribution.',
+                  'Download this YouVersion translation for offline reading in the configured non-commercial app flow.',
               license: 'YouVersion rights-holder terms',
               attribution: 'Content provided by YouVersion',
               source: 'https://api.youversion.com',
-                commercialUse: YouVersionConfig.isOfflineVersionLicensed(versionId),
-                redistribution: YouVersionConfig.isOfflineVersionLicensed(versionId),
-                approved: YouVersionConfig.isOfflineVersionLicensed(versionId),
-                category: YouVersionConfig.isOfflineVersionLicensed(versionId)
+              commercialUse: licensed,
+              redistribution: licensed,
+              approved: licensed,
+              category: licensed
                   ? const ['new', 'youversion', 'offline']
                   : const ['new', 'youversion', 'online'],
               fileSizeBytes: 0,

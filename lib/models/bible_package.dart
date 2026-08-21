@@ -108,14 +108,12 @@ class BiblePackageInfo {
       return approved && install.path != null && install.path!.isNotEmpty;
     }
     if (install.type == 'youversion') {
-      return approved &&
-          install.path != null &&
+      return install.path != null &&
           install.path!.isNotEmpty &&
           install.path != '0';
     }
-    return approved &&
-        redistribution &&
-        install.isDownloadable;
+    return install.isDownloadable &&
+        (approved || commercialUse || redistribution || install.type == 'asset');
   }
 }
 

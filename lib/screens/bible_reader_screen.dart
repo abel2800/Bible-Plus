@@ -16,6 +16,7 @@ import '../utils/app_theme.dart';
 import '../widgets/book_selector_bottom_sheet.dart';
 import '../widgets/version_selector_bottom_sheet.dart';
 import '../widgets/design/bp_widgets.dart';
+import '../widgets/design/bp_illuminated.dart';
 import '../widgets/reader_playback_controls.dart';
 import '../services/audio_service.dart';
 import '../l10n/app_localizations.dart';
@@ -131,34 +132,42 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                     padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
                     child: Row(
                       children: [
-                        if (bibleProvider.selectedBook != null) ...[
-                          _ReaderChip(
-                            label:
-                                '${bibleProvider.selectedBook!.name} ${bibleProvider.selectedChapter}',
-                            isDark: readerTheme.isDark,
-                            onTap: () => _showBookSelector(context),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                if (bibleProvider.selectedBook != null) ...[
+                                  _ReaderChip(
+                                    label:
+                                        '${bibleProvider.selectedBook!.name} ${bibleProvider.selectedChapter}',
+                                    isDark: readerTheme.isDark,
+                                    onTap: () => _showBookSelector(context),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  _ReaderChip(
+                                    label: bibleProvider.currentVersion,
+                                    isDark: readerTheme.isDark,
+                                    onTap: () {
+                                      showModalBottomSheet(
+                                        context: context,
+                                        isScrollControlled: true,
+                                        backgroundColor: Colors.transparent,
+                                        builder: (context) =>
+                                            const VersionSelectorBottomSheet(),
+                                      );
+                                    },
+                                  ),
+                                ] else
+                                  _ReaderChip(
+                                    label: l10n.selectBook,
+                                    isDark: readerTheme.isDark,
+                                    onTap: () => _showBookSelector(context),
+                                  ),
+                              ],
+                            ),
                           ),
-                          const SizedBox(width: 8),
-                          _ReaderChip(
-                            label: bibleProvider.currentVersion,
-                            isDark: readerTheme.isDark,
-                            onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                backgroundColor: Colors.transparent,
-                                builder: (context) =>
-                                    const VersionSelectorBottomSheet(),
-                              );
-                            },
-                          ),
-                        ] else
-                          _ReaderChip(
-                            label: l10n.selectBook,
-                            isDark: readerTheme.isDark,
-                            onTap: () => _showBookSelector(context),
-                          ),
-                        const Spacer(),
+                        ),
                         if (parallel.available)
                           BpIconButton(
                             icon: parallel.enabled
@@ -167,8 +176,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                             tooltip: parallel.enabled
                                 ? 'Disable Amharic parallel reading'
                                 : 'Enable Amharic parallel reading',
-                            onPressed: () =>
-                                parallel.setEnabled(!parallel.enabled),
+                            onPressed: () => parallel.setEnabled(!parallel.enabled),
                           ),
                         if (capabilities.audio) ...[
                           const SizedBox(width: 4),
@@ -236,99 +244,138 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                         ? const Center(child: CircularProgressIndicator())
                         : bibleProvider.currentChapter.isEmpty
                             ? _buildEmptyState(context, bibleProvider, l10n)
-                            : ListView.builder(
-                                controller: _scrollController,
-                                padding: EdgeInsets.fromLTRB(
-                                  22,
-                                  8,
-                                  22,
-                                  showAudioBar ? 140 : 100,
-                                ),
-                                itemCount: bibleProvider.currentChapter.length,
-                                itemBuilder: (context, index) {
-                                  final verse =
-                                      bibleProvider.currentChapter[index];
-                                  final reference =
-                                      bibleProvider.getVerseReference(verse);
-                                  final versionId =
-                                      bibleProvider.currentVersion;
-                                  final isHighlighted =
-                                      studyProvider.isHighlighted(
-                                    reference,
-                                    versionId: versionId,
-                                  );
-                                  final highlightColor =
-                                      studyProvider.getHighlightColor(
-                                    reference,
-                                    versionId: versionId,
-                                  );
-                                  final isSpoken = audioMatchesReader &&
-                                      audioService.currentVerse == verse.verse;
-                                  final secondary = parallel.enabled
-                                      ? parallel.verse(verse.verse)
-                                      : null;
-
-                                  return KeyedSubtree(
-                                    key: _verseKeys.putIfAbsent(
-                                      verse.verse,
-                                      GlobalKey.new,
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        VerseCard(
-                                          verse: verse,
-                                          reference: reference,
-                                          versionId: versionId,
-                                          isHighlighted: isHighlighted,
-                                          highlightColor: highlightColor,
-                                          isBookmarked:
-                                              studyProvider.isBookmarked(
-                                            reference,
-                                            versionId: versionId,
-                                          ),
-                                          hasNote:
-                                              studyProvider.getNoteForVerse(
-                                                    reference,
-                                                    versionId: versionId,
-                                                  ) !=
-                                                  null,
-                                          isAudioActive: isSpoken,
-                                          textColor: readerTheme.textColor,
-                                          verseNumberColor:
-                                              readerTheme.verseNumberColor,
-                                          fontSize: fontSettings.fontSize,
-                                          lineHeight: fontSettings.lineHeight,
-                                          fontFamily: fontSettings.fontFamily,
-                                          useSystemFont:
-                                              fontSettings.useSystemFont,
-                                        ),
-                                        if (secondary != null) ...[
-                                          const SizedBox(height: 6),
-                                          Padding(
+                            : Row(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  BpReadingThread(
+                                    scrollController: _scrollController,
+                                    inactiveColor: readerTheme.isDark
+                                        ? AppTheme.borderDark
+                                        : AppTheme.borderLight,
+                                  ),
+                                  Expanded(
+                                    child: ListView.builder(
+                                      controller: _scrollController,
+                                      padding: EdgeInsets.fromLTRB(
+                                        4,
+                                        8,
+                                        22,
+                                        showAudioBar ? 140 : 100,
+                                      ),
+                                      itemCount:
+                                          bibleProvider.currentChapter.length + 1,
+                                      itemBuilder: (context, rawIndex) {
+                                        if (rawIndex == 0) {
+                                          return Padding(
                                             padding:
-                                                const EdgeInsets.only(left: 26),
-                                            child: Text(
-                                              secondary.text,
-                                              style: AppTheme.ethopic(
-                                                fontSize:
-                                                    fontSettings.fontSize - 1,
-                                                color: readerTheme.textColor
-                                                    .withValues(alpha: 0.85),
+                                                const EdgeInsets.only(bottom: 14),
+                                            child: BpMedallion(
+                                              size: 54,
+                                              child: Text(
+                                                '${bibleProvider.selectedChapter}',
+                                                style: AppTheme.brandTitle(
+                                                  fontSize: 22,
+                                                  weight: FontWeight.w500,
+                                                  color: AppTheme.gold,
+                                                ),
                                               ),
                                             ),
+                                          );
+                                        }
+                                        final index = rawIndex - 1;
+                                        final verse =
+                                            bibleProvider.currentChapter[index];
+                                        final reference =
+                                            bibleProvider.getVerseReference(verse);
+                                        final versionId =
+                                            bibleProvider.currentVersion;
+                                        final isHighlighted =
+                                            studyProvider.isHighlighted(
+                                          reference,
+                                          versionId: versionId,
+                                        );
+                                        final highlightColor =
+                                            studyProvider.getHighlightColor(
+                                          reference,
+                                          versionId: versionId,
+                                        );
+                                        final isSpoken = audioMatchesReader &&
+                                            audioService.currentVerse ==
+                                                verse.verse;
+                                        final secondary = parallel.enabled
+                                            ? parallel.verse(verse.verse)
+                                            : null;
+
+                                        return KeyedSubtree(
+                                          key: _verseKeys.putIfAbsent(
+                                            verse.verse,
+                                            GlobalKey.new,
                                           ),
-                                        ],
-                                        if (index <
-                                            bibleProvider
-                                                    .currentChapter.length -
-                                                1)
-                                          const SizedBox(height: 4),
-                                      ],
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              VerseCard(
+                                                verse: verse,
+                                                reference: reference,
+                                                versionId: versionId,
+                                                isHighlighted: isHighlighted,
+                                                highlightColor: highlightColor,
+                                                isBookmarked:
+                                                    studyProvider.isBookmarked(
+                                                  reference,
+                                                  versionId: versionId,
+                                                ),
+                                                hasNote:
+                                                    studyProvider.getNoteForVerse(
+                                                          reference,
+                                                          versionId: versionId,
+                                                        ) !=
+                                                        null,
+                                                isAudioActive: isSpoken,
+                                                textColor: readerTheme.textColor,
+                                                verseNumberColor:
+                                                    readerTheme.verseNumberColor,
+                                                fontSize: fontSettings.fontSize,
+                                                lineHeight:
+                                                    fontSettings.lineHeight,
+                                                fontFamily:
+                                                    fontSettings.fontFamily,
+                                                useSystemFont:
+                                                    fontSettings.useSystemFont,
+                                              ),
+                                              if (secondary != null) ...[
+                                                const SizedBox(height: 6),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 26),
+                                                  child: Text(
+                                                    secondary.text,
+                                                    style: AppTheme.ethopic(
+                                                      fontSize:
+                                                          fontSettings.fontSize -
+                                                              1,
+                                                      color: readerTheme.textColor
+                                                          .withValues(
+                                                        alpha: 0.85,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                              if (index <
+                                                  bibleProvider
+                                                          .currentChapter.length -
+                                                      1)
+                                                const SizedBox(height: 4),
+                                            ],
+                                          ),
+                                        );
+                                      },
                                     ),
-                                  );
-                                },
+                                  ),
+                                ],
                               ),
                   ),
                 ],
@@ -612,13 +659,18 @@ class _ReaderChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: isDark ? AppTheme.surface2Dark : AppTheme.surface2Light,
-      borderRadius: BorderRadius.circular(10),
+      color: Colors.transparent,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(
+          color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
+        ),
+      ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(8),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
           child: Text(
             label,
             style: AppTheme.ui(

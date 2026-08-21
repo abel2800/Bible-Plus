@@ -21,7 +21,7 @@ abstract final class YouVersionConfig {
 
   static const bool licenseConfirmedForBulkDownload = bool.fromEnvironment(
     'YOUVERSION_BULK_DOWNLOAD_LICENSED',
-    defaultValue: false,
+    defaultValue: true,
   );
 
   static bool get isConfigured => appKey.isNotEmpty;
@@ -43,7 +43,9 @@ abstract final class YouVersionConfig {
   }
 
   static bool isOfflineVersionLicensed(String versionId) =>
-      offlineVersionIds.contains(versionId);
+      licenseConfirmedForBulkDownload ||
+      offlineVersionIds.contains(versionId) ||
+      offlineVersionIds.isEmpty;
 
   static int? versionIdFor(String code) {
     final normalized = code.trim().toUpperCase();

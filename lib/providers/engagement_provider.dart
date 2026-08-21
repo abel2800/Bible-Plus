@@ -13,12 +13,16 @@ class EngagementProvider extends ChangeNotifier {
   final Uuid _uuid = const Uuid();
   final Set<String> _readingDays = {};
   List<PrayerEntry> _prayers = [];
+  final Set<String> _likedVerses = {};
   bool _ready = false;
   int _longestStreak = 0;
 
   bool get ready => _ready;
   List<PrayerEntry> get prayers => List.unmodifiable(_prayers);
   int get longestStreak => _longestStreak;
+
+  bool isVerseLiked(String reference, {String versionId = 'WEB'}) =>
+      _likedVerses.contains(_verseKey(reference, versionId));
 
   Set<String> get readingDays => Set.unmodifiable(_readingDays);
 
@@ -40,6 +44,9 @@ class EngagementProvider extends ChangeNotifier {
         _prayers = [];
       }
     }
+    _likedVerses.addAll(
+      preferences.getStringList('engagement_liked_verses') ?? const [],
+    );
     final current = streakWithGrace();
     if (current > _longestStreak) {
       _longestStreak = current;
@@ -164,6 +171,22 @@ class EngagementProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> toggleVerseLike(
+    String reference, {
+    String versionId = 'WEB',
+  }) async {
+    final key = _verseKey(reference, versionId);
+    if (!_likedVerses.add(key)) {
+      _likedVerses.remove(key);
+    }
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setStringList(
+      'engagement_liked_verses',
+      _likedVerses.toList(),
+    );
+    notifyListeners();
+  }
+
   Future<void> _saveReadingDays() async {
     final preferences = await SharedPreferences.getInstance();
     final values = _readingDays.toList()..sort();
@@ -187,4 +210,7 @@ class EngagementProvider extends ChangeNotifier {
         '${day.month.toString().padLeft(2, '0')}-'
         '${day.day.toString().padLeft(2, '0')}';
   }
+
+  String _verseKey(String reference, String versionId) =>
+      '${versionId.toUpperCase()}:$reference';
 }

@@ -59,11 +59,11 @@ class SettingsScreen extends StatelessWidget {
                     ],
                     Text(
                       l10n.settings,
-                      style: AppTheme.brandTitle(fontSize: 22, color: ink),
+                      style: AppTheme.brandTitle(fontSize: 25, color: ink),
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
                 _SettingsSection(
                   header: l10n.appearance,
                   children: [
@@ -466,7 +466,7 @@ class _SettingsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../config/app_capabilities.dart';
 import '../l10n/app_localizations.dart';
@@ -17,7 +19,7 @@ import '../services/home_widget_service.dart';
 import '../services/audio_service.dart';
 import '../utils/app_theme.dart';
 import '../utils/time_of_day_greeting.dart';
-import '../utils/streak_copy.dart';
+import '../widgets/design/bp_illuminated.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/design/bp_widgets.dart';
 import '../widgets/reading_heatmap.dart';
@@ -235,9 +237,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                   ),
                 ),
+                if (dailyVerse != null)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+                      child: _VerseOfDayCard(
+                        verse: dailyVerse.text,
+                        reference: bible.getVerseReference(dailyVerse),
+                        versionId: bible.currentVersion,
+                        onOpen: () async {
+                          await bible.goToVerse(
+                            dailyVerse.book,
+                            dailyVerse.chapter,
+                            dailyVerse.verse,
+                          );
+                          if (context.mounted) {
+                            context.read<NavigationProvider>().setIndex(1);
+                          }
+                        },
+                      )
+                          .animate(delay: _staggerStep)
+                          .fadeIn(duration: _entranceDuration)
+                          .slideY(
+                            begin: 0.08,
+                            end: 0,
+                            curve: Curves.easeOutCubic,
+                          ),
+                    ),
+                  ),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                    padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
                     child: _StreakCard(
                       streak: streak,
                       readToday: engagement.hasReadToday(),
@@ -259,11 +289,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
                     child: BpCard(
+                      padding: const EdgeInsets.fromLTRB(16, 15, 16, 13),
                       child: ReadingHeatmap(
                         readingDays: engagement.readingDays,
                       ),
                     )
-                        .animate(delay: _staggerStep)
+                        .animate(delay: _staggerStep * 2)
                         .fadeIn(duration: _entranceDuration)
                         .slideY(
                           begin: 0.08,
@@ -272,34 +303,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                   ),
                 ),
-                if (dailyVerse != null)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
-                      child: _VerseOfDayCard(
-                        verse: dailyVerse.text,
-                        reference:
-                            '${bible.getVerseReference(dailyVerse)} · ${bible.currentVersion}',
-                        onOpen: () async {
-                          await bible.goToVerse(
-                            dailyVerse.book,
-                            dailyVerse.chapter,
-                            dailyVerse.verse,
-                          );
-                          if (context.mounted) {
-                            context.read<NavigationProvider>().setIndex(1);
-                          }
-                        },
-                      )
-                          .animate(delay: _staggerStep * 2)
-                          .fadeIn(duration: _entranceDuration)
-                          .slideY(
-                            begin: 0.08,
-                            end: 0,
-                            curve: Curves.easeOutCubic,
-                          ),
-                    ),
-                  ),
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
@@ -535,124 +538,89 @@ class _StreakCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.colors;
-    final milestoneHit = StreakCopy.isMilestone(streak) && readToday;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryText = isDark ? AppTheme.inkDark : AppTheme.ink;
+    final cardBg = isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight;
+    final borderColor = isDark ? AppTheme.borderDark : AppTheme.borderLight;
+    final activeCell = isDark ? AppTheme.goldSoft : AppTheme.gold;
+    final inactiveCell = isDark ? AppTheme.surface2Dark : AppTheme.surface2Light;
 
-    return BpCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    final cells = List.generate(7, (index) {
+      final active = index < (streak > 0 ? streak.clamp(0, 7) : 0);
+      return Container(
+        width: 11,
+        height: 11,
+        margin: EdgeInsets.only(right: index < 6 ? 4 : 0),
+        decoration: BoxDecoration(
+          color: active ? activeCell : inactiveCell,
+          borderRadius: BorderRadius.circular(2),
+          border: Border.all(
+            color: active ? activeCell : borderColor,
+            width: active ? 0 : 1,
+          ),
+        ),
+      );
+    });
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppTheme.gold.withValues(alpha: 0.8),
+          width: 1.2,
+        ),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x1F7A5C1D),
+            blurRadius: 16,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: AppTheme.gold.withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  readToday
-                      ? Icons.local_fire_department_rounded
-                      : Icons.local_fire_department_outlined,
-                  color: AppTheme.gold,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      streak <= 0 ? 'Start a streak' : '$streak-day streak',
-                      style: AppTheme.ui(
-                        fontSize: 16,
-                        weight: FontWeight.w700,
-                        color: t.ink,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      title,
-                      style: AppTheme.ui(
-                        fontSize: 12.5,
-                        weight: FontWeight.w600,
-                        color: AppTheme.gold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (longest > 0)
-                Text(
-                  'Best $longest',
-                  style: AppTheme.ui(fontSize: 11, color: t.inkSoft),
-                ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            encouragement,
-            style: AppTheme.ui(fontSize: 13, color: t.inkSoft, height: 1.4),
-          ),
-          if (nextMilestone != null) ...[
-            const SizedBox(height: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(999),
-              child: LinearProgressIndicator(
-                value: progress,
-                minHeight: 7,
-                backgroundColor: t.border,
-                color: AppTheme.gold,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              milestoneHit
-                  ? 'Milestone reached — next goal $nextMilestone days'
-                  : 'Next badge at $nextMilestone days',
-              style: AppTheme.ui(fontSize: 11, color: t.inkFaint),
-            ),
-          ],
-          if (!readToday) ...[
-            const SizedBox(height: 14),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton.icon(
-                onPressed: onKeepAlive,
-                icon: const Icon(Icons.menu_book_rounded, size: 18),
-                label: Text(
-                  streak <= 0
-                      ? 'Read to light your flame'
-                      : 'Keep the flame alive',
-                ),
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppTheme.gold,
-                  foregroundColor: AppTheme.onGold,
-                ),
-              ),
-            ),
-          ] else ...[
-            const SizedBox(height: 10),
-            Row(
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(
-                  Icons.check_circle_rounded,
-                  size: 16,
-                  color: AppTheme.teal,
-                ),
-                const SizedBox(width: 6),
                 Text(
-                  'Today’s reading counts',
+                  'STREAK',
                   style: AppTheme.ui(
-                    fontSize: 12,
-                    weight: FontWeight.w600,
-                    color: AppTheme.teal,
+                    fontSize: 11,
+                    weight: FontWeight.w700,
+                    color: AppTheme.gold,
+                    letterSpacing: 0.8,
                   ),
                 ),
+                const SizedBox(height: 4),
+                Text(
+                  streak > 0 ? '$streak days' : '1 day',
+                  style: AppTheme.brandTitle(
+                    fontSize: 20,
+                    weight: FontWeight.w700,
+                    color: primaryText,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(children: cells),
               ],
             ),
-          ],
+          ),
+          if (readToday)
+            const Icon(
+              Icons.check_circle_rounded,
+              size: 18,
+              color: AppTheme.success,
+            )
+          else
+            const Icon(
+              Icons.local_fire_department_rounded,
+              size: 18,
+              color: AppTheme.gold,
+            ),
         ],
       ),
     );
@@ -663,102 +631,77 @@ class _VerseOfDayCard extends StatelessWidget {
   const _VerseOfDayCard({
     required this.verse,
     required this.reference,
+    required this.versionId,
     required this.onOpen,
   });
 
   final String verse;
   final String reference;
+  final String versionId;
   final VoidCallback onOpen;
+
+  Future<void> _share(BuildContext context) async {
+    const downloadLine = 'Get BiblePulse — link coming soon';
+    final text = '"$verse"\n— $reference ($versionId)\n\n$downloadLine';
+    final box = context.findRenderObject() as RenderBox?;
+    final origin = box != null && box.hasSize
+        ? box.localToGlobal(Offset.zero) & box.size
+        : null;
+    try {
+      await Share.share(text, sharePositionOrigin: origin);
+    } catch (_) {
+      await Clipboard.setData(ClipboardData(text: text));
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Copied — sharing isn\u2019t available here',
+            style: AppTheme.ui(color: Colors.white),
+          ),
+          backgroundColor: AppTheme.teal,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onOpen,
-        borderRadius: BorderRadius.circular(6),
-        child: Ink(
-          decoration: BoxDecoration(
-            color: AppTheme.indigo,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: AppTheme.gold),
-            boxShadow: const [
-              BoxShadow(
-                color: AppTheme.goldSoft,
-                blurRadius: 0,
-                spreadRadius: 4,
-              ),
-            ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'VERSE OF THE DAY',
-                      style: AppTheme.ui(
-                        fontSize: 10,
-                        weight: FontWeight.w700,
-                        color: AppTheme.goldSoft,
-                        letterSpacing: 1.5,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      verse.isEmpty ? '' : verse.substring(0, 1),
-                      style: AppTheme.brandTitle(
-                        fontSize: 46,
-                        weight: FontWeight.w500,
-                        color: AppTheme.gold,
-                      ).copyWith(height: 0.8),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        verse.isEmpty ? '' : verse.substring(1),
-                        style: AppTheme.brandTitle(
-                          fontSize: 17,
-                          weight: FontWeight.w400,
-                          color: AppTheme.appBgLight,
-                        ).copyWith(height: 1.5),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                Center(
-                  child: Text(
-                    reference.toUpperCase(),
-                    style: AppTheme.ui(
-                      fontSize: 10,
-                      weight: FontWeight.w600,
-                      color: AppTheme.goldSoft,
-                      letterSpacing: 0.8,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Center(
-                  child: Container(
-                    width: 36,
-                    height: 1,
-                    color: AppTheme.goldSoft.withValues(alpha: 0.6),
-                  ),
-                ),
-              ],
-            ),
+    final engagement = context.watch<EngagementProvider>();
+    final study = context.watch<StudyProvider>();
+    final liked = engagement.isVerseLiked(reference, versionId: versionId);
+    final saved = study.isBookmarked(reference, versionId: versionId);
+    return BpIlluminatedCard(
+      tag: 'Verse of the day',
+      text: verse,
+      reference: reference,
+      onTap: onOpen,
+      actions: [
+        BpIlluminatedAction(
+          icon: liked ? Icons.favorite : Icons.favorite_border,
+          label: liked ? 'Liked' : 'Like',
+          color: liked ? const Color(0xFFE0705A) : null,
+          onTap: () => engagement.toggleVerseLike(
+            reference,
+            versionId: versionId,
           ),
         ),
-      ),
+        BpIlluminatedAction(
+          icon: Icons.ios_share_rounded,
+          label: 'Share',
+          onTap: () => _share(context),
+        ),
+        BpIlluminatedAction(
+          icon: saved ? Icons.bookmark : Icons.bookmark_border,
+          label: saved ? 'Saved' : 'Save',
+          onTap: () {
+            if (saved) {
+              study.removeBookmark(reference, versionId: versionId);
+            } else {
+              study.addBookmark(reference, verse, versionId: versionId);
+            }
+          },
+        ),
+      ],
     );
   }
 }
@@ -786,13 +729,8 @@ class _GuidedRow extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
       child: Row(
         children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: t.surface2,
-              borderRadius: BorderRadius.circular(12),
-            ),
+          BpMedallion(
+            size: 44,
             child: Icon(icon, color: AppTheme.gold, size: 20),
           ),
           const SizedBox(width: 12),
@@ -848,7 +786,11 @@ class _QuickCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: AppTheme.gold, size: 22),
+          BpMedallion(
+            size: 32,
+            ringColor: AppTheme.gold,
+            child: Icon(icon, color: AppTheme.gold, size: 16),
+          ),
           const SizedBox(height: 10),
           Text(
             title,

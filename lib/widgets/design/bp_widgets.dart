@@ -18,9 +18,9 @@ class BpCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final border = isDark ? AppTheme.borderDark : AppTheme.borderLight;
-    final surface = isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight;
+    final colors = context.colors;
+    final border = colors.border;
+    final surface = colors.surface;
     final radius = BorderRadius.circular(10);
 
     final body = Padding(
