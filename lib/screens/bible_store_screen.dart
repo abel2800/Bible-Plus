@@ -36,7 +36,8 @@ class BibleStoreScreen extends StatelessWidget {
                     decoration: InputDecoration(
                       hintText: l10n.searchVersions,
                       hintStyle: AppTheme.ui(fontSize: 13, color: t.inkFaint),
-                      prefixIcon: Icon(Icons.search, size: 19, color: t.inkSoft),
+                      prefixIcon:
+                          Icon(Icons.search, size: 19, color: t.inkSoft),
                       isDense: true,
                       filled: false,
                       contentPadding: const EdgeInsets.symmetric(
@@ -79,7 +80,9 @@ class BibleStoreScreen extends StatelessWidget {
                         label: 'YouVersion',
                         selected: store.categoryFilter == 'youversion',
                         onTap: () => store.setCategoryFilter(
-                          store.categoryFilter == 'youversion' ? 'all' : 'youversion',
+                          store.categoryFilter == 'youversion'
+                              ? 'all'
+                              : 'youversion',
                         ),
                       ),
                       _Chip(

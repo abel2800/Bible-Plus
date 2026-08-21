@@ -95,7 +95,8 @@ class BiblePackageService {
           final map = Map<String, dynamic>.from(item);
           final versionId = map['id']?.toString();
           if (versionId == null || versionId.isEmpty) continue;
-          final abbreviation = (map['abbreviation'] ?? map['id'])?.toString() ?? 'N/A';
+          final abbreviation =
+              (map['abbreviation'] ?? map['id'])?.toString() ?? 'N/A';
           final name = (map['name'] ?? abbreviation).toString();
           final langCode = (map['language_iso'] ?? language).toString();
           final versionCode = abbreviation.toUpperCase();
@@ -122,7 +123,8 @@ class BiblePackageService {
                   : const ['new', 'youversion', 'online'],
               fileSizeBytes: 0,
               offlineSizeBytes: 0,
-              updatedAt: DateTime.now().toUtc().toIso8601String().split('T').first,
+              updatedAt:
+                  DateTime.now().toUtc().toIso8601String().split('T').first,
               install: BiblePackageInstall(
                 type: 'youversion',
                 path: versionId,
@@ -513,7 +515,8 @@ class BiblePackageService {
 
     final versionId = int.tryParse(pkg.install.path ?? '');
     if (versionId == null || versionId <= 0) {
-      throw StateError('Package ${pkg.id} is missing a valid YouVersion version id.');
+      throw StateError(
+          'Package ${pkg.id} is missing a valid YouVersion version id.');
     }
     if (!YouVersionConfig.isOfflineVersionLicensed(versionId.toString())) {
       throw StateError(
@@ -545,7 +548,8 @@ class BiblePackageService {
     final langDir = p.join(support.path, 'bibles', pkg.language);
     await fs.ensureDir(langDir);
     final outPath = p.join(langDir, '${pkg.versionId.toLowerCase()}.json');
-    final merged = await _mergeYouVersionBookFiles(versionId, pkg.versionId, pkg.name, pkg.language);
+    final merged = await _mergeYouVersionBookFiles(
+        versionId, pkg.versionId, pkg.name, pkg.language);
     await fs.writeString(outPath, jsonEncode(merged));
 
     final size = await fs.fileLength(outPath);
@@ -596,16 +600,20 @@ class BiblePackageService {
 
       if (chaptersRaw is Map) {
         final keys = chaptersRaw.keys.toList()
-          ..sort((a, b) => int.parse(a.toString()).compareTo(int.parse(b.toString())));
+          ..sort((a, b) =>
+              int.parse(a.toString()).compareTo(int.parse(b.toString())));
         for (final key in keys) {
-          final chapterMap = chaptersRaw[key] as Map<String, dynamic>? ?? const {};
+          final chapterMap =
+              chaptersRaw[key] as Map<String, dynamic>? ?? const {};
           final versesList = chapterMap['verses'];
           final verses = <Map<String, dynamic>>[];
           if (versesList is List) {
             for (final item in versesList) {
               if (item is Map) {
-                final verseNumber = item['verse'] ?? item['id'] ?? item['number'];
-                final text = item['text'] ?? item['verse_text'] ?? item['content'] ?? '';
+                final verseNumber =
+                    item['verse'] ?? item['id'] ?? item['number'];
+                final text =
+                    item['text'] ?? item['verse_text'] ?? item['content'] ?? '';
                 if (verseNumber != null) {
                   verses.add({
                     'verse': int.tryParse(verseNumber.toString()) ?? 1,
@@ -625,7 +633,36 @@ class BiblePackageService {
       books.add({
         'id': bookId,
         'name': decoded['name'] ?? bookId,
-        'testament': bookId.startsWith('1') || bookId.startsWith('2') || bookId.startsWith('3') || bookId == 'MAT' || bookId == 'MRK' || bookId == 'LUK' || bookId == 'JHN' || bookId == 'ACT' || bookId == 'ROM' || bookId == '1CO' || bookId == '2CO' || bookId == 'GAL' || bookId == 'EPH' || bookId == 'PHP' || bookId == 'COL' || bookId == '1TH' || bookId == '2TH' || bookId == '1TI' || bookId == '2TI' || bookId == 'TIT' || bookId == 'PHM' || bookId == 'HEB' || bookId == 'JAS' || bookId == '1PE' || bookId == '2PE' || bookId == '1JN' || bookId == '2JN' || bookId == '3JN' || bookId == 'JUD' || bookId == 'REV'
+        'testament': bookId.startsWith('1') ||
+                bookId.startsWith('2') ||
+                bookId.startsWith('3') ||
+                bookId == 'MAT' ||
+                bookId == 'MRK' ||
+                bookId == 'LUK' ||
+                bookId == 'JHN' ||
+                bookId == 'ACT' ||
+                bookId == 'ROM' ||
+                bookId == '1CO' ||
+                bookId == '2CO' ||
+                bookId == 'GAL' ||
+                bookId == 'EPH' ||
+                bookId == 'PHP' ||
+                bookId == 'COL' ||
+                bookId == '1TH' ||
+                bookId == '2TH' ||
+                bookId == '1TI' ||
+                bookId == '2TI' ||
+                bookId == 'TIT' ||
+                bookId == 'PHM' ||
+                bookId == 'HEB' ||
+                bookId == 'JAS' ||
+                bookId == '1PE' ||
+                bookId == '2PE' ||
+                bookId == '1JN' ||
+                bookId == '2JN' ||
+                bookId == '3JN' ||
+                bookId == 'JUD' ||
+                bookId == 'REV'
             ? 'NT'
             : 'OT',
         'chapters': normalizedChapters,

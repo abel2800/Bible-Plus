@@ -72,65 +72,64 @@ class _SplashScreenState extends State<SplashScreen>
     return Scaffold(
       backgroundColor: t.appBg,
       body: Center(
-          child: FadeTransition(
-            opacity: _controller,
-            child: ScaleTransition(
-              scale: Tween(begin: 0.92, end: 1.0).animate(
-                CurvedAnimation(
-                  parent: _controller,
-                  curve: Curves.easeOutBack,
-                ),
+        child: FadeTransition(
+          opacity: _controller,
+          child: ScaleTransition(
+            scale: Tween(begin: 0.92, end: 1.0).animate(
+              CurvedAnimation(
+                parent: _controller,
+                curve: Curves.easeOutBack,
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 96,
-                    height: 96,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(22),
-                      color: AppTheme.indigo,
-                      border: Border.all(color: AppTheme.gold),
-                      boxShadow: [
-                        BoxShadow(
-                          color:
-                              AppTheme.gold.withValues(alpha: 0.25),
-                          blurRadius: 50,
-                          offset: const Offset(0, 20),
-                        ),
-                      ],
-                    ),
-                    alignment: Alignment.center,
-                    child: Text('B', style: markLetter),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 96,
+                  height: 96,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(22),
+                    color: AppTheme.indigo,
+                    border: Border.all(color: AppTheme.gold),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.gold.withValues(alpha: 0.25),
+                        blurRadius: 50,
+                        offset: const Offset(0, 20),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 18),
-                  Text('BiblePulse', style: titleStyle),
-                  const SizedBox(height: 4),
-                  Text('Scripture, illuminated.', style: taglineStyle),
-                  const SizedBox(height: 30),
-                  Container(
-                    width: 120,
-                    height: 2,
-                    decoration: BoxDecoration(
-                      color: t.border,
-                      borderRadius: BorderRadius.circular(1),
-                    ),
-                    alignment: Alignment.centerLeft,
-                    child: FractionallySizedBox(
-                      widthFactor: 0.45,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppTheme.gold,
-                          borderRadius: BorderRadius.circular(1),
-                        ),
+                  alignment: Alignment.center,
+                  child: Text('B', style: markLetter),
+                ),
+                const SizedBox(height: 18),
+                Text('BiblePulse', style: titleStyle),
+                const SizedBox(height: 4),
+                Text('Scripture, illuminated.', style: taglineStyle),
+                const SizedBox(height: 30),
+                Container(
+                  width: 120,
+                  height: 2,
+                  decoration: BoxDecoration(
+                    color: t.border,
+                    borderRadius: BorderRadius.circular(1),
+                  ),
+                  alignment: Alignment.centerLeft,
+                  child: FractionallySizedBox(
+                    widthFactor: 0.45,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppTheme.gold,
+                        borderRadius: BorderRadius.circular(1),
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
+      ),
     );
   }
 }

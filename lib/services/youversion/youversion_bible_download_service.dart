@@ -110,7 +110,8 @@ class YouVersionBibleDownloadService {
       Map<String, dynamic> bookData = {};
       if (await bookFile.exists()) {
         try {
-          bookData = jsonDecode(await bookFile.readAsString()) as Map<String, dynamic>;
+          bookData =
+              jsonDecode(await bookFile.readAsString()) as Map<String, dynamic>;
         } catch (_) {
           bookData = <String, dynamic>{};
         }
@@ -118,12 +119,15 @@ class YouVersionBibleDownloadService {
 
       bookData.putIfAbsent('book', () => book.usfm);
       bookData.putIfAbsent('chapters', () => <String, dynamic>{});
-      final chapters = bookData['chapters'] as Map<String, dynamic>? ?? <String, dynamic>{};
+      final chapters =
+          bookData['chapters'] as Map<String, dynamic>? ?? <String, dynamic>{};
       bookData['chapters'] = chapters;
 
       var bookHadNewWork = false;
 
-      for (var chapterNumber = 1; chapterNumber <= book.chapterCount; chapterNumber++) {
+      for (var chapterNumber = 1;
+          chapterNumber <= book.chapterCount;
+          chapterNumber++) {
         if (_cancelled) {
           await _saveCompletedChapters(versionId, completed);
           throw BibleDownloadCancelledException();

@@ -176,7 +176,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                             tooltip: parallel.enabled
                                 ? 'Disable Amharic parallel reading'
                                 : 'Enable Amharic parallel reading',
-                            onPressed: () => parallel.setEnabled(!parallel.enabled),
+                            onPressed: () =>
+                                parallel.setEnabled(!parallel.enabled),
                           ),
                         if (capabilities.audio) ...[
                           const SizedBox(width: 4),
@@ -263,12 +264,13 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                                         showAudioBar ? 140 : 100,
                                       ),
                                       itemCount:
-                                          bibleProvider.currentChapter.length + 1,
+                                          bibleProvider.currentChapter.length +
+                                              1,
                                       itemBuilder: (context, rawIndex) {
                                         if (rawIndex == 0) {
                                           return Padding(
-                                            padding:
-                                                const EdgeInsets.only(bottom: 14),
+                                            padding: const EdgeInsets.only(
+                                                bottom: 14),
                                             child: BpMedallion(
                                               size: 54,
                                               child: Text(
@@ -285,8 +287,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                                         final index = rawIndex - 1;
                                         final verse =
                                             bibleProvider.currentChapter[index];
-                                        final reference =
-                                            bibleProvider.getVerseReference(verse);
+                                        final reference = bibleProvider
+                                            .getVerseReference(verse);
                                         final versionId =
                                             bibleProvider.currentVersion;
                                         final isHighlighted =
@@ -326,16 +328,17 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                                                   reference,
                                                   versionId: versionId,
                                                 ),
-                                                hasNote:
-                                                    studyProvider.getNoteForVerse(
-                                                          reference,
-                                                          versionId: versionId,
-                                                        ) !=
-                                                        null,
+                                                hasNote: studyProvider
+                                                        .getNoteForVerse(
+                                                      reference,
+                                                      versionId: versionId,
+                                                    ) !=
+                                                    null,
                                                 isAudioActive: isSpoken,
-                                                textColor: readerTheme.textColor,
-                                                verseNumberColor:
-                                                    readerTheme.verseNumberColor,
+                                                textColor:
+                                                    readerTheme.textColor,
+                                                verseNumberColor: readerTheme
+                                                    .verseNumberColor,
                                                 fontSize: fontSettings.fontSize,
                                                 lineHeight:
                                                     fontSettings.lineHeight,
@@ -353,10 +356,11 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                                                   child: Text(
                                                     secondary.text,
                                                     style: AppTheme.ethopic(
-                                                      fontSize:
-                                                          fontSettings.fontSize -
-                                                              1,
-                                                      color: readerTheme.textColor
+                                                      fontSize: fontSettings
+                                                              .fontSize -
+                                                          1,
+                                                      color: readerTheme
+                                                          .textColor
                                                           .withValues(
                                                         alpha: 0.85,
                                                       ),
@@ -365,8 +369,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                                                 ),
                                               ],
                                               if (index <
-                                                  bibleProvider
-                                                          .currentChapter.length -
+                                                  bibleProvider.currentChapter
+                                                          .length -
                                                       1)
                                                 const SizedBox(height: 4),
                                             ],

@@ -145,7 +145,8 @@ class BpIlluminatedCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(6),
             border: Border.all(color: AppTheme.gold),
             boxShadow: const [
-              BoxShadow(color: AppTheme.goldSoft, blurRadius: 0, spreadRadius: 4),
+              BoxShadow(
+                  color: AppTheme.goldSoft, blurRadius: 0, spreadRadius: 4),
             ],
           ),
           child: Stack(
@@ -183,13 +184,19 @@ class BpIlluminatedCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Container(width: 36, height: 1, color: AppTheme.goldSoft.withValues(alpha: .6)),
+                    Container(
+                        width: 36,
+                        height: 1,
+                        color: AppTheme.goldSoft.withValues(alpha: .6)),
                     if (actions.isNotEmpty) ...[
                       const SizedBox(height: 10),
                       Container(
                         padding: const EdgeInsets.only(top: 8),
                         decoration: BoxDecoration(
-                          border: Border(top: BorderSide(color: AppTheme.goldSoft.withValues(alpha: .25))),
+                          border: Border(
+                              top: BorderSide(
+                                  color: AppTheme.goldSoft
+                                      .withValues(alpha: .25))),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -232,7 +239,10 @@ class _IlluminatedActionButton extends StatelessWidget {
             const SizedBox(height: 3),
             Text(
               action.label,
-              style: AppTheme.ui(fontSize: 9, weight: FontWeight.w600, color: color.withValues(alpha: .9)),
+              style: AppTheme.ui(
+                  fontSize: 9,
+                  weight: FontWeight.w600,
+                  color: color.withValues(alpha: .9)),
             ),
           ],
         ),
@@ -309,7 +319,7 @@ class _BpReadingThreadState extends State<BpReadingThread> {
         ? widget.scrollController.position
         : null;
     final fraction = position == null || position.maxScrollExtent <= 0
-      ? 1.0
+        ? 1.0
         : (position.pixels / position.maxScrollExtent).clamp(0.0, 1.0);
     final filled = (fraction * widget.tickCount).round();
     final active = widget.activeColor ?? AppTheme.gold;

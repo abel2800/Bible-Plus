@@ -113,7 +113,10 @@ class BiblePackageInfo {
           install.path != '0';
     }
     return install.isDownloadable &&
-        (approved || commercialUse || redistribution || install.type == 'asset');
+        (approved ||
+            commercialUse ||
+            redistribution ||
+            install.type == 'asset');
   }
 }
 

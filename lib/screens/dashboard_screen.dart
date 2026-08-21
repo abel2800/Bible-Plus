@@ -543,7 +543,8 @@ class _StreakCard extends StatelessWidget {
     final cardBg = isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight;
     final borderColor = isDark ? AppTheme.borderDark : AppTheme.borderLight;
     final activeCell = isDark ? AppTheme.goldSoft : AppTheme.gold;
-    final inactiveCell = isDark ? AppTheme.surface2Dark : AppTheme.surface2Light;
+    final inactiveCell =
+        isDark ? AppTheme.surface2Dark : AppTheme.surface2Light;
 
     final cells = List.generate(7, (index) {
       final active = index < (streak > 0 ? streak.clamp(0, 7) : 0);

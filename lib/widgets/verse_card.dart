@@ -47,13 +47,11 @@ class VerseCard extends StatelessWidget {
             : AppTheme.ink);
     final numberColor = verseNumberColor ?? AppTheme.gold;
     final tint = isAudioActive
-      ? AppTheme.goldSoft.withValues(alpha: 0.22)
+        ? AppTheme.goldSoft.withValues(alpha: 0.22)
         : isHighlighted
-        ? (highlightColor ?? AppTheme.goldSoft).withValues(alpha: 0.28)
+            ? (highlightColor ?? AppTheme.goldSoft).withValues(alpha: 0.28)
             : Colors.transparent;
-    final borderColor = isAudioActive
-      ? AppTheme.vermilion
-      : Colors.transparent;
+    final borderColor = isAudioActive ? AppTheme.vermilion : Colors.transparent;
 
     return GestureDetector(
       onTap: () {

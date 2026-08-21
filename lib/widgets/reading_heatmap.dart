@@ -47,15 +47,12 @@ class ReadingHeatmap extends StatelessWidget {
       return List.generate(7, (day) => cells[week * 7 + day]);
     });
 
-    final emptyColor = isDark
-        ? const Color(0xFF2B3553)
-        : const Color(0xFFE8DEC1);
-    final activeColor = isDark
-        ? const Color(0xFFD9A64B)
-        : const Color(0xFFB5862F);
-    final softActiveColor = isDark
-        ? const Color(0xFF8F6B2A)
-        : const Color(0xFFD4AF6A);
+    final emptyColor =
+        isDark ? const Color(0xFF2B3553) : const Color(0xFFE8DEC1);
+    final activeColor =
+        isDark ? const Color(0xFFD9A64B) : const Color(0xFFB5862F);
+    final softActiveColor =
+        isDark ? const Color(0xFF8F6B2A) : const Color(0xFFD4AF6A);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -104,7 +101,8 @@ class ReadingHeatmap extends StatelessWidget {
                                     boxShadow: cell.read
                                         ? [
                                             BoxShadow(
-                                              color: activeColor.withValues(alpha: 0.4),
+                                              color: activeColor.withValues(
+                                                  alpha: 0.4),
                                               blurRadius: 4,
                                               spreadRadius: 0.6,
                                             ),

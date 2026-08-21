@@ -43,7 +43,8 @@ class YouVersionApiClient {
     required String usfmReference,
   }) async {
     if (!YouVersionConfig.isConfigured) {
-      throw const YouVersionApiException('YOUVERSION_APP_KEY is not configured');
+      throw const YouVersionApiException(
+          'YOUVERSION_APP_KEY is not configured');
     }
 
     final uri = Uri.parse(
@@ -81,7 +82,8 @@ class YouVersionApiClient {
           }
 
           final retryAfter = response.headers['retry-after'];
-          final retrySeconds = retryAfter == null ? null : int.tryParse(retryAfter);
+          final retrySeconds =
+              retryAfter == null ? null : int.tryParse(retryAfter);
           if (retrySeconds != null) {
             await Future<void>.delayed(Duration(seconds: retrySeconds));
             continue;
