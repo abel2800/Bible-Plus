@@ -172,10 +172,3 @@ flutter test --exclude-tags golden
 ```
 
 GitHub Actions is configured to run formatting, analysis, Flutter tests, content-manifest validation, and Android APK/App Bundle builds. The current Flutter test directory contains the shared widget test; Firebase rule tests live separately under `firebase-tests`.
-
-## Project information
-
-- Repository: [abel2800/Bible-Plus](https://github.com/abel2800/Bible-Plus)
-- Package metadata: `pubspec.yaml`
-- Android build configuration: `android/app/build.gradle.kts`
-- CI workflow: `.github/workflows/ci.yml`
