@@ -2,6 +2,8 @@
 
 BiblePulse is a Flutter Bible reading and study application with an Android project in this repository. Its core reading experience is designed to work offline, with local study tools, daily reading progress, and optional audio and cloud services.
 
+Website: https://biblepulse-pearl.vercel.app/
+
 ## Current scope
 
 The maintained platform target in this checkout is Android. The repository does not include an iOS project or claim a release process for desktop or web platforms.
@@ -10,7 +12,7 @@ The maintained platform target in this checkout is Android. The repository does 
 | --- | --- |
 | Application ID | `app.biblepulse.reader` |
 | Flutter package | `bible_pulse` |
-| Version | `1.0.1+2` |
+| Version | `1.0.2+3` |
 | Dart constraint | `>=3.6.0 <4.0.0` |
 | Flutter constraint | `>=3.27.0` |
 | Android namespace | `app.biblepulse.reader` |
@@ -71,6 +73,17 @@ Content metadata is stored in:
 - `assets/content_manifest.json`
 
 Rights and redistribution status must be checked before adding or shipping new content.
+
+## Latest update
+
+Version 1.0.2 reduces the Android package size by:
+
+- Removing the FFmpeg native dependency
+- Bundling only WEB, NASV, and Amharic Bible data
+- Making verified YouVersion translations available as online downloads
+- Publishing architecture-specific APKs and an App Bundle through GitHub Releases
+
+The optimized release is approximately 66.9 MB as an App Bundle and 27 MB for the ARM64 APK. Download the latest Android release from the [BiblePulse website](https://biblepulse-pearl.vercel.app/) or the [GitHub releases page](https://github.com/abel2800/Bible-Plus/releases).
 
 ## Optional services
 
