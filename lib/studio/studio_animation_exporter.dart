@@ -1,8 +1,6 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
-import 'package:ffmpeg_kit_flutter_new/ffmpeg_kit.dart';
-import 'package:ffmpeg_kit_flutter_new/return_code.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -25,7 +23,7 @@ class StudioAnimationExportResult {
   final String message;
 }
 
-/// Captures motion frames → MP4 (FFmpeg Kit / system ffmpeg) or animated GIF.
+/// Captures motion frames as an animated GIF.
 class StudioAnimationExporter {
   Future<StudioAnimationExportResult> export({
     required BuildContext context,
@@ -120,22 +118,6 @@ class StudioAnimationExporter {
       await file.writeAsBytes(frames[i]);
     }
 
-    final mp4Path = p.join(dir.path, 'biblepulse_$stamp.mp4');
-    final pattern = p.join(frameDir.path, 'frame_%03d.png');
-    final mp4Ok = await _tryEncodeMp4(
-      framePattern: pattern,
-      outputPath: mp4Path,
-      fps: fps,
-    );
-
-    if (mp4Ok) {
-      return StudioAnimationExportResult(
-        filePath: mp4Path,
-        isMp4: true,
-        message: 'MP4 wallpaper exported',
-      );
-    }
-
     final gifPath = p.join(dir.path, 'biblepulse_$stamp.gif');
     final encoder = img.GifEncoder(repeat: 0);
     for (final png in frames) {
@@ -154,52 +136,5 @@ class StudioAnimationExporter {
       message:
           'Animated GIF exported (MP4 encoder unavailable on this device).',
     );
-  }
-
-  Future<bool> _tryEncodeMp4({
-    required String framePattern,
-    required String outputPath,
-    required int fps,
-  }) async {
-    final command =
-        '-y -framerate $fps -i "$framePattern" -c:v mpeg4 -q:v 5 "$outputPath"';
-
-    // FFmpeg Kit is linked on Android / iOS / macOS. Windows CI strips the
-    // native plugin (see tools/ci/strip_ffmpeg_windows_plugin.ps1).
-    final useKit =
-        !kIsWeb && (Platform.isAndroid || Platform.isIOS || Platform.isMacOS);
-    if (useKit) {
-      try {
-        final session = await FFmpegKit.execute(command);
-        final code = await session.getReturnCode();
-        if (ReturnCode.isSuccess(code) && File(outputPath).existsSync()) {
-          return true;
-        }
-      } catch (_) {}
-    }
-
-    try {
-      final result = await Process.run(
-        'ffmpeg',
-        [
-          '-y',
-          '-framerate',
-          '$fps',
-          '-i',
-          framePattern,
-          '-c:v',
-          'libx264',
-          '-pix_fmt',
-          'yuv420p',
-          outputPath,
-        ],
-        runInShell: true,
-      );
-      if (result.exitCode == 0 && File(outputPath).existsSync()) {
-        return true;
-      }
-    } catch (_) {}
-
-    return false;
   }
 }

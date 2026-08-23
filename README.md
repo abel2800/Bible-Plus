@@ -20,8 +20,8 @@ The maintained platform target in this checkout is Android. The repository does 
 ### Bible reading
 
 - Local Bible reading with book and chapter navigation
-- Bundled WEB, KJV, ASV, and Amharic Bible data
-- Additional Bible packages declared in the catalog and bundled as configured assets
+- Bundled WEB, NASV, and Amharic Bible data
+- Additional Bible packages available through the online Bible store
 - Search and direct navigation to Scripture results
 - Adjustable reading appearance and text comfort settings
 - Verse actions for copying, sharing, highlighting, bookmarking, and notes
@@ -49,7 +49,7 @@ Audio is not bundled in the repository as a complete offline audio library. The 
 - Scripture artwork and wallpaper creation
 - Templates, typography, colors, and photo backgrounds on supported Android devices
 - Still-image sharing and export
-- Animation export support through the configured media pipeline
+- Animated GIF export for Verse Studio designs
 
 ### Android integration
 
@@ -148,6 +148,12 @@ For an Android App Bundle:
 
 ```bash
 flutter build appbundle --release
+```
+
+For architecture-specific APKs:
+
+```bash
+flutter build apk --release --split-per-abi
 ```
 
 Release signing uses these environment variables when a publishable signed artifact is required:
