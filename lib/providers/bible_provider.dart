@@ -48,6 +48,8 @@ class BibleProvider with ChangeNotifier {
 
   BibleVerse? get verseOfTheDay => _verseOfTheDay;
 
+  BibleVerse? get lastReadVerse => _lastReadVerse;
+
   BibleVerse? _lastReadVerse;
   BibleVerse? _verseOfTheDay;
 

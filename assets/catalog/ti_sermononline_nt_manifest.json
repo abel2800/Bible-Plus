@@ -1,0 +1,412 @@
+{
+  "schemaVersion": 1,
+  "versionId": "WEAHADU_TI_1997",
+  "versionAliases": [
+    "TIR"
+  ],
+  "filesetId": "ti-sermononline-nt",
+  "baseUrl": "https://info2.sermon-online.com/tigrinya/Bible/Tigrinya-Audio_Bible_Complete_New_Testament_NT_MP3/",
+  "allowedHosts": [
+    "info2.sermon-online.com"
+  ],
+  "attribution": "Tigrinya New Testament audio courtesy of Sermon-Online.com. Stream and share freely for personal and ministry use.",
+  "downloadPermitted": true,
+  "sourcePage": "https://info2.sermon-online.com/tigrinya/Bible/",
+  "books": [
+    {
+      "bookId": 40,
+      "chapters": [
+        "40001-The_Book_Of_Matthew_Chapter-001.mp3",
+        "40002-The_Book_Of_Matthew_Chapter-002.mp3",
+        "40003-The_Book_Of_Matthew_Chapter-003.mp3",
+        "40004-The_Book_Of_Matthew_Chapter-004.mp3",
+        "40005-The_Book_Of_Matthew_Chapter-005.mp3",
+        "40006-The_Book_Of_Matthew_Chapter-006.mp3",
+        "40007-The_Book_Of_Matthew_Chapter-007.mp3",
+        "40008-The_Book_Of_Matthew_Chapter-008.mp3",
+        "40009-The_Book_Of_Matthew_Chapter-009.mp3",
+        "40010-The_Book_Of_Matthew_Chapter-010.mp3",
+        "40011-The_Book_Of_Matthew_Chapter-011.mp3",
+        "40012-The_Book_Of_Matthew_Chapter-012.mp3",
+        "40013-The_Book_Of_Matthew_Chapter-013.mp3",
+        "40014-The_Book_Of_Matthew_Chapter-014.mp3",
+        "40015-The_Book_Of_Matthew_Chapter-015.mp3",
+        "40016-The_Book_Of_Matthew_Chapter-016.mp3",
+        "40017-The_Book_Of_Matthew_Chapter-017.mp3",
+        "40018-The_Book_Of_Matthew_Chapter-018.mp3",
+        "40019-The_Book_Of_Matthew_Chapter-019.mp3",
+        "40020-The_Book_Of_Matthew_Chapter-020.mp3",
+        "40021-The_Book_Of_Matthew_Chapter-021.mp3",
+        "40022-The_Book_Of_Matthew_Chapter-022.mp3",
+        "40023-The_Book_Of_Matthew_Chapter-023.mp3",
+        "40024-The_Book_Of_Matthew_Chapter-024.mp3",
+        "40025-The_Book_Of_Matthew_Chapter-025.mp3",
+        "40026-The_Book_Of_Matthew_Chapter-026.mp3",
+        "40027-The_Book_Of_Matthew_Chapter-027.mp3",
+        "40028-The_Book_Of_Matthew_Chapter-028.mp3"
+      ]
+    },
+    {
+      "bookId": 41,
+      "chapters": [
+        "41001-The_Book_Of_Mark_Chapter-001.mp3",
+        "41002-The_Book_Of_Mark_Chapter-002.mp3",
+        "41003-The_Book_Of_Mark_Chapter-003.mp3",
+        "41004-The_Book_Of_Mark_Chapter-004.mp3",
+        "41005-The_Book_Of_Mark_Chapter-005.mp3",
+        "41006-The_Book_Of_Mark_Chapter-006.mp3",
+        "41007-The_Book_Of_Mark_Chapter-007.mp3",
+        "41008-The_Book_Of_Mark_Chapter-008.mp3",
+        "41009-The_Book_Of_Mark_Chapter-009.mp3",
+        "41010-The_Book_Of_Mark_Chapter-010.mp3",
+        "41011-The_Book_Of_Mark_Chapter-011.mp3",
+        "41012-The_Book_Of_Mark_Chapter-012.mp3",
+        "41013-The_Book_Of_Mark_Chapter-013.mp3",
+        "41014-The_Book_Of_Mark_Chapter-014.mp3",
+        "41015-The_Book_Of_Mark_Chapter-015.mp3",
+        "41016-The_Book_Of_Mark_Chapter-016.mp3"
+      ]
+    },
+    {
+      "bookId": 42,
+      "chapters": [
+        "42001-The_Book_Of_Luke_Chapter-001.mp3",
+        "42002-The_Book_Of_Luke_Chapter-002.mp3",
+        "42003-The_Book_Of_Luke_Chapter-003.mp3",
+        "42004-The_Book_Of_Luke_Chapter-004.mp3",
+        "42005-The_Book_Of_Luke_Chapter-005.mp3",
+        "42006-The_Book_Of_Luke_Chapter-006.mp3",
+        "42007-The_Book_Of_Luke_Chapter-007.mp3",
+        "42008-The_Book_Of_Luke_Chapter-008.mp3",
+        "42009-The_Book_Of_Luke_Chapter-009.mp3",
+        "42010-The_Book_Of_Luke_Chapter-010.mp3",
+        "42011-The_Book_Of_Luke_Chapter-011.mp3",
+        "42012-The_Book_Of_Luke_Chapter-012.mp3",
+        "42013-The_Book_Of_Luke_Chapter-013.mp3",
+        "42014-The_Book_Of_Luke_Chapter-014.mp3",
+        "42015-The_Book_Of_Luke_Chapter-015.mp3",
+        "42016-The_Book_Of_Luke_Chapter-016.mp3",
+        "42017-The_Book_Of_Luke_Chapter-017.mp3",
+        "42018-The_Book_Of_Luke_Chapter-018.mp3",
+        "42019-The_Book_Of_Luke_Chapter-019.mp3",
+        "42020-The_Book_Of_Luke_Chapter-020.mp3",
+        "42021-The_Book_Of_Luke_Chapter-021.mp3",
+        "42022-The_Book_Of_Luke_Chapter-022.mp3",
+        "42023-The_Book_Of_Luke_Chapter-023.mp3",
+        "42024-The_Book_Of_Luke_Chapter-024.mp3"
+      ]
+    },
+    {
+      "bookId": 43,
+      "chapters": [
+        "43001-The_Book_Of_John_Chapter-001.mp3",
+        "43002-The_Book_Of_John_Chapter-002.mp3",
+        "43003-The_Book_Of_John_Chapter-003.mp3",
+        "43004-The_Book_Of_John_Chapter-004.mp3",
+        "43005-The_Book_Of_John_Chapter-005.mp3",
+        "43006-The_Book_Of_John_Chapter-006.mp3",
+        "43007-The_Book_Of_John_Chapter-007.mp3",
+        "43008-The_Book_Of_John_Chapter-008.mp3",
+        "43009-The_Book_Of_John_Chapter-009.mp3",
+        "43010-The_Book_Of_John_Chapter-010.mp3",
+        "43011-The_Book_Of_John_Chapter-011.mp3",
+        "43012-The_Book_Of_John_Chapter-012.mp3",
+        "43013-The_Book_Of_John_Chapter-013.mp3",
+        "43014-The_Book_Of_John_Chapter-014.mp3",
+        "43015-The_Book_Of_John_Chapter-015.mp3",
+        "43016-The_Book_Of_John_Chapter-016.mp3",
+        "43017-The_Book_Of_John_Chapter-017.mp3",
+        "43018-The_Book_Of_John_Chapter-018.mp3",
+        "43019-The_Book_Of_John_Chapter-019.mp3",
+        "43020-The_Book_Of_John_Chapter-020.mp3",
+        "43021-The_Book_Of_John_Chapter-021.mp3"
+      ]
+    },
+    {
+      "bookId": 44,
+      "chapters": [
+        "44001-The_Book_Of_Acts_Chapter-001.mp3",
+        "44002-The_Book_Of_Acts_Chapter-002.mp3",
+        "44003-The_Book_Of_Acts_Chapter-003.mp3",
+        "44004-The_Book_Of_Acts_Chapter-004.mp3",
+        "44005-The_Book_Of_Acts_Chapter-005.mp3",
+        "44006-The_Book_Of_Acts_Chapter-006.mp3",
+        "44007-The_Book_Of_Acts_Chapter-007.mp3",
+        "44008-The_Book_Of_Acts_Chapter-008.mp3",
+        "44009-The_Book_Of_Acts_Chapter-009.mp3",
+        "44010-The_Book_Of_Acts_Chapter-010.mp3",
+        "44011-The_Book_Of_Acts_Chapter-011.mp3",
+        "44012-The_Book_Of_Acts_Chapter-012.mp3",
+        "44013-The_Book_Of_Acts_Chapter-013.mp3",
+        "44014-The_Book_Of_Acts_Chapter-014.mp3",
+        "44015-The_Book_Of_Acts_Chapter-015.mp3",
+        "44016-The_Book_Of_Acts_Chapter-016.mp3",
+        "44017-The_Book_Of_Acts_Chapter-017.mp3",
+        "44018-The_Book_Of_Acts_Chapter-018.mp3",
+        "44019-The_Book_Of_Acts_Chapter-019.mp3",
+        "44020-The_Book_Of_Acts_Chapter-020.mp3",
+        "44021-The_Book_Of_Acts_Chapter-021.mp3",
+        "44022-The_Book_Of_Acts_Chapter-022.mp3",
+        "44023-The_Book_Of_Acts_Chapter-023.mp3",
+        "44024-The_Book_Of_Acts_Chapter-024.mp3",
+        "44025-The_Book_Of_Acts_Chapter-025.mp3",
+        "44026-The_Book_Of_Acts_Chapter-026.mp3",
+        "44027-The_Book_Of_Acts_Chapter-027.mp3",
+        "44028-The_Book_Of_Acts_Chapter-028.mp3"
+      ]
+    },
+    {
+      "bookId": 45,
+      "chapters": [
+        "45001-The_Book_Of_Romans_Chapter-001.mp3",
+        "45002-The_Book_Of_Romans_Chapter-002.mp3",
+        "45003-The_Book_Of_Romans_Chapter-003.mp3",
+        "45004-The_Book_Of_Romans_Chapter-004.mp3",
+        "45005-The_Book_Of_Romans_Chapter-005.mp3",
+        "45006-The_Book_Of_Romans_Chapter-006.mp3",
+        "45007-The_Book_Of_Romans_Chapter-007.mp3",
+        "45008-The_Book_Of_Romans_Chapter-008.mp3",
+        "45009-The_Book_Of_Romans_Chapter-009.mp3",
+        "45010-The_Book_Of_Romans_Chapter-010.mp3",
+        "45011-The_Book_Of_Romans_Chapter-011.mp3",
+        "45012-The_Book_Of_Romans_Chapter-012.mp3",
+        "45013-The_Book_Of_Romans_Chapter-013.mp3",
+        "45014-The_Book_Of_Romans_Chapter-014.mp3",
+        "45015-The_Book_Of_Romans_Chapter-015.mp3",
+        "45016-The_Book_Of_Romans_Chapter-016.mp3"
+      ]
+    },
+    {
+      "bookId": 46,
+      "chapters": [
+        "46001-The_Book_Of_1_Corinthians_Chapter-001.mp3",
+        "46002-The_Book_Of_1_Corinthians_Chapter-002.mp3",
+        "46003-The_Book_Of_1_Corinthians_Chapter-003.mp3",
+        "46004-The_Book_Of_1_Corinthians_Chapter-004.mp3",
+        "46005-The_Book_Of_1_Corinthians_Chapter-005.mp3",
+        "46006-The_Book_Of_1_Corinthians_Chapter-006.mp3",
+        "46007-The_Book_Of_1_Corinthians_Chapter-007.mp3",
+        "46008-The_Book_Of_1_Corinthians_Chapter-008.mp3",
+        "46009-The_Book_Of_1_Corinthians_Chapter-009.mp3",
+        "46010-The_Book_Of_1_Corinthians_Chapter-010.mp3",
+        "46011-The_Book_Of_1_Corinthians_Chapter-011.mp3",
+        "46012-The_Book_Of_1_Corinthians_Chapter-012.mp3",
+        "46013-The_Book_Of_1_Corinthians_Chapter-013.mp3",
+        "46014-The_Book_Of_1_Corinthians_Chapter-014.mp3",
+        "46015-The_Book_Of_1_Corinthians_Chapter-015.mp3",
+        "46016-The_Book_Of_1_Corinthians_Chapter-016.mp3"
+      ]
+    },
+    {
+      "bookId": 47,
+      "chapters": [
+        "47001-The_Book_Of_2_Corinthians_Chapter-001.mp3",
+        "47002-The_Book_Of_2_Corinthians_Chapter-002.mp3",
+        "47003-The_Book_Of_2_Corinthians_Chapter-003.mp3",
+        "47004-The_Book_Of_2_Corinthians_Chapter-004.mp3",
+        "47005-The_Book_Of_2_Corinthians_Chapter-005.mp3",
+        "47006-The_Book_Of_2_Corinthians_Chapter-006.mp3",
+        "47007-The_Book_Of_2_Corinthians_Chapter-007.mp3",
+        "47008-The_Book_Of_2_Corinthians_Chapter-008.mp3",
+        "47009-The_Book_Of_2_Corinthians_Chapter-009.mp3",
+        "47010-The_Book_Of_2_Corinthians_Chapter-010.mp3",
+        "47011-The_Book_Of_2_Corinthians_Chapter-011.mp3",
+        "47012-The_Book_Of_2_Corinthians_Chapter-012.mp3",
+        "47013-The_Book_Of_2_Corinthians_Chapter-013.mp3"
+      ]
+    },
+    {
+      "bookId": 48,
+      "chapters": [
+        "48001-The_Book_Of_Galatians_Chapter-001.mp3",
+        "48002-The_Book_Of_Galatians_Chapter-002.mp3",
+        "48003-The_Book_Of_Galatians_Chapter-003.mp3",
+        "48004-The_Book_Of_Galatians_Chapter-004.mp3",
+        "48005-The_Book_Of_Galatians_Chapter-005.mp3",
+        "48006-The_Book_Of_Galatians_Chapter-006.mp3"
+      ]
+    },
+    {
+      "bookId": 49,
+      "chapters": [
+        "49001-The_Book_Of_Ephesians_Chapter-001.mp3",
+        "49002-The_Book_Of_Ephesians_Chapter-002.mp3",
+        "49003-The_Book_Of_Ephesians_Chapter-003.mp3",
+        "49004-The_Book_Of_Ephesians_Chapter-004.mp3",
+        "49005-The_Book_Of_Ephesians_Chapter-005.mp3",
+        "49006-The_Book_Of_Ephesians_Chapter-006.mp3"
+      ]
+    },
+    {
+      "bookId": 50,
+      "chapters": [
+        "50001-The_Book_Of_Philippians_Chapter-001.mp3",
+        "50002-The_Book_Of_Philippians_Chapter-002.mp3",
+        "50003-The_Book_Of_Philippians_Chapter-003.mp3",
+        "50004-The_Book_Of_Philippians_Chapter-004.mp3"
+      ]
+    },
+    {
+      "bookId": 51,
+      "chapters": [
+        "51001-The_Book_Of_Colossians_Chapter-001.mp3",
+        "51002-The_Book_Of_Colossians_Chapter-002.mp3",
+        "51003-The_Book_Of_Colossians_Chapter-003.mp3",
+        "51004-The_Book_Of_Colossians_Chapter-004.mp3"
+      ]
+    },
+    {
+      "bookId": 52,
+      "chapters": [
+        "52001-The_Book_Of_Jude_Chapter-001.mp3"
+      ]
+    },
+    {
+      "bookId": 53,
+      "chapters": [
+        "53001-The_Book_Of_1_Thessalonians_Chapter-001.mp3",
+        "53002-The_Book_Of_1_Thessalonians_Chapter-002.mp3",
+        "53003-The_Book_Of_1_Thessalonians_Chapter-003.mp3",
+        "53004-The_Book_Of_1_Thessalonians_Chapter-004.mp3",
+        "53005-The_Book_Of_1_Thessalonians_Chapter-005.mp3"
+      ]
+    },
+    {
+      "bookId": 54,
+      "chapters": [
+        "54001-The_Book_Of_2_Thessalonians_Chapter-001.mp3",
+        "54002-The_Book_Of_2_Thessalonians_Chapter-002.mp3",
+        "54003-The_Book_Of_2_Thessalonians_Chapter-003.mp3"
+      ]
+    },
+    {
+      "bookId": 55,
+      "chapters": [
+        "55001-The_Book_Of_1_Timothy_Chapter-001.mp3",
+        "55002-The_Book_Of_1_Timothy_Chapter-002.mp3",
+        "55003-The_Book_Of_1_Timothy_Chapter-003.mp3",
+        "55004-The_Book_Of_1_Timothy_Chapter-004.mp3",
+        "55005-The_Book_Of_1_Timothy_Chapter-005.mp3",
+        "55006-The_Book_Of_1_Timothy_Chapter-006.mp3"
+      ]
+    },
+    {
+      "bookId": 56,
+      "chapters": [
+        "56001-The_Book_Of_2_Timothy_Chapter-001.mp3",
+        "56002-The_Book_Of_2_Timothy_Chapter-002.mp3",
+        "56003-The_Book_Of_2_Timothy_Chapter-003.mp3",
+        "56004-The_Book_Of_2_Timothy_Chapter-004.mp3"
+      ]
+    },
+    {
+      "bookId": 57,
+      "chapters": [
+        "57001-The_Book_Of_Titus_Chapter-001.mp3",
+        "57002-The_Book_Of_Titus_Chapter-002.mp3",
+        "57003-The_Book_Of_Titus_Chapter-003.mp3"
+      ]
+    },
+    {
+      "bookId": 58,
+      "chapters": [
+        "58001-The_Book_Of_Philemon_Chapter-001.mp3"
+      ]
+    },
+    {
+      "bookId": 59,
+      "chapters": [
+        "59001-The_Book_Of_Hebrews_Chapter-001.mp3",
+        "59002-The_Book_Of_Hebrews_Chapter-002.mp3",
+        "59003-The_Book_Of_Hebrews_Chapter-003.mp3",
+        "59004-The_Book_Of_Hebrews_Chapter-004.mp3",
+        "59005-The_Book_Of_Hebrews_Chapter-005.mp3",
+        "59006-The_Book_Of_Hebrews_Chapter-006.mp3",
+        "59007-The_Book_Of_Hebrews_Chapter-007.mp3",
+        "59008-The_Book_Of_Hebrews_Chapter-008.mp3",
+        "59009-The_Book_Of_Hebrews_Chapter-009.mp3",
+        "59010-The_Book_Of_Hebrews_Chapter-010.mp3",
+        "59011-The_Book_Of_Hebrews_Chapter-011.mp3",
+        "59012-The_Book_Of_Hebrews_Chapter-012.mp3",
+        "59013-The_Book_Of_Hebrews_Chapter-013.mp3"
+      ]
+    },
+    {
+      "bookId": 60,
+      "chapters": [
+        "60001-The_Book_Of_James_Chapter-001.mp3",
+        "60002-The_Book_Of_James_Chapter-002.mp3",
+        "60003-The_Book_Of_James_Chapter-003.mp3",
+        "60004-The_Book_Of_James_Chapter-004.mp3",
+        "60005-The_Book_Of_James_Chapter-005.mp3"
+      ]
+    },
+    {
+      "bookId": 61,
+      "chapters": [
+        "61001-The_Book_Of_1_Peter_Chapter-001.mp3",
+        "61002-The_Book_Of_1_Peter_Chapter-002.mp3",
+        "61003-The_Book_Of_1_Peter_Chapter-003.mp3",
+        "61004-The_Book_Of_1_Peter_Chapter-004.mp3",
+        "61005-The_Book_Of_1_Peter_Chapter-005.mp3"
+      ]
+    },
+    {
+      "bookId": 62,
+      "chapters": [
+        "62001-The_Book_Of_2_Peter_Chapter-001.mp3",
+        "62002-The_Book_Of_2_Peter_Chapter-002.mp3",
+        "62003-The_Book_Of_2_Peter_Chapter-003.mp3"
+      ]
+    },
+    {
+      "bookId": 63,
+      "chapters": [
+        "63001-The_Book_Of_1_John_Chapter-001.mp3",
+        "63002-The_Book_Of_1_John_Chapter-002.mp3",
+        "63003-The_Book_Of_1_John_Chapter-003.mp3",
+        "63004-The_Book_Of_1_John_Chapter-004.mp3",
+        "63005-The_Book_Of_1_John_Chapter-005.mp3"
+      ]
+    },
+    {
+      "bookId": 64,
+      "chapters": [
+        "64001-The_Book_Of_2_John_Chapter-001.mp3"
+      ]
+    },
+    {
+      "bookId": 65,
+      "chapters": [
+        "65001-The_Book_Of_3_John_Chapter-001.mp3"
+      ]
+    },
+    {
+      "bookId": 66,
+      "chapters": [
+        "66001-The_Book_Of_Revelation_Chapter-001.mp3",
+        "66002-The_Book_Of_Revelation_Chapter-002.mp3",
+        "66003-The_Book_Of_Revelation_Chapter-003.mp3",
+        "66004-The_Book_Of_Revelation_Chapter-004.mp3",
+        "66005-The_Book_Of_Revelation_Chapter-005.mp3",
+        "66006-The_Book_Of_Revelation_Chapter-006.mp3",
+        "66007-The_Book_Of_Revelation_Chapter-007.mp3",
+        "66008-The_Book_Of_Revelation_Chapter-008.mp3",
+        "66009-The_Book_Of_Revelation_Chapter-009.mp3",
+        "66010-The_Book_Of_Revelation_Chapter-010.mp3",
+        "66011-The_Book_Of_Revelation_Chapter-011.mp3",
+        "66012-The_Book_Of_Revelation_Chapter-012.mp3",
+        "66013-The_Book_Of_Revelation_Chapter-013.mp3",
+        "66014-The_Book_Of_Revelation_Chapter-014.mp3",
+        "66015-The_Book_Of_Revelation_Chapter-015.mp3",
+        "66016-The_Book_Of_Revelation_Chapter-016.mp3",
+        "66017-The_Book_Of_Revelation_Chapter-017.mp3",
+        "66018-The_Book_Of_Revelation_Chapter-018.mp3",
+        "66019-The_Book_Of_Revelation_Chapter-019.mp3",
+        "66020-The_Book_Of_Revelation_Chapter-020.mp3",
+        "66021-The_Book_Of_Revelation_Chapter-021.mp3",
+        "66022-The_Book_Of_Revelation_Chapter-022.mp3"
+      ]
+    }
+  ]
+}

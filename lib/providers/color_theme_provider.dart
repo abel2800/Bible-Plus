@@ -3,7 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/color_theme.dart';
 
 class ColorThemeProvider extends ChangeNotifier {
-  ReaderColorTheme _currentTheme = ReaderColorTheme.presets[0];
+  ReaderColorTheme _currentTheme =
+      ReaderColorTheme.getById('dark') ?? ReaderColorTheme.presets.first;
 
   ReaderColorTheme get currentTheme => _currentTheme;
   List<ReaderColorTheme> get availableThemes => ReaderColorTheme.presets;
@@ -11,7 +12,7 @@ class ColorThemeProvider extends ChangeNotifier {
   Future<void> loadTheme() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final themeId = prefs.getString('reader_theme') ?? 'light';
+      final themeId = prefs.getString('reader_theme') ?? 'dark';
 
       final theme = ReaderColorTheme.getById(themeId);
       if (theme != null) {
@@ -48,7 +49,11 @@ class ColorThemeProvider extends ChangeNotifier {
     final targetId = isDark ? 'dark' : 'light';
     if (_currentTheme.id == targetId) return;
 
-    if (_currentTheme.id == 'eye_comfort') return;
+    if (_currentTheme.id == 'sepia' ||
+        _currentTheme.id == 'glass' ||
+        _currentTheme.id == 'void') {
+      return;
+    }
     await setTheme(targetId);
   }
 }

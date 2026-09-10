@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/audio_contracts.dart';
+import '../services/catalog_audio_resolver.dart';
 
 class AudioDownloadProvider extends ChangeNotifier {
   AudioDownloadProvider({
@@ -24,6 +25,7 @@ class AudioDownloadProvider extends ChangeNotifier {
   int? _currentTotalBytes;
   int _cacheSizeBytes = 0;
   String? _error;
+  String? _activePackageId;
 
   bool get wifiOnly => _wifiOnly;
   bool get downloading => _downloading;
@@ -34,6 +36,7 @@ class AudioDownloadProvider extends ChangeNotifier {
   int? get currentTotalBytes => _currentTotalBytes;
   int get cacheSizeBytes => _cacheSizeBytes;
   String? get error => _error;
+  String? get activePackageId => _activePackageId;
   double get progress {
     if (_totalChapters == 0) return 0;
     final chapterProgress =
@@ -73,9 +76,11 @@ class AudioDownloadProvider extends ChangeNotifier {
   Future<void> downloadFullBible({
     required String versionId,
     required List<({int bookId, int chapterCount})> books,
+    String? packageId,
   }) {
     return downloadChapters(
       versionId: versionId,
+      packageId: packageId,
       chapters: [
         for (final book in books)
           for (var chapter = 1; chapter <= book.chapterCount; chapter++)
@@ -87,6 +92,7 @@ class AudioDownloadProvider extends ChangeNotifier {
   Future<void> downloadChapters({
     required String versionId,
     required List<({int bookId, int chapter})> chapters,
+    String? packageId,
   }) async {
     if (_downloading || chapters.isEmpty) return;
     if (_wifiOnly && !await _isUnmetered()) {
@@ -97,10 +103,14 @@ class AudioDownloadProvider extends ChangeNotifier {
     _downloading = true;
     _pauseRequested = false;
     _error = null;
+    _activePackageId = packageId;
     _completedChapters = 0;
     _totalChapters = chapters.length;
     notifyListeners();
     try {
+      if (resolver is CatalogAudioResolver) {
+        (resolver as CatalogAudioResolver).setActivePackageId(packageId);
+      }
       for (final item in chapters) {
         if (_pauseRequested) break;
         final source = await resolver.resolve(
@@ -138,6 +148,7 @@ class AudioDownloadProvider extends ChangeNotifier {
       }
     } finally {
       _downloading = false;
+      _activePackageId = null;
       await refreshCacheSize();
       notifyListeners();
     }

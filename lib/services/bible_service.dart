@@ -105,7 +105,7 @@ class BibleService {
 
     try {
       final remote = await _remoteChapter(version, bookId, chapter);
-      if (remote != null) {
+      if (remote != null && remote.isNotEmpty) {
         _chapterCache[cacheKey] = remote;
         return remote;
       }

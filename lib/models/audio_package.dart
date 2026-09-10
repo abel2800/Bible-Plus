@@ -14,6 +14,8 @@ class AudioPackageInfo {
   final List<String> category;
   final bool approved;
   final bool requiresAudioConfig;
+  final bool offlineDownload;
+  final List<String> textVersionIds;
   final String updatedAt;
 
   const AudioPackageInfo({
@@ -32,6 +34,8 @@ class AudioPackageInfo {
     required this.category,
     required this.approved,
     required this.requiresAudioConfig,
+    this.offlineDownload = true,
+    this.textVersionIds = const [],
     required this.updatedAt,
   });
 
@@ -55,8 +59,19 @@ class AudioPackageInfo {
           .toList(),
       approved: json['approved'] as bool? ?? false,
       requiresAudioConfig: json['requiresAudioConfig'] as bool? ?? true,
+      offlineDownload: json['offlineDownload'] as bool? ?? true,
+      textVersionIds: (json['textVersionIds'] as List<dynamic>? ?? const [])
+          .map((e) => e.toString().toUpperCase())
+          .toList(),
       updatedAt: json['updatedAt'] as String? ?? '',
     );
+  }
+
+  Iterable<String> get allTextVersionIds sync* {
+    yield bibleVersionId.toUpperCase();
+    for (final id in textVersionIds) {
+      yield id.toUpperCase();
+    }
   }
 }
 

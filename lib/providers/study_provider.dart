@@ -14,11 +14,12 @@ import '../services/study_sync_service.dart';
 
 class StudyProvider with ChangeNotifier {
   StudyProvider() {
-    loadAll();
+    ready = loadAll();
   }
 
   final DatabaseService _database = DatabaseService();
   final Uuid _uuid = const Uuid();
+  late final Future<void> ready;
   List<Highlight> _highlights = [];
   List<Note> _notes = [];
   List<Bookmark> _bookmarks = [];

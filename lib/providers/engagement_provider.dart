@@ -12,6 +12,7 @@ import '../utils/streak_copy.dart';
 class EngagementProvider extends ChangeNotifier {
   final Uuid _uuid = const Uuid();
   final Set<String> _readingDays = {};
+  final Map<String, int> _readingCounts = {};
   List<PrayerEntry> _prayers = [];
   final Set<String> _likedVerses = {};
   bool _ready = false;
@@ -25,6 +26,7 @@ class EngagementProvider extends ChangeNotifier {
       _likedVerses.contains(_verseKey(reference, versionId));
 
   Set<String> get readingDays => Set.unmodifiable(_readingDays);
+  Map<String, int> get readingCounts => Map.unmodifiable(_readingCounts);
 
   bool wasRead(DateTime value) => _readingDays.contains(_day(value));
 
@@ -33,6 +35,7 @@ class EngagementProvider extends ChangeNotifier {
     _readingDays.addAll(
       preferences.getStringList('engagement_reading_days') ?? const [],
     );
+    _readingCounts.addAll(_loadReadingCounts(preferences));
     _longestStreak = preferences.getInt('engagement_longest_streak') ?? 0;
     final prayerJson = preferences.getString('engagement_prayers');
     if (prayerJson != null) {
@@ -67,19 +70,12 @@ class EngagementProvider extends ChangeNotifier {
       cursor = cursor.subtract(const Duration(days: 1));
     }
     var streakDays = 0;
-    var graceUsed = 0;
     var windowDays = 0;
     while (windowDays < 3650) {
       final read = _readingDays.contains(_day(cursor));
-      if (read) {
-        streakDays++;
-      } else if (graceUsed == 0) {
-        graceUsed = 1;
-      } else {
-        break;
-      }
+      if (!read) break;
+      streakDays++;
       windowDays++;
-      if (windowDays % 7 == 0) graceUsed = 0;
       cursor = cursor.subtract(const Duration(days: 1));
     }
     return streakDays;
@@ -110,13 +106,16 @@ class EngagementProvider extends ChangeNotifier {
     return ((streak - previous) / span).clamp(0.0, 1.0);
   }
 
-  Future<String?> recordReading([DateTime? value]) async {
+  Future<String?> recordReading([DateTime? value, int chapterCount = 1]) async {
     final now = value ?? DateTime.now();
     final day = _day(now);
     final isNewDay = _readingDays.add(day);
-    if (!isNewDay) return null;
+    final existingCount = _readingCounts[day] ?? 0;
+    _readingCounts[day] = existingCount + chapterCount;
 
     await _saveReadingDays();
+    await _saveReadingCounts();
+
     final streak = streakWithGrace(now);
     if (streak > _longestStreak) {
       _longestStreak = streak;
@@ -131,7 +130,7 @@ class EngagementProvider extends ChangeNotifier {
         readToday: true,
       ),
     );
-    return StreakCopy.celebrationSnack(streak);
+    return isNewDay ? StreakCopy.celebrationSnack(streak) : null;
   }
 
   Future<void> addPrayer(String text, {String? verseReference}) async {
@@ -187,10 +186,32 @@ class EngagementProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Map<String, int> _loadReadingCounts(SharedPreferences preferences) {
+    final raw = preferences.getString('engagement_reading_counts');
+    if (raw == null || raw.trim().isEmpty) return <String, int>{};
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map<String, dynamic>) return <String, int>{};
+      return decoded.map(
+        (key, value) => MapEntry(key, (value as num).toInt()),
+      );
+    } catch (_) {
+      return <String, int>{};
+    }
+  }
+
   Future<void> _saveReadingDays() async {
     final preferences = await SharedPreferences.getInstance();
     final values = _readingDays.toList()..sort();
     await preferences.setStringList('engagement_reading_days', values);
+  }
+
+  Future<void> _saveReadingCounts() async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setString(
+      'engagement_reading_counts',
+      jsonEncode(_readingCounts),
+    );
   }
 
   Future<void> _savePrayers() async {

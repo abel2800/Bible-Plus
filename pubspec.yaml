@@ -1,7 +1,7 @@
 name: bible_pulse
 description: Offline-first English and Amharic Bible reading and study app.
 publish_to: 'none'
-version: 1.0.2+3
+version: 1.0.3+4
 
 environment:
   sdk: '>=3.6.0 <4.0.0'
@@ -66,9 +66,31 @@ flutter:
   assets:
     - assets/content_manifest.json
     - assets/bible/web.json
+    - assets/bible/kjv.json
+    - assets/bible/asv.json
     - assets/bible/amh.json
+    - assets/bible/weahadu_am-2000.json
+    - assets/bible/weahadu_am-1980.json
+    - assets/bible/weahadu_gez-1980.json
+    - assets/bible/weahadu_gez-2014.json
+    - assets/bible/weahadu_en-kjv.json
+    - assets/bible/weahadu_am-nasv-2001.json
+    - assets/bible/weahadu_am-1962.json
+    - assets/bible/weahadu_ti-1997.json
+    - assets/bible/weahadu_om-kitaaba.json
+    - assets/bible/youversion_1787171339205_youversion_1392.json
+    - assets/bible/youversion_1787176804618_youversion_1588.json
+    - assets/bible/youversion_1787184289066_youversion_42.json
+    - assets/bible/youversion_1787199377123_youversion_100.json
+    - assets/bible/youversion_1787214512121_youversion_2692.json
+    - assets/bible/youversion_1787226249615_youversion_130.json
+    - assets/bible/youversion_1787253529049_youversion_4125.json
     - assets/catalog/bible_catalog.json
     - assets/catalog/audio_catalog.json
     - assets/catalog/web_henson_audio_manifest.json
+    - assets/catalog/kjv_pdaudio_manifest.json
+    - assets/catalog/amh_sermononline_manifest.json
+    - assets/catalog/ti_sermononline_nt_manifest.json
+    - assets/branding/bible_plus_logo.png
     - assets/bible/youversion_1787158115564_youversion_1260.json
     # large language packages are downloadable (not bundled)

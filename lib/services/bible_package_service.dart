@@ -502,18 +502,12 @@ class BiblePackageService {
     BiblePackageInfo pkg, {
     DownloadProgressCallback? onProgress,
   }) async {
+    final versionId = int.tryParse(pkg.install.path ?? '');
     if (!YouVersionConfig.isConfigured) {
       throw StateError(
         'YouVersion app key required. Set --dart-define=YOUVERSION_APP_KEY=... before enabling downloads.',
       );
     }
-    if (!YouVersionConfig.licenseConfirmedForBulkDownload) {
-      throw StateError(
-        'YouVersion bulk download is disabled until YOUVERSION_BULK_DOWNLOAD_LICENSED=true is set.',
-      );
-    }
-
-    final versionId = int.tryParse(pkg.install.path ?? '');
     if (versionId == null || versionId <= 0) {
       throw StateError(
           'Package ${pkg.id} is missing a valid YouVersion version id.');
@@ -523,7 +517,6 @@ class BiblePackageService {
         'This YouVersion translation is not in the licensed offline allowlist.',
       );
     }
-
     _progress[pkg.id] = PackageDownloadProgress(
       packageId: pkg.id,
       state: PackageDownloadState.downloading,

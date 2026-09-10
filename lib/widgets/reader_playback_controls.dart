@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../providers/audio_store_provider.dart';
 import '../providers/bible_provider.dart';
+import '../providers/user_preferences_provider.dart';
 import '../services/audio_service.dart';
 import '../utils/app_theme.dart';
 
@@ -27,6 +29,8 @@ class ReaderPlaybackControls extends StatelessWidget {
   Future<void> _togglePlay(BuildContext context) async {
     final bible = context.read<BibleProvider>();
     final audio = context.read<AudioService>();
+    final audioStore = context.read<AudioStoreProvider>();
+    final prefs = context.read<UserPreferencesProvider>();
     final book = bible.selectedBook;
     if (book == null) return;
 
@@ -51,12 +55,33 @@ class ReaderPlaybackControls extends StatelessWidget {
     if (sameChapter) {
       await audio.play();
     } else {
+      final audioPackage = audioStore.bestPackageForTextVersion(
+        bible.currentVersion,
+        preferredPackageId: prefs.preferredAudioPackageId,
+      );
+      if (audioPackage == null) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'No audio is available for ${bible.currentVersion}.',
+              ),
+            ),
+          );
+        }
+        return;
+      }
       await audio.playChapter(
         bible.currentVersion,
         book.id,
         bible.selectedChapter,
         bookName: book.name,
         bookChapterCount: book.chapters,
+        audioPackageId: audioPackage.id,
+        verseCharWeights: [
+          for (final verse in bible.currentChapter)
+            verse.text.length.clamp(1, 10000),
+        ],
         bookCatalog: [
           for (final b in bible.books)
             (id: b.id, name: b.name, chapters: b.chapters),

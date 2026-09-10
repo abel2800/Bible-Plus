@@ -49,8 +49,8 @@
       "offlineSizeBytes": 4844880,
       "updatedAt": "2026-07-23",
       "install": {
-        "type": "youversion",
-        "path": "1"
+        "type": "asset",
+        "path": "assets/bible/kjv.json"
       }
     },
     {
@@ -74,8 +74,8 @@
       "offlineSizeBytes": 3770247,
       "updatedAt": "2026-07-23",
       "install": {
-        "type": "youversion",
-        "path": "12"
+        "type": "asset",
+        "path": "assets/bible/asv.json"
       }
     },
     {
@@ -251,8 +251,8 @@
       "offlineSizeBytes": 10831559,
       "updatedAt": "2026-08-20",
       "install": {
-        "type": "youversion",
-        "path": "3200"
+        "type": "asset",
+        "path": "assets/bible/weahadu_am-2000.json"
       }
     },
     {
@@ -277,8 +277,8 @@
       "offlineSizeBytes": 10709998,
       "updatedAt": "2026-08-20",
       "install": {
-        "type": "unavailable",
-        "reason": "requires_verified_online_source"
+        "type": "asset",
+        "path": "assets/bible/weahadu_am-1980.json"
       }
     },
     {
@@ -303,8 +303,8 @@
       "offlineSizeBytes": 9824771,
       "updatedAt": "2026-08-20",
       "install": {
-        "type": "unavailable",
-        "reason": "requires_verified_online_source"
+        "type": "asset",
+        "path": "assets/bible/weahadu_gez-1980.json"
       }
     },
     {
@@ -329,8 +329,8 @@
       "offlineSizeBytes": 1557793,
       "updatedAt": "2026-08-20",
       "install": {
-        "type": "unavailable",
-        "reason": "requires_verified_online_source"
+        "type": "asset",
+        "path": "assets/bible/weahadu_gez-2014.json"
       }
     },
     {
@@ -355,8 +355,8 @@
       "offlineSizeBytes": 6038118,
       "updatedAt": "2026-08-20",
       "install": {
-        "type": "unavailable",
-        "reason": "requires_verified_online_source"
+        "type": "asset",
+        "path": "assets/bible/weahadu_en-kjv.json"
       }
     },
     {
@@ -381,8 +381,8 @@
       "offlineSizeBytes": 7186133,
       "updatedAt": "2026-08-20",
       "install": {
-        "type": "unavailable",
-        "reason": "requires_verified_online_source"
+        "type": "asset",
+        "path": "assets/bible/weahadu_am-nasv-2001.json"
       }
     },
     {
@@ -407,8 +407,8 @@
       "offlineSizeBytes": 6704431,
       "updatedAt": "2026-08-20",
       "install": {
-        "type": "unavailable",
-        "reason": "requires_verified_online_source"
+        "type": "asset",
+        "path": "assets/bible/weahadu_am-1962.json"
       }
     },
     {
@@ -433,8 +433,8 @@
       "offlineSizeBytes": 7243727,
       "updatedAt": "2026-08-20",
       "install": {
-        "type": "unavailable",
-        "reason": "requires_verified_online_source"
+        "type": "asset",
+        "path": "assets/bible/weahadu_ti-1997.json"
       }
     },
     {
@@ -459,8 +459,8 @@
       "offlineSizeBytes": 5703743,
       "updatedAt": "2026-08-20",
       "install": {
-        "type": "unavailable",
-        "reason": "requires_verified_online_source"
+        "type": "asset",
+        "path": "assets/bible/weahadu_om-kitaaba.json"
       }
     },
     {
@@ -484,8 +484,8 @@
       "offlineSizeBytes": 0,
       "updatedAt": "2026-08-19",
       "install": {
-        "type": "youversion",
-        "path": "1392"
+        "type": "asset",
+        "path": "assets/bible/youversion_1787171339205_youversion_1392.json"
       }
     },
     {
@@ -509,8 +509,8 @@
       "offlineSizeBytes": 0,
       "updatedAt": "2026-08-19",
       "install": {
-        "type": "youversion",
-        "path": "1588"
+        "type": "asset",
+        "path": "assets/bible/youversion_1787176804618_youversion_1588.json"
       }
     },
     {
@@ -534,8 +534,8 @@
       "offlineSizeBytes": 0,
       "updatedAt": "2026-08-20",
       "install": {
-        "type": "youversion",
-        "path": "42"
+        "type": "asset",
+        "path": "assets/bible/youversion_1787184289066_youversion_42.json"
       }
     },
     {
@@ -559,8 +559,8 @@
       "offlineSizeBytes": 0,
       "updatedAt": "2026-08-20",
       "install": {
-        "type": "youversion",
-        "path": "100"
+        "type": "asset",
+        "path": "assets/bible/youversion_1787199377123_youversion_100.json"
       }
     },
     {
@@ -584,8 +584,8 @@
       "offlineSizeBytes": 0,
       "updatedAt": "2026-08-20",
       "install": {
-        "type": "youversion",
-        "path": "2692"
+        "type": "asset",
+        "path": "assets/bible/youversion_1787214512121_youversion_2692.json"
       }
     },
     {
@@ -609,8 +609,8 @@
       "offlineSizeBytes": 6925271,
       "updatedAt": "2026-08-20",
       "install": {
-        "type": "youversion",
-        "path": "130"
+        "type": "asset",
+        "path": "assets/bible/youversion_1787226249615_youversion_130.json"
       }
     },
     {
@@ -634,8 +634,8 @@
       "offlineSizeBytes": 0,
       "updatedAt": "2026-08-20",
       "install": {
-        "type": "youversion",
-        "path": "4125"
+        "type": "asset",
+        "path": "assets/bible/youversion_1787253529049_youversion_4125.json"
       }
     }
   ]

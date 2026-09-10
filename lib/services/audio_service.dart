@@ -11,21 +11,40 @@ import '../models/audio_queue_item.dart';
 import 'audio_cache.dart';
 import 'audio_artwork_service.dart';
 import 'audio_contracts.dart';
+import 'estimated_verse_timings.dart';
+import 'catalog_audio_resolver.dart';
 import 'web_html_audio_stub.dart'
     if (dart.library.html) 'web_html_audio_web.dart' as html_audio;
 
 enum AudioSleepMode { off, duration, endOfChapter, endOfBook }
+
+typedef ChapterVerseWeightsLoader = Future<List<int>> Function(
+  String versionId,
+  int bookId,
+  int chapter,
+);
+
+typedef AudioPackageIdResolver = String? Function(
+  String textVersionId,
+  String? preferredPackageId,
+);
 
 class AudioService with ChangeNotifier {
   AudioService({
     bool enabled = false,
     this.resolver,
     this.timingResolver,
+    this.verseWeightsLoader,
+    this.resolveAudioPackageId,
+    this.onPackageSelected,
+    Set<String> supportedVersionIds = const {},
     AudioChapterCache? cache,
     AudioArtworkService? artworkService,
     this.maxCacheBytes = 512 * 1024 * 1024,
   })  : cache = cache ?? PersistentAudioChapterCache(),
         _artworkService = artworkService ?? const AudioArtworkService(),
+        _supportedVersionIds =
+            supportedVersionIds.map((id) => id.toUpperCase()).toSet(),
         enabled = enabled && resolver != null {
     if (this.enabled) {
       unawaited(_init());
@@ -42,6 +61,10 @@ class AudioService with ChangeNotifier {
   final bool enabled;
   final AudioChapterResolver? resolver;
   final AudioTimingResolver? timingResolver;
+  final ChapterVerseWeightsLoader? verseWeightsLoader;
+  final AudioPackageIdResolver? resolveAudioPackageId;
+  final void Function(String packageId)? onPackageSelected;
+  final Set<String> _supportedVersionIds;
   final AudioChapterCache cache;
   final AudioArtworkService _artworkService;
   final int maxCacheBytes;
@@ -62,6 +85,8 @@ class AudioService with ChangeNotifier {
   String? _filesetId;
   List<AudioVerseTiming> _verseTimings = const [];
   int? _currentVerse;
+  List<int>? _activeVerseCharWeights;
+  bool _usingEstimatedTimings = false;
   List<AudioQueueItem> _queue = const [];
   int _queueIndex = -1;
   AudioSleepMode _sleepMode = AudioSleepMode.off;
@@ -74,6 +99,7 @@ class AudioService with ChangeNotifier {
   int? _activeBookId;
   int? _activeChapter;
   String? _activeBookName;
+  String? _activeAudioPackageId;
 
   String? _lastListenVersion;
   int? _lastListenBookId;
@@ -90,6 +116,9 @@ class AudioService with ChangeNotifier {
   String? get filesetId => _filesetId;
   int? get currentVerse => _currentVerse;
   bool get hasVerseTimings => _verseTimings.isNotEmpty;
+  bool get usingEstimatedTimings => _usingEstimatedTimings;
+  bool get isFollowAlongActive =>
+      hasActiveSession && _currentVerse != null && _isPlaying;
   List<AudioVerseTiming> get verseTimings => List.unmodifiable(_verseTimings);
   List<AudioQueueItem> get queue => List.unmodifiable(_queue);
   int get queueIndex => _queueIndex;
@@ -112,10 +141,13 @@ class AudioService with ChangeNotifier {
       : _player.positionStream;
 
   bool get hasActiveSession => _activeBookId != null && _activeChapter != null;
+  bool hasAudioForVersion(String versionId) =>
+      _supportedVersionIds.contains(versionId.toUpperCase());
   String? get activeVersion => _activeVersion;
   int? get activeBookId => _activeBookId;
   int? get activeChapter => _activeChapter;
   String? get activeBookName => _activeBookName;
+  String? get activeAudioPackageId => _activeAudioPackageId;
   String get activeTitle => _activeBookName == null || _activeChapter == null
       ? 'Audio'
       : '$_activeBookName $_activeChapter';
@@ -175,6 +207,7 @@ class AudioService with ChangeNotifier {
       if (_useHtmlAudio) return;
       if (d != null) {
         _duration = d;
+        _maybeBuildEstimatedTimings();
         _notify();
       }
     }));
@@ -196,6 +229,7 @@ class AudioService with ChangeNotifier {
           .add(html_audio.WebHtmlAudio.durationStream.listen((duration) {
         if (!_useHtmlAudio || duration == null) return;
         _duration = duration;
+        _maybeBuildEstimatedTimings();
         _notify();
       }));
       _subscriptions
@@ -212,6 +246,9 @@ class AudioService with ChangeNotifier {
 
   void _applyPosition(Duration position) {
     _position = position;
+    if (_verseTimings.isEmpty) {
+      _maybeBuildEstimatedTimings();
+    }
     _currentVerse = _verseAt(position);
     _checkHtmlCompletion();
     _notify();
@@ -237,15 +274,25 @@ class AudioService with ChangeNotifier {
     String? bookName,
     int? bookChapterCount,
     List<({int id, String name, int chapters})>? bookCatalog,
+    List<int>? verseCharWeights,
+    String? audioPackageId,
   }) async {
     if (bookCatalog != null) {
       setBookCatalog(bookCatalog);
+    }
+    final packageId = audioPackageId ?? _resolveAudioPackageId(version);
+    if (packageId == null || packageId.isEmpty) {
+      _lastError = 'No audio is available for this Bible version.';
+      _notify();
+      return;
     }
     final item = AudioQueueItem(
       versionId: version,
       bookId: bookId,
       chapter: chapter,
       bookName: bookName ?? 'Chapter $chapter',
+      verseCharWeights: verseCharWeights,
+      audioPackageId: packageId,
     );
     int? catalogChapters;
     for (final book in _bookCatalog) {
@@ -276,6 +323,9 @@ class AudioService with ChangeNotifier {
           bookId: current.bookId,
           chapter: next,
           bookName: current.bookName,
+          verseCharWeights:
+              next == current.chapter ? current.verseCharWeights : null,
+          audioPackageId: current.audioPackageId,
         ),
       );
     }
@@ -314,6 +364,13 @@ class AudioService with ChangeNotifier {
       _lastError = null;
       _notify();
 
+      _activeAudioPackageId =
+          item.audioPackageId ?? _resolveAudioPackageId(item.versionId);
+      if (_activeAudioPackageId != null) {
+        onPackageSelected?.call(_activeAudioPackageId!);
+      }
+      _configureResolverPackage(_activeAudioPackageId);
+
       final source = await resolver!.resolve(
         versionId: item.versionId,
         bookId: item.bookId,
@@ -322,7 +379,7 @@ class AudioService with ChangeNotifier {
       if (requestId != _playRequestId) return;
       if (source == null) {
         _lastError =
-            'No audio for this chapter. Try WEB/KJV/ASV text, or another chapter.';
+            'No audio for this chapter. Switch to WEB, KJV, or Amharic for audio, or try another chapter.';
         _isLoading = false;
         _notify();
         return;
@@ -336,10 +393,21 @@ class AudioService with ChangeNotifier {
       _filesetId = source.filesetId;
       _verseTimings = const [];
       _currentVerse = null;
+      _usingEstimatedTimings = false;
+      _activeVerseCharWeights = item.verseCharWeights;
       _position = Duration.zero;
       _duration = Duration.zero;
       _artworkTheme = _artworkService.forBook(item.bookName);
       _voiceLabel = item.voiceLabel;
+
+      // Set session identity before resolving verse weights/timings.
+      _activeVersion = item.versionId;
+      _activeBookId = item.bookId;
+      _activeChapter = item.chapter;
+      _activeBookName = item.bookName;
+      if (_activeVerseCharWeights == null || _activeVerseCharWeights!.isEmpty) {
+        _activeVerseCharWeights = await _resolveVerseCharWeights();
+      }
 
       final rate = _speed.clamp(0.8, 2.5);
       _speed = rate;
@@ -399,15 +467,12 @@ class AudioService with ChangeNotifier {
 
       if (requestId != _playRequestId) return;
 
-      _activeVersion = item.versionId;
-      _activeBookId = item.bookId;
-      _activeChapter = item.chapter;
-      _activeBookName = item.bookName;
       if (queueIndex != null) {
         _queueIndex = queueIndex;
       }
       await _persistLastListen(item);
       await _loadVerseTimings();
+      await _refreshDurationAndTimings();
       _isLoading = false;
       _isPlaying = true;
       _notify();
@@ -530,6 +595,20 @@ class AudioService with ChangeNotifier {
   Future<void> playQueueItem(int index) async {
     if (index < 0 || index >= _queue.length) return;
     await _playQueueItem(_queue[index], queueIndex: index);
+  }
+
+  int? indexInQueueFor({
+    required int bookId,
+    required int chapter,
+    String? versionId,
+  }) {
+    for (var i = 0; i < _queue.length; i += 1) {
+      final item = _queue[i];
+      if (item.bookId != bookId || item.chapter != chapter) continue;
+      if (versionId != null && item.versionId != versionId) continue;
+      return i;
+    }
+    return null;
   }
 
   Future<void> playNextInQueue() async {
@@ -688,23 +767,85 @@ class AudioService with ChangeNotifier {
   Future<void> _loadVerseTimings() async {
     _verseTimings = const [];
     _currentVerse = null;
-    if (timingResolver == null ||
-        _filesetId == null ||
+    _usingEstimatedTimings = false;
+
+    if (_activeVerseCharWeights == null || _activeVerseCharWeights!.isEmpty) {
+      _activeVerseCharWeights = await _resolveVerseCharWeights();
+    }
+
+    if (timingResolver != null &&
+        _filesetId != null &&
+        _activeBookId != null &&
+        _activeChapter != null) {
+      try {
+        final timings = await timingResolver!.resolveTimings(
+          filesetId: _filesetId!,
+          bookId: _activeBookId!,
+          chapter: _activeChapter!,
+        );
+        if (timings.isNotEmpty) {
+          _verseTimings = timings;
+          _usingEstimatedTimings = false;
+          _currentVerse = _verseAt(_position);
+          return;
+        }
+      } catch (error) {
+        debugPrint('Audio timings unavailable: $error');
+      }
+    }
+  }
+
+  Future<void> _refreshDurationAndTimings() async {
+    if (!_useHtmlAudio) {
+      for (var attempt = 0; attempt < 30; attempt++) {
+        final d = _player.duration;
+        if (d != null && d > Duration.zero) {
+          _duration = d;
+          break;
+        }
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+    }
+    _maybeBuildEstimatedTimings();
+    _currentVerse = _verseAt(_position);
+    _notify();
+  }
+
+  Future<List<int>?> _resolveVerseCharWeights() async {
+    if (_activeVersion == null ||
         _activeBookId == null ||
-        _activeChapter == null) {
-      return;
+        _activeChapter == null ||
+        verseWeightsLoader == null) {
+      return null;
     }
     try {
-      final timings = await timingResolver!.resolveTimings(
-        filesetId: _filesetId!,
-        bookId: _activeBookId!,
-        chapter: _activeChapter!,
+      return await verseWeightsLoader!(
+        _activeVersion!,
+        _activeBookId!,
+        _activeChapter!,
       );
-      _verseTimings = timings;
-      _currentVerse = _verseAt(_position);
     } catch (error) {
-      debugPrint('Audio timings unavailable: $error');
+      debugPrint('Verse weights unavailable: $error');
+      return null;
     }
+  }
+
+  void _maybeBuildEstimatedTimings() {
+    if (_verseTimings.isNotEmpty) return;
+    if (_duration <= Duration.zero) return;
+
+    var weights = _activeVerseCharWeights;
+    if (weights == null || weights.isEmpty) {
+      return;
+    }
+
+    _verseTimings = estimateVerseTimings(
+      verseCharWeights: weights,
+      totalDuration: _duration,
+    );
+    if (_verseTimings.isEmpty) return;
+    _usingEstimatedTimings = true;
+    _currentVerse = _verseAt(_position);
   }
 
   void _checkHtmlCompletion() {
@@ -751,6 +892,23 @@ class AudioService with ChangeNotifier {
       if (timing.end == null || timing.end! > position) active = timing;
     }
     return active?.verse;
+  }
+
+  String? _resolveAudioPackageId(
+    String textVersionId, {
+    String? explicitPreferred,
+  }) {
+    return resolveAudioPackageId?.call(
+      textVersionId,
+      explicitPreferred,
+    );
+  }
+
+  void _configureResolverPackage(String? packageId) {
+    final catalogResolver = resolver;
+    if (catalogResolver is CatalogAudioResolver) {
+      catalogResolver.setActivePackageId(packageId);
+    }
   }
 
   @override

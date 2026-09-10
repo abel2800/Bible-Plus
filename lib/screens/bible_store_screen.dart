@@ -1,21 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../config/app_capabilities.dart';
 import '../config/audio_config.dart';
 import '../l10n/app_localizations.dart';
 import '../models/bible_package.dart';
+import '../providers/audio_store_provider.dart';
 import '../providers/bible_provider.dart';
 import '../providers/bible_store_provider.dart';
 import '../providers/user_preferences_provider.dart';
 import '../utils/app_theme.dart';
+import '../widgets/audio_package_card.dart';
 
-class BibleStoreScreen extends StatelessWidget {
-  const BibleStoreScreen({super.key});
+class BibleStoreScreen extends StatefulWidget {
+  const BibleStoreScreen({super.key, this.initialTab = 0});
+
+  final int initialTab;
+
+  @override
+  State<BibleStoreScreen> createState() => _BibleStoreScreenState();
+}
+
+class _BibleStoreScreenState extends State<BibleStoreScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: widget.initialTab.clamp(0, 1),
+    );
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final store = context.watch<BibleStoreProvider>();
+    final audioStore = context.watch<AudioStoreProvider>();
+    final capabilities = context.watch<AppCapabilities>();
     final t = context.colors;
 
     return Scaffold(
@@ -23,123 +54,220 @@ class BibleStoreScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(l10n.bibleStore),
         titleSpacing: 20,
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: [
+            const Tab(text: 'Text Bibles'),
+            Tab(text: capabilities.audio ? 'Audio Bibles' : 'Audio'),
+          ],
+        ),
       ),
-      body: !store.ready
+      body: !store.ready || !audioStore.ready
           ? const Center(child: CircularProgressIndicator())
-          : Column(
+          : TabBarView(
+              controller: _tabController,
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
-                  child: TextField(
-                    onChanged: store.setQuery,
-                    style: AppTheme.ui(fontSize: 13, color: t.ink),
-                    decoration: InputDecoration(
-                      hintText: l10n.searchVersions,
-                      hintStyle: AppTheme.ui(fontSize: 13, color: t.inkFaint),
-                      prefixIcon:
-                          Icon(Icons.search, size: 19, color: t.inkSoft),
-                      isDense: true,
-                      filled: false,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 12,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: t.border),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: t.border),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 40,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    children: [
-                      _Chip(
-                        label: l10n.categoryAll,
-                        selected: store.categoryFilter == 'all',
-                        onTap: () => store.setCategoryFilter('all'),
-                      ),
-                      _Chip(
-                        label: l10n.categoryPopular,
-                        selected: store.categoryFilter == 'popular',
-                        onTap: () => store.setCategoryFilter('popular'),
-                      ),
-                      _Chip(
-                        label: l10n.categoryNew,
-                        selected: store.categoryFilter == 'new',
-                        onTap: () => store.setCategoryFilter('new'),
-                      ),
-                      _Chip(
-                        label: 'YouVersion',
-                        selected: store.categoryFilter == 'youversion',
-                        onTap: () => store.setCategoryFilter(
-                          store.categoryFilter == 'youversion'
-                              ? 'all'
-                              : 'youversion',
-                        ),
-                      ),
-                      _Chip(
-                        label: l10n.categoryUpdated,
-                        selected: store.categoryFilter == 'updated',
-                        onTap: () => store.setCategoryFilter('updated'),
-                      ),
-                      _Chip(
-                        label: l10n.english,
-                        selected: store.languageFilter == 'en',
-                        onTap: () => store.setLanguageFilter(
-                          store.languageFilter == 'en' ? 'all' : 'en',
-                        ),
-                      ),
-                      _Chip(
-                        label: l10n.amharic,
-                        selected: store.languageFilter == 'am',
-                        onTap: () => store.setLanguageFilter(
-                          store.languageFilter == 'am' ? 'all' : 'am',
-                        ),
-                      ),
-                      _Chip(
-                        label: l10n.afaanOromo,
-                        selected: store.languageFilter == 'om',
-                        onTap: () => store.setLanguageFilter(
-                          store.languageFilter == 'om' ? 'all' : 'om',
-                        ),
-                      ),
-                      _Chip(
-                        label: l10n.tigrinya,
-                        selected: store.languageFilter == 'ti',
-                        onTap: () => store.setLanguageFilter(
-                          store.languageFilter == 'ti' ? 'all' : 'ti',
-                        ),
-                      ),
-                      _Chip(
-                        label: l10n.somali,
-                        selected: store.languageFilter == 'so',
-                        onTap: () => store.setLanguageFilter(
-                          store.languageFilter == 'so' ? 'all' : 'so',
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-                    itemCount: store.visiblePackages.length,
-                    itemBuilder: (context, index) {
-                      final pkg = store.visiblePackages[index];
-                      return _BiblePackageCard(package: pkg);
-                    },
-                  ),
+                _TextBiblesTab(store: store),
+                _AudioBiblesTab(
+                  audioStore: audioStore,
+                  capabilities: capabilities,
                 ),
               ],
             ),
+    );
+  }
+}
+
+class _TextBiblesTab extends StatelessWidget {
+  const _TextBiblesTab({required this.store});
+
+  final BibleStoreProvider store;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final t = context.colors;
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+          child: TextField(
+            onChanged: store.setQuery,
+            style: AppTheme.ui(fontSize: 13, color: t.ink),
+            decoration: InputDecoration(
+              hintText: l10n.searchVersions,
+              hintStyle: AppTheme.ui(fontSize: 13, color: t.inkFaint),
+              prefixIcon: Icon(Icons.search, size: 19, color: t.inkSoft),
+              isDense: true,
+              filled: false,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 12,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: t.border),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: t.border),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 40,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            children: [
+              _Chip(
+                label: l10n.categoryAll,
+                selected: store.categoryFilter == 'all',
+                onTap: () => store.setCategoryFilter('all'),
+              ),
+              _Chip(
+                label: l10n.categoryPopular,
+                selected: store.categoryFilter == 'popular',
+                onTap: () => store.setCategoryFilter('popular'),
+              ),
+              _Chip(
+                label: l10n.categoryNew,
+                selected: store.categoryFilter == 'new',
+                onTap: () => store.setCategoryFilter('new'),
+              ),
+              _Chip(
+                label: 'YouVersion',
+                selected: store.categoryFilter == 'youversion',
+                onTap: () => store.setCategoryFilter(
+                  store.categoryFilter == 'youversion' ? 'all' : 'youversion',
+                ),
+              ),
+              _Chip(
+                label: l10n.categoryUpdated,
+                selected: store.categoryFilter == 'updated',
+                onTap: () => store.setCategoryFilter('updated'),
+              ),
+              _Chip(
+                label: l10n.english,
+                selected: store.languageFilter == 'en',
+                onTap: () => store.setLanguageFilter(
+                  store.languageFilter == 'en' ? 'all' : 'en',
+                ),
+              ),
+              _Chip(
+                label: l10n.amharic,
+                selected: store.languageFilter == 'am',
+                onTap: () => store.setLanguageFilter(
+                  store.languageFilter == 'am' ? 'all' : 'am',
+                ),
+              ),
+              _Chip(
+                label: l10n.afaanOromo,
+                selected: store.languageFilter == 'om',
+                onTap: () => store.setLanguageFilter(
+                  store.languageFilter == 'om' ? 'all' : 'om',
+                ),
+              ),
+              _Chip(
+                label: l10n.tigrinya,
+                selected: store.languageFilter == 'ti',
+                onTap: () => store.setLanguageFilter(
+                  store.languageFilter == 'ti' ? 'all' : 'ti',
+                ),
+              ),
+              _Chip(
+                label: l10n.somali,
+                selected: store.languageFilter == 'so',
+                onTap: () => store.setLanguageFilter(
+                  store.languageFilter == 'so' ? 'all' : 'so',
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+            itemCount: store.visiblePackages.length,
+            itemBuilder: (context, index) {
+              return _BiblePackageCard(package: store.visiblePackages[index]);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _AudioBiblesTab extends StatelessWidget {
+  const _AudioBiblesTab({
+    required this.audioStore,
+    required this.capabilities,
+  });
+
+  final AudioStoreProvider audioStore;
+  final AppCapabilities capabilities;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final t = context.colors;
+
+    return Column(
+      children: [
+        if (!capabilities.audio)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: t.surface2,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: t.border),
+              ),
+              child: Text(
+                l10n.audioSetupNote,
+                style: AppText.ui(context, size: 13, color: t.inkSoft),
+              ),
+            ),
+          ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
+          child: TextField(
+            onChanged: audioStore.setQuery,
+            decoration: InputDecoration(
+              hintText: l10n.searchAudio,
+              prefixIcon: const Icon(Icons.search, size: 20),
+              isDense: true,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Download audio for offline listening without Wi‑Fi.',
+              style: AppText.ui(context, size: 13, color: t.inkSoft),
+            ),
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+            itemCount: audioStore.visibleDownloadablePackages.length,
+            itemBuilder: (context, index) {
+              return AudioPackageCard(
+                package: audioStore.visibleDownloadablePackages[index],
+                compact: true,
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
@@ -269,8 +397,10 @@ class _BiblePackageCard extends StatelessWidget {
                 '${l10n.offlineSize}: ${_formatBytes(offlineSizeBytes)}',
                 style: AppText.uiFaint(context),
               ),
-              Text('${l10n.lastUpdated}: ${package.updatedAt}',
-                  style: AppText.uiFaint(context)),
+              Text(
+                '${l10n.lastUpdated}: ${package.updatedAt}',
+                style: AppText.uiFaint(context),
+              ),
             ],
           ),
           if (downloading) ...[

@@ -6,6 +6,7 @@ import '../providers/navigation_provider.dart';
 import '../models/bible_verse.dart';
 import '../utils/app_theme.dart';
 import '../widgets/design/bp_widgets.dart';
+import '../widgets/design/bp_glass.dart';
 
 enum _TestamentFilter { all, ot, nt }
 
@@ -55,169 +56,177 @@ class _SearchScreenState extends State<SearchScreen> {
     final results = _filteredResults(bibleProvider.searchResults);
 
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
-              child: Row(
-                children: [
-                  if (Navigator.of(context).canPop()) ...[
-                    BpIconButton(
-                      icon: Icons.arrow_back_ios_new_rounded,
-                      tooltip: 'Back',
-                      onPressed: () => Navigator.pop(context),
+      backgroundColor: Colors.transparent,
+      body: BpGlassBackground(
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                child: Row(
+                  children: [
+                    if (Navigator.of(context).canPop()) ...[
+                      BpIconButton(
+                        icon: Icons.arrow_back_ios_new_rounded,
+                        tooltip: 'Back',
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
+                    Text(
+                      'Search',
+                      style: AppTheme.brandTitle(fontSize: 22, color: ink),
                     ),
-                    const SizedBox(width: 8),
                   ],
-                  Text(
-                    'Search',
-                    style: AppTheme.brandTitle(fontSize: 22, color: ink),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
-              child: BpCard(
-                padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
-                child: TextField(
-                  controller: _controller,
-                  style: AppTheme.ui(fontSize: 14, color: ink),
-                  decoration: InputDecoration(
-                    hintText: 'Search Scripture…',
-                    hintStyle: AppTheme.ui(fontSize: 14, color: faint),
-                    prefixIcon:
-                        Icon(Icons.search_rounded, color: soft, size: 20),
-                    suffixIcon: IconButton(
-                      tooltip: 'Search',
-                      icon: Icon(Icons.arrow_forward_rounded,
-                          color: soft, size: 20),
-                      onPressed: () => _search(bibleProvider),
-                    ),
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                  ),
-                  textInputAction: TextInputAction.search,
-                  onSubmitted: (_) => _search(bibleProvider),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
-              child: Row(
-                children: [
-                  _FilterChip(
-                    label: 'All',
-                    selected: _filter == _TestamentFilter.all,
-                    onTap: () => setState(() => _filter = _TestamentFilter.all),
-                  ),
-                  const SizedBox(width: 8),
-                  _FilterChip(
-                    label: 'OT',
-                    selected: _filter == _TestamentFilter.ot,
-                    onTap: () => setState(() => _filter = _TestamentFilter.ot),
-                  ),
-                  const SizedBox(width: 8),
-                  _FilterChip(
-                    label: 'NT',
-                    selected: _filter == _TestamentFilter.nt,
-                    onTap: () => setState(() => _filter = _TestamentFilter.nt),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: bibleProvider.isSearching
-                  ? Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const CircularProgressIndicator(),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Searching Scripture…\nFirst search may take a moment.',
-                            textAlign: TextAlign.center,
-                            style: AppTheme.ui(fontSize: 13, color: faint),
-                          ),
-                        ],
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                child: BpCard(
+                  padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
+                  child: TextField(
+                    controller: _controller,
+                    style: AppTheme.ui(fontSize: 14, color: ink),
+                    decoration: InputDecoration(
+                      hintText: 'Search Scripture…',
+                      hintStyle: AppTheme.ui(fontSize: 14, color: faint),
+                      prefixIcon:
+                          Icon(Icons.search_rounded, color: soft, size: 20),
+                      suffixIcon: IconButton(
+                        tooltip: 'Search',
+                        icon: Icon(Icons.arrow_forward_rounded,
+                            color: soft, size: 20),
+                        onPressed: () => _search(bibleProvider),
                       ),
-                    )
-                  : _query.isEmpty
-                      ? Center(
-                          child: Text(
-                            'Enter a word or phrase, then tap search',
-                            style: AppTheme.ui(fontSize: 13, color: faint),
-                          ),
-                        )
-                      : results.isEmpty
-                          ? Center(
-                              child: Text(
-                                'No results for “$_query”',
-                                style: AppTheme.ui(fontSize: 13, color: faint),
-                              ),
-                            )
-                          : ListView.separated(
-                              padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-                              itemCount: results.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(height: 10),
-                              itemBuilder: (context, index) {
-                                final verse = results[index];
-                                final reference =
-                                    bibleProvider.getVerseReference(verse);
-                                return BpCard(
-                                  padding: const EdgeInsets.all(14),
-                                  onTap: () async {
-                                    final navigation =
-                                        context.read<NavigationProvider>();
-                                    final navigator = Navigator.of(context);
-                                    await bibleProvider.goToVerse(
-                                      verse.book,
-                                      verse.chapter,
-                                      verse.verse,
-                                    );
-                                    if (!context.mounted) return;
-                                    navigation.setIndex(1);
-
-                                    if (navigator.canPop()) {
-                                      navigator.pop();
-                                    }
-                                  },
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        reference.toUpperCase(),
-                                        style: AppTheme.ui(
-                                          fontSize: 11,
-                                          weight: FontWeight.w700,
-                                          letterSpacing: 0.6,
-                                          color: AppTheme.gold,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      _HighlightedText(
-                                        text: verse.text,
-                                        query: _query,
-                                        style: AppTheme.scripture(
-                                          fontSize: 15,
-                                          height: 1.65,
-                                          color: ink,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    textInputAction: TextInputAction.search,
+                    onSubmitted: (_) => _search(bibleProvider),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                child: Row(
+                  children: [
+                    _FilterChip(
+                      label: 'All',
+                      selected: _filter == _TestamentFilter.all,
+                      onTap: () =>
+                          setState(() => _filter = _TestamentFilter.all),
+                    ),
+                    const SizedBox(width: 8),
+                    _FilterChip(
+                      label: 'OT',
+                      selected: _filter == _TestamentFilter.ot,
+                      onTap: () =>
+                          setState(() => _filter = _TestamentFilter.ot),
+                    ),
+                    const SizedBox(width: 8),
+                    _FilterChip(
+                      label: 'NT',
+                      selected: _filter == _TestamentFilter.nt,
+                      onTap: () =>
+                          setState(() => _filter = _TestamentFilter.nt),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: bibleProvider.isSearching
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const CircularProgressIndicator(),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Searching Scripture…\nFirst search may take a moment.',
+                              textAlign: TextAlign.center,
+                              style: AppTheme.ui(fontSize: 13, color: faint),
                             ),
-            ),
-          ],
+                          ],
+                        ),
+                      )
+                    : _query.isEmpty
+                        ? Center(
+                            child: Text(
+                              'Enter a word or phrase, then tap search',
+                              style: AppTheme.ui(fontSize: 13, color: faint),
+                            ),
+                          )
+                        : results.isEmpty
+                            ? Center(
+                                child: Text(
+                                  'No results for “$_query”',
+                                  style:
+                                      AppTheme.ui(fontSize: 13, color: faint),
+                                ),
+                              )
+                            : ListView.separated(
+                                padding:
+                                    const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                                itemCount: results.length,
+                                separatorBuilder: (_, __) =>
+                                    const SizedBox(height: 10),
+                                itemBuilder: (context, index) {
+                                  final verse = results[index];
+                                  final reference =
+                                      bibleProvider.getVerseReference(verse);
+                                  return BpCard(
+                                    padding: const EdgeInsets.all(14),
+                                    onTap: () async {
+                                      final navigation =
+                                          context.read<NavigationProvider>();
+                                      final navigator = Navigator.of(context);
+                                      await bibleProvider.goToVerse(
+                                        verse.book,
+                                        verse.chapter,
+                                        verse.verse,
+                                      );
+                                      if (!context.mounted) return;
+                                      navigation.setIndex(1);
+
+                                      if (navigator.canPop()) {
+                                        navigator.pop();
+                                      }
+                                    },
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          reference.toUpperCase(),
+                                          style: AppTheme.ui(
+                                            fontSize: 11,
+                                            weight: FontWeight.w700,
+                                            letterSpacing: 0.6,
+                                            color: AppTheme.gold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        _HighlightedText(
+                                          text: verse.text,
+                                          query: _query,
+                                          style: AppTheme.scripture(
+                                            fontSize: 15,
+                                            height: 1.65,
+                                            color: ink,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+              ),
+            ],
+          ),
         ),
       ),
     );

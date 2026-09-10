@@ -107,7 +107,7 @@ abstract class AppLocalizations {
   /// No description provided for @appName.
   ///
   /// In en, this message translates to:
-  /// **'BiblePulse'**
+  /// **'Bible Plus'**
   String get appName;
 
   /// No description provided for @tagline.
@@ -179,7 +179,7 @@ abstract class AppLocalizations {
   /// No description provided for @navSettings.
   ///
   /// In en, this message translates to:
-  /// **'You'**
+  /// **'Settings'**
   String get navSettings;
 
   /// No description provided for @readBible.
@@ -917,7 +917,7 @@ abstract class AppLocalizations {
   /// No description provided for @bootstrapFailedTitle.
   ///
   /// In en, this message translates to:
-  /// **'BiblePulse could not finish starting.'**
+  /// **'Bible Plus could not finish starting.'**
   String get bootstrapFailedTitle;
 
   /// No description provided for @bootstrapFailedBody.

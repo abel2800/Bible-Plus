@@ -7,7 +7,10 @@ class ReaderColorTheme {
   final Color textColor;
   final Color verseNumberColor;
   final Color headerColor;
+  final Color accentColor;
+  final Color surfaceColor;
   final bool isDark;
+  final bool isGlass;
 
   const ReaderColorTheme({
     required this.id,
@@ -16,19 +19,27 @@ class ReaderColorTheme {
     required this.textColor,
     required this.verseNumberColor,
     required this.headerColor,
+    required this.accentColor,
+    required this.surfaceColor,
     this.isDark = false,
+    this.isGlass = false,
   });
 
   factory ReaderColorTheme.fromJson(Map<String, dynamic> json) {
-    return ReaderColorTheme(
-      id: json['id'],
-      name: json['name'],
-      backgroundColor: Color(json['backgroundColor']),
-      textColor: Color(json['textColor']),
-      verseNumberColor: Color(json['verseNumberColor']),
-      headerColor: Color(json['headerColor']),
-      isDark: json['isDark'] ?? false,
-    );
+    final theme = getById(json['id'] as String? ?? 'dark');
+    return theme ??
+        ReaderColorTheme(
+          id: json['id'],
+          name: json['name'],
+          backgroundColor: Color(json['backgroundColor']),
+          textColor: Color(json['textColor']),
+          verseNumberColor: Color(json['verseNumberColor']),
+          headerColor: Color(json['headerColor']),
+          accentColor: Color(json['accentColor'] ?? json['verseNumberColor']),
+          surfaceColor: Color(json['surfaceColor'] ?? json['backgroundColor']),
+          isDark: json['isDark'] ?? false,
+          isGlass: json['isGlass'] ?? false,
+        );
   }
 
   Map<String, dynamic> toJson() {
@@ -39,48 +50,82 @@ class ReaderColorTheme {
       'textColor': textColor.toARGB32(),
       'verseNumberColor': verseNumberColor.toARGB32(),
       'headerColor': headerColor.toARGB32(),
+      'accentColor': accentColor.toARGB32(),
+      'surfaceColor': surfaceColor.toARGB32(),
       'isDark': isDark,
+      'isGlass': isGlass,
     };
   }
 
+  /// Five reading themes from the Bible Plus design system (gold + glass UI).
   static List<ReaderColorTheme> get presets => [
         const ReaderColorTheme(
-          id: 'light',
-          name: 'Light',
-          backgroundColor: Color(0xFFFFFFFF),
-          textColor: Color(0xFF1A1A1A),
-          verseNumberColor: Color(0xFFC08A28),
-          headerColor: Color(0xFF1A1A1A),
-          isDark: false,
-        ),
-        const ReaderColorTheme(
           id: 'dark',
-          name: 'Dark',
-          backgroundColor: Color(0xFF10182A),
-          textColor: Color(0xFFF1E9D6),
-          verseNumberColor: Color(0xFFE8C766),
-          headerColor: Color(0xFFF1E9D6),
+          name: 'Night',
+          backgroundColor: Color(0xFF0D0C0A),
+          textColor: Color(0xFFF5F3EE),
+          verseNumberColor: Color(0xFF6F6A61),
+          headerColor: Color(0xFFF5F3EE),
+          accentColor: Color(0xFFBD9A4C),
+          surfaceColor: Color(0xFF161512),
           isDark: true,
         ),
         const ReaderColorTheme(
-          id: 'eye_comfort',
-          name: 'Eye Comfort',
-          backgroundColor: Color(0xFFF4ECD8),
-          textColor: Color(0xFF4A3B28),
-          verseNumberColor: Color(0xFFC08A28),
-          headerColor: Color(0xFF3E2F1F),
+          id: 'light',
+          name: 'Parchment',
+          backgroundColor: Color(0xFFF4EFE3),
+          textColor: Color(0xFF1A1815),
+          verseNumberColor: Color(0xFFA09A8F),
+          headerColor: Color(0xFF1A1815),
+          accentColor: Color(0xFFB08A28),
+          surfaceColor: Color(0xFFFFFFFF),
           isDark: false,
+        ),
+        const ReaderColorTheme(
+          id: 'sepia',
+          name: 'Sepia',
+          backgroundColor: Color(0xFFE9DCC3),
+          textColor: Color(0xFF3E3428),
+          verseNumberColor: Color(0xFF8A7A66),
+          headerColor: Color(0xFF3E3428),
+          accentColor: Color(0xFFB08A28),
+          surfaceColor: Color(0xFFF3EBD8),
+          isDark: false,
+        ),
+        const ReaderColorTheme(
+          id: 'void',
+          name: 'Void',
+          backgroundColor: Color(0xFF050910),
+          textColor: Color(0xFFEEF3F8),
+          verseNumberColor: Color(0xFF5C6E86),
+          headerColor: Color(0xFFEEF3F8),
+          accentColor: Color(0xFFBD9A4C),
+          surfaceColor: Color(0xFF0A0E16),
+          isDark: true,
+        ),
+        const ReaderColorTheme(
+          id: 'glass',
+          name: 'Glass',
+          backgroundColor: Color(0xFF0A1526),
+          textColor: Color(0xFFDBE4EE),
+          verseNumberColor: Color(0xFF5C6E86),
+          headerColor: Color(0xFFEEF3F8),
+          accentColor: Color(0xFF5EE6D0),
+          surfaceColor: Color(0x1FFFFFFF),
+          isDark: true,
+          isGlass: true,
         ),
       ];
 
   static String normalizeId(String id) {
     switch (id) {
-      case 'sepia':
-      case 'parchment':
-        return 'eye_comfort';
+      case 'eye_comfort':
+      case 'parchment_warm':
+        return 'sepia';
       case 'black':
       case 'blue_night':
       case 'forest':
+      case 'gold_night':
         return 'dark';
       default:
         return id;

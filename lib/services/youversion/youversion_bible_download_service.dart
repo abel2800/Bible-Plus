@@ -89,11 +89,10 @@ class YouVersionBibleDownloadService {
     void Function(String bookUsfm)? onBookComplete,
     void Function(String usfmRef, Object error)? onChapterError,
   }) async {
-    if (!YouVersionConfig.licenseConfirmedForBulkDownload) {
+    if (!YouVersionConfig.isOfflineVersionLicensed(versionId.toString())) {
       throw StateError(
-        'YOUVERSION_BULK_DOWNLOAD_LICENSED is not set. Confirm the license '
-        'for this Bible version at platform.youversion.com/bibles permits '
-        'full offline bulk download before enabling this.',
+        'This YouVersion translation requires an entry in '
+        'YOUVERSION_OFFLINE_VERSION_IDS_JSON or a confirmed bulk-download license.',
       );
     }
     if (versionId <= 0) {

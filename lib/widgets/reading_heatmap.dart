@@ -8,12 +8,14 @@ class ReadingHeatmap extends StatelessWidget {
   const ReadingHeatmap({
     super.key,
     required this.readingDays,
+    this.readingCounts = const {},
     this.weeksToShow = 14,
     this.squareSize = 12,
     this.gap = 4,
   });
 
   final Set<String> readingDays;
+  final Map<String, int> readingCounts;
   final int weeksToShow;
   final double squareSize;
   final double gap;
@@ -34,11 +36,13 @@ class ReadingHeatmap extends StatelessWidget {
       final date = start.add(Duration(days: i));
       final isFuture = date.isAfter(todayOnly);
       final key = _key(date);
+      final count = readingCounts[key] ?? 0;
       cells.add(
         _HeatCell(
           date: date,
-          read: !isFuture && readingDays.contains(key),
+          read: !isFuture && (readingDays.contains(key) || count > 0),
           isFuture: isFuture,
+          count: count,
         ),
       );
     }
@@ -49,10 +53,12 @@ class ReadingHeatmap extends StatelessWidget {
 
     final emptyColor =
         isDark ? const Color(0xFF2B3553) : const Color(0xFFE8DEC1);
-    final activeColor =
-        isDark ? const Color(0xFFD9A64B) : const Color(0xFFB5862F);
-    final softActiveColor =
+    final lightActiveColor =
+        isDark ? const Color(0xFF59657F) : const Color(0xFFE0D09B);
+    final midActiveColor =
         isDark ? const Color(0xFF8F6B2A) : const Color(0xFFD4AF6A);
+    final brightActiveColor =
+        isDark ? const Color(0xFFD9A64B) : const Color(0xFFB5862F);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,7 +93,7 @@ class ReadingHeatmap extends StatelessWidget {
                               child: Tooltip(
                                 message: cell.isFuture
                                     ? ''
-                                    : '${_label(cell.date)} · ${cell.read ? 'Read' : 'No reading'}',
+                                    : '${_label(cell.date)} · ${cell.read ? 'Read ${cell.count == 0 ? 1 : cell.count} chapter${cell.count == 1 ? '' : 's'}' : 'No reading'}',
                                 child: Container(
                                   width: squareSize,
                                   height: squareSize,
@@ -96,13 +102,26 @@ class ReadingHeatmap extends StatelessWidget {
                                     color: cell.isFuture
                                         ? Colors.transparent
                                         : cell.read
-                                            ? activeColor
+                                            ? _colorForReadCount(
+                                                cell.count,
+                                                emptyColor,
+                                                lightActiveColor,
+                                                midActiveColor,
+                                                brightActiveColor,
+                                                isDark,
+                                              )
                                             : emptyColor,
                                     boxShadow: cell.read
                                         ? [
                                             BoxShadow(
-                                              color: activeColor.withValues(
-                                                  alpha: 0.4),
+                                              color: _colorForReadCount(
+                                                cell.count,
+                                                emptyColor,
+                                                lightActiveColor,
+                                                midActiveColor,
+                                                brightActiveColor,
+                                                isDark,
+                                              ).withValues(alpha: 0.4),
                                               blurRadius: 4,
                                               spreadRadius: 0.6,
                                             ),
@@ -130,9 +149,11 @@ class ReadingHeatmap extends StatelessWidget {
             const SizedBox(width: 6),
             _swatch(emptyColor),
             const SizedBox(width: 3),
-            _swatch(softActiveColor),
+            _swatch(lightActiveColor),
             const SizedBox(width: 3),
-            _swatch(activeColor),
+            _swatch(midActiveColor),
+            const SizedBox(width: 3),
+            _swatch(brightActiveColor),
             const SizedBox(width: 6),
             Text(
               'More',
@@ -142,6 +163,19 @@ class ReadingHeatmap extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Color _colorForReadCount(
+    int count,
+    Color empty,
+    Color light,
+    Color mid,
+    Color bright,
+    bool isDark,
+  ) {
+    if (count <= 3) return light;
+    if (count <= 8) return mid;
+    return bright;
   }
 
   Widget _swatch(Color color) => Container(
@@ -180,9 +214,11 @@ class _HeatCell {
     required this.date,
     required this.read,
     required this.isFuture,
+    required this.count,
   });
 
   final DateTime date;
   final bool read;
   final bool isFuture;
+  final int count;
 }

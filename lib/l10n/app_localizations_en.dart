@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appName => 'BiblePulse';
+  String get appName => 'Bible Plus';
 
   @override
   String get tagline => 'Scripture, illuminated.';
@@ -45,7 +45,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navStudy => 'Plans';
 
   @override
-  String get navSettings => 'You';
+  String get navSettings => 'Settings';
 
   @override
   String get readBible => 'Read Bible';
@@ -414,7 +414,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offlineReading => 'Offline reading';
 
   @override
-  String get bootstrapFailedTitle => 'BiblePulse could not finish starting.';
+  String get bootstrapFailedTitle => 'Bible Plus could not finish starting.';
 
   @override
   String get bootstrapFailedBody =>

@@ -20,6 +20,9 @@ import 'services/bible_brain_catalog_service.dart';
 import 'services/bible_brain_text_service.dart';
 import 'services/bible_brain_version_registry.dart';
 import 'services/public_domain_web_audio_resolver.dart';
+import 'services/manifest_audio_resolver.dart';
+import 'services/composite_audio_resolver.dart';
+import 'services/catalog_audio_resolver.dart';
 import 'services/bible_package_service.dart';
 import 'services/bible_service.dart';
 import 'services/auth_service.dart';
@@ -53,7 +56,6 @@ import 'screens/search_screen.dart';
 import 'screens/app_shell.dart';
 import 'screens/bible_reader_screen.dart';
 import 'screens/bible_store_screen.dart';
-import 'screens/audio_store_screen.dart';
 import 'screens/study_screen.dart';
 import 'screens/wallpaper_generator_screen.dart';
 import 'screens/settings_screen.dart';
@@ -83,6 +85,9 @@ void main() async {
   await HomeWidgetService.configure();
   var cloudEnabled = false;
   AudioChapterResolver? audioResolver;
+  CatalogAudioResolver? catalogAudioResolver;
+  AudioTimingResolver? audioTimingResolver;
+  final supportedAudioVersionIds = <String>{};
   final licensedFeatures = <String>{};
   final brainVersions = BibleBrainVersionRegistry();
   await brainVersions.load();
@@ -142,17 +147,62 @@ void main() async {
         catalog: brainCatalog,
       );
     }
+    final manifestResolvers = await Future.wait([
+      ManifestAudioResolver.loadFromAssets(
+        'assets/catalog/kjv_pdaudio_manifest.json',
+      ),
+      ManifestAudioResolver.loadFromAssets(
+        'assets/catalog/amh_sermononline_manifest.json',
+      ),
+      ManifestAudioResolver.loadFromAssets(
+        'assets/catalog/ti_sermononline_nt_manifest.json',
+      ),
+    ]);
+    for (final resolver in manifestResolvers) {
+      supportedAudioVersionIds.add(resolver.versionId);
+      supportedAudioVersionIds.addAll(resolver.versionAliases);
+    }
+
+    final resolvers = <AudioChapterResolver>[
+      await PublicDomainWebAudioResolver.loadFromAssets(),
+      ...manifestResolvers,
+    ];
+    supportedAudioVersionIds
+        .addAll(PublicDomainWebAudioResolver.supportedVersionIds);
+
+    final packageResolvers = <String, AudioChapterResolver>{
+      'web-henson-en': await PublicDomainWebAudioResolver.loadFromAssets(),
+      'kjv-pdaudio-en': manifestResolvers[0],
+      'amh-sermononline': manifestResolvers[1],
+      'ti-sermononline-nt': manifestResolvers[2],
+    };
+
+    AudioTimingResolver? brainTiming;
     if (AudioConfig.isConfigured && brainCatalog != null) {
-      audioResolver = BibleBrainAudioResolver(
+      final brainResolver = BibleBrainAudioResolver(
         apiKey: AudioConfig.apiKey,
         versionBibleIds: AudioConfig.bibleIds,
         allowedMediaHosts: AudioConfig.mediaHosts,
         catalog: brainCatalog,
         versions: brainVersions,
       );
-    } else {
-      audioResolver = await PublicDomainWebAudioResolver.loadFromAssets();
+      packageResolvers['web-en-bible-brain'] = brainResolver;
+      resolvers.insert(0, brainResolver);
+      brainTiming = brainResolver;
+      supportedAudioVersionIds.addAll(
+        AudioConfig.bibleIds.keys.map((k) => k.toUpperCase()),
+      );
     }
+
+    final fallback = CompositeAudioResolver(resolvers);
+    catalogAudioResolver = CatalogAudioResolver(
+      packageResolvers: packageResolvers,
+      fallback: fallback,
+    );
+    audioResolver = catalogAudioResolver;
+    audioTimingResolver = brainTiming != null
+        ? CompositeAudioTimingResolver([brainTiming])
+        : null;
   } catch (error) {
     debugPrint('Audio configuration unavailable: $error');
   }
@@ -199,6 +249,8 @@ void main() async {
     BiblePulseApp(
       capabilities: capabilities,
       audioResolver: audioResolver,
+      audioTimingResolver: audioTimingResolver,
+      supportedAudioVersionIds: supportedAudioVersionIds,
       brainCatalog: brainCatalog,
       brainText: brainText,
       brainVersions: brainVersions,
@@ -210,6 +262,8 @@ class BiblePulseApp extends StatelessWidget {
   const BiblePulseApp({
     super.key,
     this.audioResolver,
+    this.audioTimingResolver,
+    this.supportedAudioVersionIds = const {},
     this.brainCatalog,
     this.brainText,
     this.brainVersions,
@@ -227,6 +281,8 @@ class BiblePulseApp extends StatelessWidget {
 
   final AppCapabilities capabilities;
   final AudioChapterResolver? audioResolver;
+  final AudioTimingResolver? audioTimingResolver;
+  final Set<String> supportedAudioVersionIds;
   final BibleBrainCatalogService? brainCatalog;
   final BibleBrainTextGateway? brainText;
   final BibleBrainVersionRegistry? brainVersions;
@@ -263,29 +319,16 @@ class BiblePulseApp extends StatelessWidget {
           ChangeNotifierProvider(create: (_) => ReadingPlanProvider()),
         if (capabilities.hymns)
           ChangeNotifierProvider(create: (_) => HymnProvider()),
-        ChangeNotifierProvider(
-          create: (_) => AudioService(
-            enabled: capabilities.audio,
-            resolver: audioResolver,
-            timingResolver: audioResolver is AudioTimingResolver
-                ? audioResolver as AudioTimingResolver
-                : null,
-          ),
-        ),
-        if (capabilities.audio)
-          ChangeNotifierProvider(
-            create: (context) => AudioDownloadProvider(
-              resolver: audioResolver!,
-              cache: context.read<AudioService>().cache,
-            )..initialize(),
-          ),
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(
-          create: (_) => UserPreferencesProvider()..initialize(),
-        ),
         Provider(
           create: (_) => BiblePackageService(
             brainCatalog: brainCatalog,
+            brainVersions: brainVersions,
+          ),
+        ),
+        Provider(
+          create: (context) => BibleService(
+            packageService: context.read<BiblePackageService>(),
+            brainText: brainText,
             brainVersions: brainVersions,
           ),
         ),
@@ -298,6 +341,9 @@ class BiblePulseApp extends StatelessWidget {
           create: (_) => AudioStoreProvider()..initialize(),
         ),
         ChangeNotifierProvider(
+          create: (_) => UserPreferencesProvider()..initialize(),
+        ),
+        ChangeNotifierProvider(
           create: (_) => EngagementProvider()..initialize(),
         ),
         ChangeNotifierProvider(
@@ -305,13 +351,45 @@ class BiblePulseApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => BibleProvider(
-            bibleService: BibleService(
-              packageService: context.read<BiblePackageService>(),
-              brainText: brainText,
-              brainVersions: brainVersions,
-            ),
+            bibleService: context.read<BibleService>(),
           ),
         ),
+        ChangeNotifierProvider(
+          create: (context) => AudioService(
+            enabled: capabilities.audio,
+            resolver: audioResolver,
+            timingResolver: audioTimingResolver,
+            supportedVersionIds: supportedAudioVersionIds,
+            resolveAudioPackageId: (textVersionId, _) {
+              return context
+                  .read<AudioStoreProvider>()
+                  .defaultPackageIdForTextVersion(textVersionId);
+            },
+            onPackageSelected: (packageId) async {
+              await context
+                  .read<UserPreferencesProvider>()
+                  .setPreferredAudio(packageId);
+            },
+            verseWeightsLoader: (versionId, bookId, chapter) async {
+              final verses = await context.read<BibleService>().getChapter(
+                    versionId,
+                    bookId,
+                    chapter,
+                  );
+              return [
+                for (final verse in verses) verse.text.length.clamp(1, 10000),
+              ];
+            },
+          ),
+        ),
+        if (capabilities.audio)
+          ChangeNotifierProvider(
+            create: (context) => AudioDownloadProvider(
+              resolver: audioResolver!,
+              cache: context.read<AudioService>().cache,
+            )..initialize(),
+          ),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(
           create: (_) => StudyProvider(),
         ),
@@ -323,7 +401,7 @@ class BiblePulseApp extends StatelessWidget {
       child: Consumer2<ThemeProvider, UserPreferencesProvider>(
         builder: (context, themeProvider, userPrefs, child) {
           return MaterialApp(
-            title: 'BiblePulse',
+            title: 'Bible Plus',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
@@ -351,7 +429,8 @@ class BiblePulseApp extends StatelessWidget {
               '/search': (context) => const SearchScreen(),
               '/bible': (context) => const BibleReaderScreen(),
               '/bible_store': (context) => const BibleStoreScreen(),
-              '/audio_store': (context) => const AudioStoreScreen(),
+              '/audio_store': (context) =>
+                  const BibleStoreScreen(initialTab: 1),
               '/study': (context) => const StudyScreen(),
               '/wallpaper': (context) => const WallpaperGeneratorScreen(),
               '/settings': (context) => const SettingsScreen(),

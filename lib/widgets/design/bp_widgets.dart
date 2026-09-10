@@ -21,7 +21,7 @@ class BpCard extends StatelessWidget {
     final colors = context.colors;
     final border = colors.border;
     final surface = colors.surface;
-    final radius = BorderRadius.circular(10);
+    final radius = BorderRadius.circular(18);
 
     final body = Padding(
       padding: padding ?? const EdgeInsets.all(16),
@@ -208,29 +208,27 @@ class BpBrandMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final letterSize = size * 0.46;
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(size * 0.23),
-        color: AppTheme.indigo,
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.gold.withValues(alpha: 0.45),
-            blurRadius: 36,
-            offset: const Offset(0, 16),
-            spreadRadius: -10,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(size * 0.22),
+      child: Image.asset(
+        'assets/branding/bible_plus_logo.png',
+        width: size,
+        height: size,
+        fit: BoxFit.contain,
+        errorBuilder: (_, __, ___) => Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(size * 0.22),
+            color: AppTheme.surfaceDark,
+            border: Border.all(color: AppTheme.borderDark),
           ),
-        ],
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        'B',
-        style: AppTheme.brandTitle(
-          fontSize: letterSize,
-          weight: FontWeight.w700,
-          color: AppTheme.goldSoft,
+          alignment: Alignment.center,
+          child: Icon(
+            Icons.menu_book_rounded,
+            color: AppTheme.gold,
+            size: size * 0.45,
+          ),
         ),
       ),
     );

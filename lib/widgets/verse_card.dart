@@ -2,8 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../models/bible_verse.dart';
+import '../models/color_theme.dart';
 import '../utils/app_theme.dart';
 import '../widgets/verse_action_bottom_sheet.dart';
+
+bool isEthiopicScriptVersion(String versionId) {
+  final id = versionId.toLowerCase();
+  return id.contains('amh') ||
+      id.contains('am-') ||
+      id.contains('weahadu') ||
+      id.contains('gez') ||
+      id.contains('ti-') ||
+      id.contains('orm') ||
+      id.contains('nasv');
+}
 
 class VerseCard extends StatelessWidget {
   final BibleVerse verse;
@@ -16,10 +28,15 @@ class VerseCard extends StatelessWidget {
   final bool isAudioActive;
   final Color? textColor;
   final Color? verseNumberColor;
+  final Color? accentColor;
   final double fontSize;
   final double lineHeight;
   final String? fontFamily;
   final bool useSystemFont;
+  final bool useDropCap;
+  final ReaderColorTheme? readerTheme;
+  final bool selected;
+  final VoidCallback? onTap;
 
   const VerseCard({
     super.key,
@@ -33,30 +50,110 @@ class VerseCard extends StatelessWidget {
     this.isAudioActive = false,
     this.textColor,
     this.verseNumberColor,
+    this.accentColor,
     this.fontSize = 16,
-    this.lineHeight = 1.75,
+    this.lineHeight = 1.85,
     this.fontFamily,
     this.useSystemFont = false,
+    this.useDropCap = false,
+    this.readerTheme,
+    this.selected = false,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final ink = textColor ??
-        (Theme.of(context).brightness == Brightness.dark
-            ? AppTheme.inkDark
-            : AppTheme.ink);
-    final numberColor = verseNumberColor ?? AppTheme.gold;
-    final tint = isAudioActive
-        ? AppTheme.goldSoft.withValues(alpha: 0.22)
+    final ink = textColor ?? AppTheme.ink;
+    final numberColor = verseNumberColor ?? AppTheme.inkFaint;
+    final accent = accentColor ?? AppTheme.gold;
+    final active = isAudioActive || isHighlighted || selected;
+    final fill = isAudioActive
+        ? accent.withValues(alpha: readerTheme?.isGlass == true ? 0.10 : 0.22)
         : isHighlighted
-            ? (highlightColor ?? AppTheme.goldSoft).withValues(alpha: 0.28)
-            : Colors.transparent;
-    final borderColor = isAudioActive ? AppTheme.vermilion : Colors.transparent;
+            ? (highlightColor ?? accent).withValues(alpha: 0.22)
+            : selected
+                ? (readerTheme?.surfaceColor ?? accent.withValues(alpha: 0.12))
+                : Colors.transparent;
+    final ethiopic = isEthiopicScriptVersion(versionId);
+
+    final bodyStyle = ethiopic
+        ? AppTheme.ethopic(
+            fontSize: fontSize,
+            height: lineHeight,
+            color: ink.withValues(alpha: active ? 1 : 0.92),
+          )
+        : AppTheme.scripture(
+            fontSize: fontSize,
+            height: lineHeight,
+            color: ink.withValues(alpha: active ? 1 : 0.92),
+            fontFamily: fontFamily,
+            useSystemFont: useSystemFont,
+          );
+
+    final numberStyle = AppTheme.ui(
+      fontSize: 9.5,
+      weight: FontWeight.w500,
+      color: active ? accent : numberColor,
+      height: 1.2,
+    );
+
+    final text = verse.text.trim();
+    final showDropCap = useDropCap &&
+        text.isNotEmpty &&
+        !ethiopic &&
+        RegExp(r'[A-Za-z]').hasMatch(text[0]);
+
+    Widget verseBody;
+    if (showDropCap) {
+      final drop = text[0].toUpperCase();
+      final rest = text.length > 1 ? text.substring(1) : '';
+      verseBody = Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: 8, top: 2),
+            child: Text(
+              drop,
+              style: AppTheme.displayCap(
+                fontSize: 50,
+                color: accent,
+                height: 0.82,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text.rich(
+              TextSpan(
+                style: bodyStyle,
+                children: [
+                  TextSpan(text: '${verse.verse} ', style: numberStyle),
+                  TextSpan(text: rest),
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+    } else {
+      verseBody = Text.rich(
+        TextSpan(
+          style: bodyStyle,
+          children: [
+            TextSpan(text: '${verse.verse} ', style: numberStyle),
+            TextSpan(text: text),
+          ],
+        ),
+      );
+    }
 
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
-        _showActions(context);
+        if (onTap != null) {
+          onTap!();
+        } else {
+          _showActions(context);
+        }
       },
       onLongPress: () {
         HapticFeedback.mediumImpact();
@@ -64,56 +161,32 @@ class VerseCard extends StatelessWidget {
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: EdgeInsets.only(
-          top: 8,
-          bottom: 8,
-          left: tint == Colors.transparent ? 0 : 10,
-        ),
-        decoration: BoxDecoration(
-          color: tint,
-          border: borderColor == Colors.transparent
-              ? null
-              : Border(left: BorderSide(color: borderColor, width: 3)),
-          boxShadow: isAudioActive
-              ? [
-                  BoxShadow(
-                    color: AppTheme.goldSoft.withValues(alpha: 0.16),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : null,
-        ),
+        margin: const EdgeInsets.only(bottom: 2),
+        padding: active
+            ? const EdgeInsets.symmetric(horizontal: 4, vertical: 2)
+            : EdgeInsets.zero,
+        decoration: active
+            ? BoxDecoration(
+                color: fill,
+                borderRadius: BorderRadius.circular(6),
+                border: isHighlighted || isAudioActive
+                    ? Border(
+                        bottom: BorderSide(
+                          color: accent.withValues(alpha: 0.85),
+                          width: 2,
+                        ),
+                      )
+                    : selected
+                        ? Border.all(
+                            color: accent.withValues(alpha: 0.25),
+                          )
+                        : null,
+              )
+            : null,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
-              width: 16,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: Text(
-                  '${verse.verse}',
-                  style: AppTheme.ui(
-                    fontSize: 10.5,
-                    weight: FontWeight.w700,
-                    color: numberColor,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                verse.text,
-                style: AppTheme.scripture(
-                  fontSize: fontSize,
-                  height: lineHeight,
-                  color: ink,
-                  fontFamily: fontFamily,
-                  useSystemFont: useSystemFont,
-                ),
-              ),
-            ),
+            Expanded(child: verseBody),
             if (isBookmarked || hasNote) ...[
               const SizedBox(width: 6),
               Column(
@@ -122,7 +195,7 @@ class VerseCard extends StatelessWidget {
                     Icon(
                       Icons.bookmark_rounded,
                       size: 14,
-                      color: AppTheme.gold.withValues(alpha: 0.9),
+                      color: accent.withValues(alpha: 0.9),
                     ),
                   if (hasNote)
                     Padding(
@@ -130,7 +203,7 @@ class VerseCard extends StatelessWidget {
                       child: Icon(
                         Icons.note_alt_rounded,
                         size: 14,
-                        color: AppTheme.vermilion.withValues(alpha: 0.9),
+                        color: accent.withValues(alpha: 0.75),
                       ),
                     ),
                 ],
@@ -143,10 +216,10 @@ class VerseCard extends StatelessWidget {
   }
 
   void _showActions(BuildContext context) {
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
-      backgroundColor: Colors.transparent,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => VerseActionBottomSheet(
         verse: verse,
         reference: reference,

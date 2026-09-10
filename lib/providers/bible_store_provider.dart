@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../config/youversion_config.dart';
 import '../models/bible_package.dart';
 import '../services/bible_package_service.dart';
 
@@ -54,6 +55,9 @@ class BibleStoreProvider with ChangeNotifier {
     final q = _query.trim().toLowerCase();
     return catalog.where((pkg) {
       if (pkg.install.type == 'unavailable') return false;
+      if (pkg.install.type == 'youversion' && !YouVersionConfig.isConfigured) {
+        return false;
+      }
       if (_language != 'all' && pkg.language != _language) return false;
       if (_category != 'all' && !pkg.category.contains(_category)) return false;
       if (q.isEmpty) return true;

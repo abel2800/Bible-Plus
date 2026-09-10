@@ -12,7 +12,7 @@ The maintained platform target in this checkout is Android. The repository does 
 | --- | --- |
 | Application ID | `app.biblepulse.reader` |
 | Flutter package | `bible_pulse` |
-| Version | `1.0.2+3` |
+| Version | `1.0.3+4` |
 | Dart constraint | `>=3.6.0 <4.0.0` |
 | Flutter constraint | `>=3.27.0` |
 | Android namespace | `app.biblepulse.reader` |
@@ -76,7 +76,7 @@ Rights and redistribution status must be checked before adding or shipping new c
 
 ## Latest update
 
-Version 1.0.2 reduces the Android package size by:
+Version 1.0.3 includes the audio Bible integration and reduces the Android package size by:
 
 - Removing the FFmpeg native dependency
 - Bundling only WEB, NASV, and Amharic Bible data
@@ -110,6 +110,20 @@ BIBLE_BRAIN_MEDIA_HOSTS
 ```
 
 These values are supplied with `--dart-define` and must not be committed.
+
+### YouVersion downloads
+
+YouVersion credentials are compiled into the Android release; GitHub secrets are
+not available to an already-installed APK. Add `YOUVERSION_APP_KEY` as a
+repository secret, then create a new release build. For individually licensed
+offline versions, also add `YOUVERSION_OFFLINE_VERSION_IDS_JSON` with a JSON
+array such as `["1260"]`. Set `YOUVERSION_BULK_DOWNLOAD_LICENSED` to `true`
+only when the rights holder has confirmed bulk offline distribution.
+
+The release workflow accepts an empty YouVersion configuration, so builds can
+publish without that optional integration. Installing an older APK will not
+receive a newly added secret; the newly generated APK or App Bundle must be
+downloaded and installed.
 
 ## Architecture
 

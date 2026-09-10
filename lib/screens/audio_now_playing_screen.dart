@@ -4,11 +4,15 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../providers/audio_download_provider.dart';
+import '../providers/audio_store_provider.dart';
+import '../providers/bible_provider.dart';
+import '../providers/user_preferences_provider.dart';
 import '../services/audio_service.dart';
 import '../services/audio_share_link.dart';
 import '../utils/app_theme.dart';
 import '../widgets/audio_queue_sheet.dart';
 import '../widgets/audio_sleep_timer_sheet.dart';
+import '../widgets/audio_version_selector_sheet.dart';
 import '../widgets/book_selector_bottom_sheet.dart';
 
 class AudioNowPlayingScreen extends StatelessWidget {
@@ -27,6 +31,12 @@ class AudioNowPlayingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final audio = context.watch<AudioService>();
     final downloads = context.watch<AudioDownloadProvider>();
+    final audioStore = context.watch<AudioStoreProvider>();
+    final bible = context.watch<BibleProvider>();
+    final prefs = context.watch<UserPreferencesProvider>();
+    final activePackage = audioStore.packageById(
+      audio.activeAudioPackageId ?? prefs.preferredAudioPackageId,
+    );
     final theme = audio.artworkTheme;
     final palette = theme?.palette ??
         const [Color(0xFF1F3A5F), Color(0xFF466C96), Color(0xFFE0B766)];
@@ -81,7 +91,7 @@ class AudioNowPlayingScreen extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                subtitle,
+                                activePackage?.name ?? subtitle,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: AppTheme.ui(
@@ -90,6 +100,19 @@ class AudioNowPlayingScreen extends StatelessWidget {
                                 ),
                               ),
                             ],
+                          ),
+                        ),
+                        IconButton(
+                          tooltip: 'Choose audio version',
+                          onPressed: () => AudioVersionSelectorSheet.show(
+                            context,
+                            textVersionId:
+                                audio.activeVersion ?? bible.currentVersion,
+                            currentPackageId: activePackage?.id,
+                          ),
+                          icon: const Icon(
+                            Icons.headphones_rounded,
+                            color: Colors.white,
                           ),
                         ),
                         IconButton(

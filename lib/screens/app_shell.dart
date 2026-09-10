@@ -5,6 +5,8 @@ import '../l10n/app_localizations.dart';
 import '../providers/navigation_provider.dart';
 import '../utils/app_theme.dart';
 import '../widgets/audio_deep_link_listener.dart';
+import '../widgets/design/bp_brand.dart';
+import '../widgets/audio_bible_sync.dart';
 import '../widgets/audio_mini_player.dart';
 import 'bible_reader_screen.dart';
 import 'dashboard_screen.dart';
@@ -44,8 +46,8 @@ class AppShell extends StatelessWidget {
         label: l10n.navSearch,
       ),
       NavigationDestination(
-        icon: const Icon(Icons.person_outline),
-        selectedIcon: const Icon(Icons.person),
+        icon: const Icon(Icons.settings_outlined),
+        selectedIcon: const Icon(Icons.settings),
         label: l10n.navSettings,
       ),
     ];
@@ -59,101 +61,108 @@ class AppShell extends StatelessWidget {
     ];
 
     final content = IndexedStack(index: index, children: pages);
+    // Read tab uses its own inline audio bar — skip the global mini player there.
     final stackedContent = Stack(
       children: [
         Positioned.fill(child: content),
-        const Positioned(
-            left: 12, right: 12, bottom: 12, child: AudioMiniPlayer()),
+        if (index != 1)
+          const Positioned(
+            left: 12,
+            right: 12,
+            bottom: 12,
+            child: AudioMiniPlayer(),
+          ),
       ],
     );
 
     return AudioDeepLinkListener(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final useRail = constraints.maxWidth >= 720;
+      child: AudioBibleSync(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final useRail = constraints.maxWidth >= 720;
 
-          if (useRail) {
+            if (useRail) {
+              return Scaffold(
+                backgroundColor: t.appBg,
+                body: SafeArea(
+                  child: Row(
+                    children: [
+                      NavigationRail(
+                        selectedIndex: index,
+                        onDestinationSelected: navigation.setIndex,
+                        labelType: constraints.maxWidth >= 1000
+                            ? NavigationRailLabelType.all
+                            : NavigationRailLabelType.selected,
+                        leading: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: BpBrandMark(showWordmark: true, size: 32),
+                        ),
+                        destinations: [
+                          NavigationRailDestination(
+                            icon: const Icon(Icons.home_outlined),
+                            selectedIcon: const Icon(Icons.home),
+                            label: Text(l10n.navHome),
+                          ),
+                          NavigationRailDestination(
+                            icon: const Icon(Icons.menu_book_outlined),
+                            selectedIcon: const Icon(Icons.menu_book),
+                            label: Text(l10n.navRead),
+                          ),
+                          NavigationRailDestination(
+                            icon: const Icon(Icons.check_box_outlined),
+                            selectedIcon: const Icon(Icons.check_box),
+                            label: Text(l10n.navStudy),
+                          ),
+                          NavigationRailDestination(
+                            icon: const Icon(Icons.search_outlined),
+                            selectedIcon: const Icon(Icons.search),
+                            label: Text(l10n.navSearch),
+                          ),
+                          NavigationRailDestination(
+                            icon: const Icon(Icons.settings_outlined),
+                            selectedIcon: const Icon(Icons.settings),
+                            label: Text(l10n.navSettings),
+                          ),
+                        ],
+                      ),
+                      VerticalDivider(width: 1, color: t.border),
+                      Expanded(child: stackedContent),
+                    ],
+                  ),
+                ),
+              );
+            }
+
             return Scaffold(
               backgroundColor: t.appBg,
-              body: SafeArea(
-                child: Row(
-                  children: [
-                    NavigationRail(
-                      selectedIndex: index,
-                      onDestinationSelected: navigation.setIndex,
-                      labelType: constraints.maxWidth >= 1000
-                          ? NavigationRailLabelType.all
-                          : NavigationRailLabelType.selected,
-                      leading: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        child: Text.rich(
-                          TextSpan(
-                            style: AppTheme.brandTitle(
-                              fontSize: 18,
-                              color: t.ink,
-                            ),
-                            children: const [
-                              TextSpan(text: 'Bible'),
-                              TextSpan(
-                                text: 'Pulse',
-                                style: TextStyle(color: AppTheme.gold),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      destinations: [
-                        NavigationRailDestination(
-                          icon: const Icon(Icons.home_outlined),
-                          selectedIcon: const Icon(Icons.home),
-                          label: Text(l10n.navHome),
-                        ),
-                        NavigationRailDestination(
-                          icon: const Icon(Icons.menu_book_outlined),
-                          selectedIcon: const Icon(Icons.menu_book),
-                          label: Text(l10n.navRead),
-                        ),
-                        NavigationRailDestination(
-                          icon: const Icon(Icons.check_box_outlined),
-                          selectedIcon: const Icon(Icons.check_box),
-                          label: Text(l10n.navStudy),
-                        ),
-                        NavigationRailDestination(
-                          icon: const Icon(Icons.search_outlined),
-                          selectedIcon: const Icon(Icons.search),
-                          label: Text(l10n.navSearch),
-                        ),
-                        NavigationRailDestination(
-                          icon: const Icon(Icons.person_outline),
-                          selectedIcon: const Icon(Icons.person),
-                          label: Text(l10n.navSettings),
-                        ),
-                      ],
-                    ),
-                    VerticalDivider(width: 1, color: t.border),
-                    Expanded(child: stackedContent),
-                  ],
+              body: stackedContent,
+              bottomNavigationBar: Container(
+                margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                decoration: BoxDecoration(
+                  color: t.surface,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: t.border.withValues(alpha: 0.55)),
+                  boxShadow: AppTheme.cardShadow(
+                    Theme.of(context).brightness == Brightness.dark,
+                  ),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(22),
+                  child: NavigationBar(
+                    height: 68,
+                    backgroundColor: t.surface,
+                    indicatorColor: context.colors.goldGlow,
+                    labelBehavior:
+                        NavigationDestinationLabelBehavior.alwaysShow,
+                    selectedIndex: index,
+                    onDestinationSelected: navigation.setIndex,
+                    destinations: destinations,
+                  ),
                 ),
               ),
             );
-          }
-
-          return Scaffold(
-            backgroundColor: t.appBg,
-            body: stackedContent,
-            bottomNavigationBar: Container(
-              decoration: BoxDecoration(
-                color: t.surface,
-                border: Border(top: BorderSide(color: t.border)),
-              ),
-              child: NavigationBar(
-                selectedIndex: index,
-                onDestinationSelected: navigation.setIndex,
-                destinations: destinations,
-              ),
-            ),
-          );
-        },
+          },
+        ),
       ),
     );
   }

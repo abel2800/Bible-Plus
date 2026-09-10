@@ -34,18 +34,18 @@ jobs:
       - name: Build split APKs
         env:
           YOUVERSION_APP_KEY: ${{ secrets.YOUVERSION_APP_KEY }}
+          YOUVERSION_OFFLINE_VERSION_IDS_JSON: ${{ secrets.YOUVERSION_OFFLINE_VERSION_IDS_JSON }}
+          YOUVERSION_BULK_DOWNLOAD_LICENSED: ${{ secrets.YOUVERSION_BULK_DOWNLOAD_LICENSED }}
         run: |
-          flutter build apk --release --split-per-abi \
-            --dart-define=YOUVERSION_APP_KEY="$YOUVERSION_APP_KEY" \
-            --dart-define=YOUVERSION_BULK_DOWNLOAD_LICENSED=false
+          flutter build apk --release --split-per-abi --dart-define=YOUVERSION_APP_KEY="$YOUVERSION_APP_KEY" --dart-define=YOUVERSION_OFFLINE_VERSION_IDS_JSON="$YOUVERSION_OFFLINE_VERSION_IDS_JSON" --dart-define=YOUVERSION_BULK_DOWNLOAD_LICENSED="${YOUVERSION_BULK_DOWNLOAD_LICENSED:-false}"
 
       - name: Build App Bundle
         env:
           YOUVERSION_APP_KEY: ${{ secrets.YOUVERSION_APP_KEY }}
+          YOUVERSION_OFFLINE_VERSION_IDS_JSON: ${{ secrets.YOUVERSION_OFFLINE_VERSION_IDS_JSON }}
+          YOUVERSION_BULK_DOWNLOAD_LICENSED: ${{ secrets.YOUVERSION_BULK_DOWNLOAD_LICENSED }}
         run: |
-          flutter build appbundle --release \
-            --dart-define=YOUVERSION_APP_KEY="$YOUVERSION_APP_KEY" \
-            --dart-define=YOUVERSION_BULK_DOWNLOAD_LICENSED=false
+          flutter build appbundle --release --dart-define=YOUVERSION_APP_KEY="$YOUVERSION_APP_KEY" --dart-define=YOUVERSION_OFFLINE_VERSION_IDS_JSON="$YOUVERSION_OFFLINE_VERSION_IDS_JSON" --dart-define=YOUVERSION_BULK_DOWNLOAD_LICENSED="${YOUVERSION_BULK_DOWNLOAD_LICENSED:-false}"
 
       - name: Prepare release assets
         run: |

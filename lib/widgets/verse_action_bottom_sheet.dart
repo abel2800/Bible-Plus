@@ -52,7 +52,7 @@ class _VerseActionBottomSheetState extends State<VerseActionBottomSheet> {
   }
 
   Future<void> _shareText() async {
-    final text = '${widget.verse.text}\n— ${widget.reference}\n\nBiblePulse';
+    final text = '${widget.verse.text}\n— ${widget.reference}\n\nBible Plus';
     final origin = _shareOrigin();
     try {
       await Share.share(

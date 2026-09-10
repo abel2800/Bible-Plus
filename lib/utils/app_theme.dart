@@ -8,31 +8,53 @@ export '../theme/app_colors.dart';
 export '../theme/app_theme.dart' show AppText;
 
 class AppTheme {
-  static const Color gold = Color(0xFFB4842B);
-  static const Color goldSoft = Color(0xFFDCC48C);
+  // Night palette (default app shell).
+  static const Color gold = Color(0xFFBD9A4C);
+  static const Color goldBright = Color(0xFFD3B765);
+  static const Color goldMuted = Color(0xFF8A7038);
+  static const Color goldSoft = Color(0xFFC4AA6E);
+  static const Color goldGlow = Color(0x21C9A542);
+
+  // Day palette.
+  static const Color goldLight = Color(0xFFB08A28);
+  static const Color goldBrightLight = Color(0xFFD4AF37);
+  static const Color goldMutedLight = Color(0xFF8A6D1F);
+  static const Color goldGlowLight = Color(0x21B08A28);
+
+  static Color primaryGold(Brightness brightness) =>
+      brightness == Brightness.dark ? gold : goldLight;
+
+  static Color brightGold(Brightness brightness) =>
+      brightness == Brightness.dark ? goldBright : goldBrightLight;
+
+  static Color mutedGold(Brightness brightness) =>
+      brightness == Brightness.dark ? goldMuted : goldMutedLight;
+
+  static Color glowGold(Brightness brightness) =>
+      brightness == Brightness.dark ? goldGlow : goldGlowLight;
   static const Color vermilion = Color(0xFF9C3B2A);
   static const Color indigo = Color(0xFF232C4D);
   static const Color moss = Color(0xFF556B45);
   static const Color teal = moss;
-  static const Color onGold = Color(0xFF1E1A15);
+  static const Color onGold = Color(0xFF1C1607);
 
-  static const Color appBgLight = Color(0xFFF6F0E1);
-  static const Color surfaceLight = Color(0xFFF6F0E1);
-  static const Color surface2Light = Color(0xFFEFE7D2);
-  static const Color borderLight = Color(0xFFDED2B5);
-  static const Color ink = Color(0xFF1E1A15);
-  static const Color inkSoft = Color(0xFF5A5245);
-  static const Color inkFaint = Color(0xFF9C9079);
+  static const Color appBgLight = Color(0xFFF7F5EF);
+  static const Color surfaceLight = Color(0xFFFFFFFF);
+  static const Color surface2Light = Color(0xFFF3F1EA);
+  static const Color borderLight = Color(0x38B08A28);
+  static const Color ink = Color(0xFF1A1815);
+  static const Color inkSoft = Color(0xFF68625A);
+  static const Color inkFaint = Color(0xFFA09A8F);
 
-  static const Color appBgDark = Color(0xFF15171F);
-  static const Color surfaceDark = Color(0xFF1E2131);
-  static const Color surface2Dark = Color(0xFF26293A);
-  static const Color borderDark = Color(0xFF33364A);
-  static const Color inkDark = Color(0xFFF3ECDA);
-  static const Color inkSoftDark = Color(0xFFB9AF97);
-  static const Color inkFaintDark = Color(0xFF817A6A);
+  static const Color appBgDark = Color(0xFF0D0C0A);
+  static const Color surfaceDark = Color(0xFF161512);
+  static const Color surface2Dark = Color(0xFF1B1916);
+  static const Color borderDark = Color(0x21C9A542);
+  static const Color inkDark = Color(0xFFF5F3EE);
+  static const Color inkSoftDark = Color(0xFFA7A29A);
+  static const Color inkFaintDark = Color(0xFF6F6A61);
 
-  static const Color success = Color(0xFF27AE60);
+  static const Color success = Color(0xFF8FBF8A);
   static const Color warning = Color(0xFFF39C12);
   static const Color error = vermilion;
 
@@ -81,6 +103,7 @@ class AppTheme {
     if (isFlutterTest || useSystemFont || fontFamily == 'System') {
       return TextStyle(
         fontFamily: useSystemFont || fontFamily == 'System' ? null : 'serif',
+        fontFamilyFallback: const ['Georgia', 'Times New Roman', 'serif'],
         fontSize: fontSize,
         fontWeight: weight,
         color: color,
@@ -184,6 +207,32 @@ class AppTheme {
     );
   }
 
+  static TextStyle displayCap({
+    double fontSize = 52,
+    FontWeight weight = FontWeight.w500,
+    Color? color,
+    double height = 0.78,
+  }) {
+    if (isFlutterTest) {
+      return TextStyle(
+        fontFamily: 'serif',
+        fontFamilyFallback: const ['Georgia', 'Times New Roman', 'serif'],
+        fontSize: fontSize,
+        fontWeight: weight,
+        color: color ?? gold,
+        height: height,
+      );
+    }
+    return GoogleFonts.cormorantGaramond(
+      fontSize: fontSize,
+      fontWeight: weight,
+      color: color ?? gold,
+      height: height,
+    ).copyWith(
+      fontFamilyFallback: const ['Georgia', 'Times New Roman', 'serif'],
+    );
+  }
+
   static TextStyle ethopic({
     double fontSize = 16,
     FontWeight weight = FontWeight.w500,
@@ -272,7 +321,7 @@ class AppTheme {
     useMaterial3: true,
     brightness: Brightness.light,
     colorScheme: const ColorScheme.light(
-      primary: gold,
+      primary: goldLight,
       secondary: indigo,
       surface: surfaceLight,
       surfaceContainerHighest: surface2Light,
@@ -300,7 +349,7 @@ class AppTheme {
       elevation: 0,
       color: surfaceLight,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(18),
         side: const BorderSide(color: borderLight),
       ),
       margin: EdgeInsets.zero,
@@ -315,12 +364,12 @@ class AppTheme {
         return ui(
           fontSize: 10,
           weight: FontWeight.w600,
-          color: active ? indigo : inkFaint,
+          color: active ? goldLight : inkFaint,
         );
       }),
       iconTheme: WidgetStateProperty.resolveWith((states) {
         final active = states.contains(WidgetState.selected);
-        return IconThemeData(color: active ? indigo : inkFaint, size: 22);
+        return IconThemeData(color: active ? goldLight : inkFaint, size: 22);
       }),
     ),
     navigationRailTheme: NavigationRailThemeData(
@@ -334,7 +383,7 @@ class AppTheme {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: gold,
+        backgroundColor: goldLight,
         foregroundColor: onGold,
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -354,7 +403,7 @@ class AppTheme {
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: gold,
+        backgroundColor: goldLight,
         foregroundColor: onGold,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
@@ -365,7 +414,7 @@ class AppTheme {
         return surfaceLight;
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.selected)) return gold;
+        if (states.contains(WidgetState.selected)) return goldLight;
         return borderLight;
       }),
       trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
@@ -394,7 +443,7 @@ class AppTheme {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: gold, width: 1.4),
+        borderSide: const BorderSide(color: goldLight, width: 1.4),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       hintStyle: ui(fontSize: 13.5, color: inkFaint),
@@ -407,7 +456,7 @@ class AppTheme {
       ),
     ),
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: gold,
+      backgroundColor: goldLight,
       foregroundColor: onGold,
       elevation: 2,
     ),
@@ -447,7 +496,7 @@ class AppTheme {
       elevation: 0,
       color: surfaceDark,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(18),
         side: const BorderSide(color: borderDark),
       ),
       margin: EdgeInsets.zero,
@@ -462,13 +511,13 @@ class AppTheme {
         return ui(
           fontSize: 10,
           weight: FontWeight.w600,
-          color: active ? goldSoft : inkFaintDark,
+          color: active ? gold : inkFaintDark,
         );
       }),
       iconTheme: WidgetStateProperty.resolveWith((states) {
         final active = states.contains(WidgetState.selected);
         return IconThemeData(
-          color: active ? goldSoft : inkFaintDark,
+          color: active ? gold : inkFaintDark,
           size: 22,
         );
       }),

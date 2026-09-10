@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/bible_provider.dart';
 import '../providers/color_theme_provider.dart';
 import '../providers/font_settings_provider.dart';
+import '../providers/study_provider.dart';
 import '../providers/theme_provider.dart';
 import '../providers/user_preferences_provider.dart';
 import '../utils/app_theme.dart';
@@ -48,6 +49,8 @@ class _BootstrapScreenState extends State<BootstrapScreen> {
         context.read<ColorThemeProvider>().loadTheme(),
         context.read<FontSettingsProvider>().loadFontSettings(),
         context.read<UserPreferencesProvider>().initialize(),
+        context.read<StudyProvider>().ready,
+        Future<void>.delayed(const Duration(milliseconds: 1400)),
       ]);
 
       if (!mounted) return;

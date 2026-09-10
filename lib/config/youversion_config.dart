@@ -43,9 +43,7 @@ abstract final class YouVersionConfig {
   }
 
   static bool isOfflineVersionLicensed(String versionId) =>
-      licenseConfirmedForBulkDownload ||
-      offlineVersionIds.contains(versionId) ||
-      offlineVersionIds.isEmpty;
+      licenseConfirmedForBulkDownload || offlineVersionIds.contains(versionId);
 
   static int? versionIdFor(String code) {
     final normalized = code.trim().toUpperCase();

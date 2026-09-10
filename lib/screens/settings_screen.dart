@@ -553,14 +553,24 @@ class _ReaderThemeSwatch extends StatelessWidget {
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: theme.backgroundColor,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: selected
-                      ? AppTheme.gold
+                      ? theme.accentColor
                       : (isDark ? AppTheme.borderDark : AppTheme.borderLight),
                   width: selected ? 2.5 : 1,
                 ),
+                gradient: theme.isGlass
+                    ? LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          const Color(0xFF132A47),
+                          theme.backgroundColor,
+                        ],
+                      )
+                    : null,
+                color: theme.isGlass ? null : theme.backgroundColor,
                 boxShadow: selected
                     ? [
                         BoxShadow(
