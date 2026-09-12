@@ -263,7 +263,8 @@ class BpReaderAudioSheet extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: _AudioChip(
-                      label: audio.sleepUntil != null ? 'Timer on' : 'Sleep timer',
+                      label:
+                          audio.sleepUntil != null ? 'Timer on' : 'Sleep timer',
                       active: audio.sleepUntil != null,
                       card: card,
                       borderFlat: borderFlat,
@@ -311,10 +312,10 @@ class BpReaderAudioSheet extends StatelessWidget {
       );
       return;
     }
-    final versionId = (audio.activeVersion != null &&
-            audio.activeVersion!.isNotEmpty)
-        ? audio.activeVersion!
-        : bible.currentVersion;
+    final versionId =
+        (audio.activeVersion != null && audio.activeVersion!.isNotEmpty)
+            ? audio.activeVersion!
+            : bible.currentVersion;
     final book = bible.books.where((b) => b.id == bookId).firstOrNull;
     if (book == null) {
       ScaffoldMessenger.of(context).showSnackBar(

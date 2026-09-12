@@ -47,412 +47,421 @@ class SettingsScreen extends StatelessWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 760),
               child: ListView(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
-              children: [
-                Row(
-                  children: [
-                    if (Navigator.of(context).canPop()) ...[
-                      BpIconButton(
-                        icon: Icons.arrow_back_ios_new_rounded,
-                        tooltip: l10n.close,
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      const SizedBox(width: 8),
-                    ],
-                    Text(
-                      l10n.settings,
-                      style: AppTheme.brandTitle(fontSize: 25, color: ink),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                _SettingsSection(
-                  header: l10n.appearance,
-                  children: [
-                    SegmentedButton<ThemeMode>(
-                      showSelectedIcon: false,
-                      segments: [
-                        ButtonSegment(
-                          value: ThemeMode.system,
-                          icon: const Icon(Icons.brightness_auto_rounded),
-                          label: Text(l10n.system),
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
+                children: [
+                  Row(
+                    children: [
+                      if (Navigator.of(context).canPop()) ...[
+                        BpIconButton(
+                          icon: Icons.arrow_back_ios_new_rounded,
+                          tooltip: l10n.close,
+                          onPressed: () => Navigator.pop(context),
                         ),
-                        ButtonSegment(
-                          value: ThemeMode.light,
-                          icon: const Icon(Icons.light_mode_rounded),
-                          label: Text(l10n.light),
-                        ),
-                        ButtonSegment(
-                          value: ThemeMode.dark,
-                          icon: const Icon(Icons.dark_mode_rounded),
-                          label: Text(l10n.dark),
-                        ),
+                        const SizedBox(width: 8),
                       ],
-                      selected: {appTheme.themeMode},
-                      onSelectionChanged: (selection) async {
-                        final mode = selection.first;
-                        await appTheme.setThemeMode(mode);
-                        if (!context.mounted) return;
-                        final isDark = mode == ThemeMode.dark ||
-                            (mode == ThemeMode.system &&
-                                WidgetsBinding.instance.platformDispatcher
-                                        .platformBrightness ==
-                                    Brightness.dark);
-                        await readerTheme.syncWithAppBrightness(isDark);
-                      },
-                    ),
-                  ],
-                ),
-                _SettingsSection(
-                  header: l10n.appLanguage,
-                  children: [
-                    Text(
-                      l10n.preferredLanguageSubtitle,
-                      style: AppTheme.ui(
-                        fontSize: 12.5,
-                        color: isDark ? AppTheme.inkSoftDark : AppTheme.inkSoft,
+                      Text(
+                        l10n.settings,
+                        style: AppTheme.brandTitle(fontSize: 25, color: ink),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    InputDecorator(
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: isDark
-                            ? AppTheme.surfaceDark
-                            : AppTheme.surfaceLight,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: isDark
-                                ? AppTheme.borderDark
-                                : AppTheme.borderLight,
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  _SettingsSection(
+                    header: l10n.appearance,
+                    children: [
+                      SegmentedButton<ThemeMode>(
+                        showSelectedIcon: false,
+                        segments: [
+                          ButtonSegment(
+                            value: ThemeMode.system,
+                            icon: const Icon(Icons.brightness_auto_rounded),
+                            label: Text(l10n.system),
                           ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: isDark
-                                ? AppTheme.borderDark
-                                : AppTheme.borderLight,
+                          ButtonSegment(
+                            value: ThemeMode.light,
+                            icon: const Icon(Icons.light_mode_rounded),
+                            label: Text(l10n.light),
                           ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 4,
-                        ),
+                          ButtonSegment(
+                            value: ThemeMode.dark,
+                            icon: const Icon(Icons.dark_mode_rounded),
+                            label: Text(l10n.dark),
+                          ),
+                        ],
+                        selected: {appTheme.themeMode},
+                        onSelectionChanged: (selection) async {
+                          final mode = selection.first;
+                          await appTheme.setThemeMode(mode);
+                          if (!context.mounted) return;
+                          final isDark = mode == ThemeMode.dark ||
+                              (mode == ThemeMode.system &&
+                                  WidgetsBinding.instance.platformDispatcher
+                                          .platformBrightness ==
+                                      Brightness.dark);
+                          await readerTheme.syncWithAppBrightness(isDark);
+                        },
                       ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: prefs.appLanguageCode,
-                          isExpanded: true,
-                          items: [
-                            DropdownMenuItem(
-                                value: 'en', child: Text(l10n.english)),
-                            DropdownMenuItem(
-                                value: 'am', child: Text(l10n.amharic)),
-                            DropdownMenuItem(
-                                value: 'om', child: Text(l10n.afaanOromo)),
-                            DropdownMenuItem(
-                                value: 'ti', child: Text(l10n.tigrinya)),
-                            DropdownMenuItem(
-                                value: 'so', child: Text(l10n.somali)),
-                          ],
-                          onChanged: (value) async {
-                            if (value == null) return;
-                            await prefs.setAppLanguage(value);
-                            await appTheme.setLocale(Locale(value));
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                _SettingsSection(
-                  header: l10n.preferredBible,
-                  children: [
-                    Text(
-                      l10n.preferredBibleSubtitle,
-                      style: AppTheme.ui(
-                        fontSize: 12.5,
-                        color: isDark ? AppTheme.inkSoftDark : AppTheme.inkSoft,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      l10n.scriptureLanguageNote,
-                      style: AppTheme.ui(
-                        fontSize: 12.5,
-                        color: isDark ? AppTheme.inkSoftDark : AppTheme.inkSoft,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(
-                        bibleStore.catalog
-                                .where((p) =>
-                                    p.versionId ==
-                                    prefs.preferredBibleVersionId)
-                                .map((p) => p.name)
-                                .firstOrNull ??
-                            prefs.preferredBibleVersionId,
+                    ],
+                  ),
+                  _SettingsSection(
+                    header: l10n.appLanguage,
+                    children: [
+                      Text(
+                        l10n.preferredLanguageSubtitle,
                         style: AppTheme.ui(
-                          fontSize: 14,
-                          weight: FontWeight.w600,
-                          color: ink,
-                        ),
-                      ),
-                      subtitle: Text(
-                        bible.currentVersion,
-                        style: AppTheme.ui(
-                          fontSize: 12,
+                          fontSize: 12.5,
                           color:
                               isDark ? AppTheme.inkSoftDark : AppTheme.inkSoft,
                         ),
                       ),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => Navigator.pushNamed(context, '/bible_store'),
-                    ),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: TextButton(
-                        onPressed: () =>
-                            Navigator.pushNamed(context, '/bible_store'),
-                        child: Text(l10n.openBibleStore),
+                      const SizedBox(height: 10),
+                      InputDecorator(
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: isDark
+                              ? AppTheme.surfaceDark
+                              : AppTheme.surfaceLight,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: isDark
+                                  ? AppTheme.borderDark
+                                  : AppTheme.borderLight,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: isDark
+                                  ? AppTheme.borderDark
+                                  : AppTheme.borderLight,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 4,
+                          ),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: prefs.appLanguageCode,
+                            isExpanded: true,
+                            items: [
+                              DropdownMenuItem(
+                                  value: 'en', child: Text(l10n.english)),
+                              DropdownMenuItem(
+                                  value: 'am', child: Text(l10n.amharic)),
+                              DropdownMenuItem(
+                                  value: 'om', child: Text(l10n.afaanOromo)),
+                              DropdownMenuItem(
+                                  value: 'ti', child: Text(l10n.tigrinya)),
+                              DropdownMenuItem(
+                                  value: 'so', child: Text(l10n.somali)),
+                            ],
+                            onChanged: (value) async {
+                              if (value == null) return;
+                              await prefs.setAppLanguage(value);
+                              await appTheme.setLocale(Locale(value));
+                            },
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                _SettingsSection(
-                  header: l10n.preferredAudio,
-                  children: [
-                    Text(
-                      l10n.preferredAudioSubtitle,
-                      style: AppTheme.ui(
-                        fontSize: 12.5,
-                        color: isDark ? AppTheme.inkSoftDark : AppTheme.inkSoft,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      l10n.audioSetupNote,
-                      style: AppTheme.ui(
-                        fontSize: 12.5,
-                        color: isDark ? AppTheme.inkSoftDark : AppTheme.inkSoft,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(
-                        prefs.preferredAudioPackageId.isEmpty
-                            ? l10n.notSet
-                            : (audioStore.catalog
-                                    .where((p) =>
-                                        p.id == prefs.preferredAudioPackageId)
-                                    .map((p) => p.name)
-                                    .firstOrNull ??
-                                prefs.preferredAudioPackageId),
+                    ],
+                  ),
+                  _SettingsSection(
+                    header: l10n.preferredBible,
+                    children: [
+                      Text(
+                        l10n.preferredBibleSubtitle,
                         style: AppTheme.ui(
-                          fontSize: 14,
+                          fontSize: 12.5,
+                          color:
+                              isDark ? AppTheme.inkSoftDark : AppTheme.inkSoft,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.scriptureLanguageNote,
+                        style: AppTheme.ui(
+                          fontSize: 12.5,
+                          color:
+                              isDark ? AppTheme.inkSoftDark : AppTheme.inkSoft,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          bibleStore.catalog
+                                  .where((p) =>
+                                      p.versionId ==
+                                      prefs.preferredBibleVersionId)
+                                  .map((p) => p.name)
+                                  .firstOrNull ??
+                              prefs.preferredBibleVersionId,
+                          style: AppTheme.ui(
+                            fontSize: 14,
+                            weight: FontWeight.w600,
+                            color: ink,
+                          ),
+                        ),
+                        subtitle: Text(
+                          bible.currentVersion,
+                          style: AppTheme.ui(
+                            fontSize: 12,
+                            color: isDark
+                                ? AppTheme.inkSoftDark
+                                : AppTheme.inkSoft,
+                          ),
+                        ),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () =>
+                            Navigator.pushNamed(context, '/bible_store'),
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton(
+                          onPressed: () =>
+                              Navigator.pushNamed(context, '/bible_store'),
+                          child: Text(l10n.openBibleStore),
+                        ),
+                      ),
+                    ],
+                  ),
+                  _SettingsSection(
+                    header: l10n.preferredAudio,
+                    children: [
+                      Text(
+                        l10n.preferredAudioSubtitle,
+                        style: AppTheme.ui(
+                          fontSize: 12.5,
+                          color:
+                              isDark ? AppTheme.inkSoftDark : AppTheme.inkSoft,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.audioSetupNote,
+                        style: AppTheme.ui(
+                          fontSize: 12.5,
+                          color:
+                              isDark ? AppTheme.inkSoftDark : AppTheme.inkSoft,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          prefs.preferredAudioPackageId.isEmpty
+                              ? l10n.notSet
+                              : (audioStore.catalog
+                                      .where((p) =>
+                                          p.id == prefs.preferredAudioPackageId)
+                                      .map((p) => p.name)
+                                      .firstOrNull ??
+                                  prefs.preferredAudioPackageId),
+                          style: AppTheme.ui(
+                            fontSize: 14,
+                            weight: FontWeight.w600,
+                            color: ink,
+                          ),
+                        ),
+                        trailing: const Icon(Icons.chevron_right),
+                        onTap: () =>
+                            Navigator.pushNamed(context, '/audio_store'),
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton(
+                          onPressed: () =>
+                              Navigator.pushNamed(context, '/audio_store'),
+                          child: Text(l10n.openAudioStore),
+                        ),
+                      ),
+                    ],
+                  ),
+                  _SettingsSection(
+                    header: l10n.readerTheme,
+                    children: [
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: readerTheme.availableThemes.map((theme) {
+                            final selected =
+                                readerTheme.currentTheme.id == theme.id;
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 12),
+                              child: _ReaderThemeSwatch(
+                                theme: theme,
+                                selected: selected,
+                                onTap: () => readerTheme.setTheme(theme.id),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        text('Font style', 'የፊደል ቅጥ'),
+                        style: AppTheme.ui(
+                          fontSize: 13,
                           weight: FontWeight.w600,
                           color: ink,
                         ),
                       ),
-                      trailing: const Icon(Icons.chevron_right),
-                      onTap: () => Navigator.pushNamed(context, '/audio_store'),
-                    ),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: TextButton(
-                        onPressed: () =>
-                            Navigator.pushNamed(context, '/audio_store'),
-                        child: Text(l10n.openAudioStore),
-                      ),
-                    ),
-                  ],
-                ),
-                _SettingsSection(
-                  header: l10n.readerTheme,
-                  children: [
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: readerTheme.availableThemes.map((theme) {
-                          final selected =
-                              readerTheme.currentTheme.id == theme.id;
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 12),
-                            child: _ReaderThemeSwatch(
-                              theme: theme,
-                              selected: selected,
-                              onTap: () => readerTheme.setTheme(theme.id),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      text('Font style', 'የፊደል ቅጥ'),
-                      style: AppTheme.ui(
-                        fontSize: 13,
-                        weight: FontWeight.w600,
-                        color: ink,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Builder(
-                      builder: (context) {
-                        final selectedFontId = fonts.fontSettings.useSystemFont
-                            ? 'system'
-                            : AvailableFont.defaultFonts
-                                    .where(
-                                      (f) =>
-                                          f.fontFamily == fonts.fontFamily &&
-                                          f.id != 'system',
-                                    )
-                                    .map((f) => f.id)
-                                    .firstOrNull ??
-                                'merriweather';
-                        return InputDecorator(
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: isDark
-                                ? AppTheme.surfaceDark
-                                : AppTheme.surfaceLight,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: isDark
-                                    ? AppTheme.borderDark
-                                    : AppTheme.borderLight,
+                      const SizedBox(height: 8),
+                      Builder(
+                        builder: (context) {
+                          final selectedFontId = fonts
+                                  .fontSettings.useSystemFont
+                              ? 'system'
+                              : AvailableFont.defaultFonts
+                                      .where(
+                                        (f) =>
+                                            f.fontFamily == fonts.fontFamily &&
+                                            f.id != 'system',
+                                      )
+                                      .map((f) => f.id)
+                                      .firstOrNull ??
+                                  'merriweather';
+                          return InputDecorator(
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: isDark
+                                  ? AppTheme.surfaceDark
+                                  : AppTheme.surfaceLight,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: isDark
+                                      ? AppTheme.borderDark
+                                      : AppTheme.borderLight,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: isDark
+                                      ? AppTheme.borderDark
+                                      : AppTheme.borderLight,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 4,
                               ),
                             ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(
-                                color: isDark
-                                    ? AppTheme.borderDark
-                                    : AppTheme.borderLight,
-                              ),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 4,
-                            ),
-                          ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: selectedFontId,
-                              isExpanded: true,
-                              items: [
-                                for (final font in AvailableFont.defaultFonts)
-                                  DropdownMenuItem(
-                                    value: font.id,
-                                    child: Text(
-                                      font.name,
-                                      style: AppTheme.scripture(
-                                        fontSize: 15,
-                                        fontFamily: font.fontFamily,
-                                        useSystemFont: font.id == 'system',
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                value: selectedFontId,
+                                isExpanded: true,
+                                items: [
+                                  for (final font in AvailableFont.defaultFonts)
+                                    DropdownMenuItem(
+                                      value: font.id,
+                                      child: Text(
+                                        font.name,
+                                        style: AppTheme.scripture(
+                                          fontSize: 15,
+                                          fontFamily: font.fontFamily,
+                                          useSystemFont: font.id == 'system',
+                                        ),
                                       ),
                                     ),
-                                  ),
-                              ],
-                              onChanged: (id) async {
-                                if (id == null) return;
-                                final font = AvailableFont.defaultFonts
-                                    .firstWhere((f) => f.id == id);
-                                await fonts.setAvailableFont(font);
-                              },
+                                ],
+                                onChanged: (id) async {
+                                  if (id == null) return;
+                                  final font = AvailableFont.defaultFonts
+                                      .firstWhere((f) => f.id == id);
+                                  await fonts.setAvailableFont(font);
+                                },
+                              ),
                             ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      _SliderSetting(
+                        label: text('Scripture text size', 'የቅዱስ ጽሑፍ መጠን'),
+                        valueLabel: fonts.fontSize.round().toString(),
+                        value: fonts.fontSize.clamp(14, 30).toDouble(),
+                        min: 14,
+                        max: 30,
+                        divisions: 16,
+                        onChanged: fonts.setFontSize,
+                      ),
+                      _SliderSetting(
+                        label: text('Line spacing', 'የመስመር ክፍተት'),
+                        valueLabel: fonts.lineHeight.toStringAsFixed(1),
+                        value: fonts.lineHeight.clamp(1.2, 2).toDouble(),
+                        min: 1.2,
+                        max: 2,
+                        divisions: 8,
+                        onChanged: fonts.setLineHeight,
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
+                          onPressed: fonts.resetToDefaults,
+                          icon: const Icon(Icons.restart_alt_rounded),
+                          label: Text(
+                            text('Reset reader text', 'የንባብ ጽሑፍ ዳግም አስጀምር'),
                           ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    _SliderSetting(
-                      label: text('Scripture text size', 'የቅዱስ ጽሑፍ መጠን'),
-                      valueLabel: fonts.fontSize.round().toString(),
-                      value: fonts.fontSize.clamp(14, 30).toDouble(),
-                      min: 14,
-                      max: 30,
-                      divisions: 16,
-                      onChanged: fonts.setFontSize,
-                    ),
-                    _SliderSetting(
-                      label: text('Line spacing', 'የመስመር ክፍተት'),
-                      valueLabel: fonts.lineHeight.toStringAsFixed(1),
-                      value: fonts.lineHeight.clamp(1.2, 2).toDouble(),
-                      min: 1.2,
-                      max: 2,
-                      divisions: 8,
-                      onChanged: fonts.setLineHeight,
-                    ),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: TextButton.icon(
-                        onPressed: fonts.resetToDefaults,
-                        icon: const Icon(Icons.restart_alt_rounded),
-                        label: Text(
-                          text('Reset reader text', 'የንባብ ጽሑፍ ዳግም አስጀምር'),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                _SettingsSection(
-                  header: text('Feature availability', 'የባህሪ ተገኝነት'),
-                  children: [
-                    _ConnectedSet(
-                      children: [
-                        _SetRow(
-                          position: _RowPosition.first,
-                          child: _Capability(
-                            label: text(
-                              'Cloud account and sync',
-                              'የደመና መለያ እና ማመሳሰል',
+                    ],
+                  ),
+                  _SettingsSection(
+                    header: text('Feature availability', 'የባህሪ ተገኝነት'),
+                    children: [
+                      _ConnectedSet(
+                        children: [
+                          _SetRow(
+                            position: _RowPosition.first,
+                            child: _Capability(
+                              label: text(
+                                'Cloud account and sync',
+                                'የደመና መለያ እና ማመሳሰል',
+                              ),
+                              available: capabilities.cloud,
                             ),
-                            available: capabilities.cloud,
                           ),
-                        ),
-                        _SetRow(
-                          position: _RowPosition.middle,
-                          child: _Capability(
-                            label: text('Chapter audio', 'የምዕራፍ ድምጽ'),
-                            available: capabilities.audio,
-                          ),
-                        ),
-                        _SetRow(
-                          position: _RowPosition.middle,
-                          child: _Capability(
-                            label: text('Daily reminders', 'ዕለታዊ ማስታወሻዎች'),
-                            available: capabilities.notifications,
-                          ),
-                        ),
-                        _SetRow(
-                          position: _RowPosition.last,
-                          child: _Capability(
-                            label: text(
-                              'Wallpaper export',
-                              'የግድግዳ ወረቀት ማስቀመጥ',
+                          _SetRow(
+                            position: _RowPosition.middle,
+                            child: _Capability(
+                              label: text('Chapter audio', 'የምዕራፍ ድምጽ'),
+                              available: capabilities.audio,
                             ),
-                            available: capabilities.wallpaperExport,
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                if (capabilities.audio) _AudioStorageSection(text: text),
-                if (capabilities.notifications)
-                  _ThemeNotificationSection(text: text),
-              ],
+                          _SetRow(
+                            position: _RowPosition.middle,
+                            child: _Capability(
+                              label: text('Daily reminders', 'ዕለታዊ ማስታወሻዎች'),
+                              available: capabilities.notifications,
+                            ),
+                          ),
+                          _SetRow(
+                            position: _RowPosition.last,
+                            child: _Capability(
+                              label: text(
+                                'Wallpaper export',
+                                'የግድግዳ ወረቀት ማስቀመጥ',
+                              ),
+                              available: capabilities.wallpaperExport,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  if (capabilities.audio) _AudioStorageSection(text: text),
+                  if (capabilities.notifications)
+                    _ThemeNotificationSection(text: text),
+                ],
+              ),
             ),
           ),
         ),
-      ),
       ),
     );
   }

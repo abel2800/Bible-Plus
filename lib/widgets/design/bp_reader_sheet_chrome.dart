@@ -6,11 +6,11 @@ import '../../utils/app_theme.dart';
 /// Shared bottom-sheet chrome matching bible-plus-reading-page HTML mock.
 class BpReaderSheetColors {
   BpReaderSheetColors({required ReaderColorTheme theme})
-      : sheetBg = theme.isDark
-            ? const Color(0xFF141310)
-            : const Color(0xFFFFFDF9),
+      : sheetBg =
+            theme.isDark ? const Color(0xFF141310) : const Color(0xFFFFFDF9),
         card = theme.isDark ? const Color(0xFF161512) : Colors.white,
-        card2 = theme.isDark ? const Color(0xFF1B1916) : const Color(0xFFF3F1EA),
+        card2 =
+            theme.isDark ? const Color(0xFF1B1916) : const Color(0xFFF3F1EA),
         borderFlat = theme.isDark
             ? Colors.white.withValues(alpha: 0.09)
             : Colors.black.withValues(alpha: 0.08),
@@ -56,7 +56,8 @@ class BpReaderSheetContainer extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.sheetBg,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(26)),
-        border: Border(top: BorderSide(color: colors.gold.withValues(alpha: 0.13))),
+        border:
+            Border(top: BorderSide(color: colors.gold.withValues(alpha: 0.13))),
       ),
       child: SafeArea(
         top: false,
@@ -96,7 +97,8 @@ class BpReaderSheetContainer extends StatelessWidget {
                         color: colors.card2,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.close_rounded, size: 16, color: colors.text2),
+                      child: Icon(Icons.close_rounded,
+                          size: 16, color: colors.text2),
                     ),
                   ),
                 ],
@@ -112,7 +114,8 @@ class BpReaderSheetContainer extends StatelessWidget {
 }
 
 class BpReaderMiniLabel extends StatelessWidget {
-  const BpReaderMiniLabel({super.key, required this.label, required this.colors});
+  const BpReaderMiniLabel(
+      {super.key, required this.label, required this.colors});
 
   final String label;
   final BpReaderSheetColors colors;
@@ -286,7 +289,8 @@ class BpReaderStepper extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _StepBtn(colors: colors, icon: Icons.remove_rounded, onTap: onDecrement),
+        _StepBtn(
+            colors: colors, icon: Icons.remove_rounded, onTap: onDecrement),
         const SizedBox(width: 10),
         SizedBox(
           width: 34,
@@ -357,9 +361,8 @@ class BpReaderSwitch extends StatelessWidget {
         height: 21,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(100),
-          color: value
-              ? colors.gold.withValues(alpha: 0.13)
-              : colors.borderFlat,
+          color:
+              value ? colors.gold.withValues(alpha: 0.13) : colors.borderFlat,
         ),
         child: AnimatedAlign(
           duration: const Duration(milliseconds: 200),

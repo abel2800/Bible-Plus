@@ -78,7 +78,8 @@ class VerseCard extends StatelessWidget {
     var start = 0;
     for (final match in pattern.allMatches(text)) {
       if (match.start > start) {
-        spans.add(TextSpan(text: text.substring(start, match.start), style: style));
+        spans.add(
+            TextSpan(text: text.substring(start, match.start), style: style));
       }
       spans.add(
         TextSpan(

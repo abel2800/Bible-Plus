@@ -26,10 +26,6 @@ android {
         isCoreLibraryDesugaringEnabled = true
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_1_8.toString()
-    }
-
     defaultConfig {
         applicationId = "app.biblepulse.reader"
         minSdk = flutter.minSdkVersion
@@ -68,6 +64,12 @@ tasks.register("verifyReleaseSigning") {
         check(releaseSigningReady) {
             "Release signing variables are required for publishable Android artifacts."
         }
+    }
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
     }
 }
 

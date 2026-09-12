@@ -81,7 +81,8 @@ class EngagementProvider extends ChangeNotifier {
     _dailyReadingGoal = chapters.clamp(1, 10);
     notifyListeners();
     final preferences = await SharedPreferences.getInstance();
-    await preferences.setInt('engagement_daily_reading_goal', _dailyReadingGoal);
+    await preferences.setInt(
+        'engagement_daily_reading_goal', _dailyReadingGoal);
   }
 
   int streakWithGrace([DateTime? value]) {

@@ -1,4 +1,4 @@
-name: BiblePulse Android Release
+name: Bible Plus Release
 
 on:
   push:
@@ -10,12 +10,65 @@ env:
   FLUTTER_VERSION: 3.44.1
 
 jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed lib test
+
+      - name: Analyze project
+        run: flutter analyze lib test --no-fatal-infos
+
+      - name: Run Flutter tests
+        run: flutter test --exclude-tags golden
+
+      - name: Validate approved content manifest
+        run: python tools/content/validate_manifest.py
+
   release:
     runs-on: ubuntu-latest
+    needs: verify
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
+
+      - name: Read app version from pubspec.yaml
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(grep '^version:' pubspec.yaml | awk '{print $2}')"
+          VERSION_NAME="${VERSION%%+*}"
+          BUILD_NUMBER="${VERSION#*+}"
+          echo "full=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "name=$VERSION_NAME" >> "$GITHUB_OUTPUT"
+          echo "build=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "Pubspec version: $VERSION (name=$VERSION_NAME, build=$BUILD_NUMBER)"
+
+      - name: Validate release tag matches pubspec version
+        if: github.ref_type == 'tag'
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME#v}"
+          VERSION_NAME="${{ steps.version.outputs.name }}"
+          if [[ "$TAG" != "$VERSION_NAME" ]]; then
+            echo "Release tag v$TAG does not match pubspec version $VERSION_NAME."
+            echo "Update pubspec.yaml or push the matching tag (for example v$VERSION_NAME)."
+            exit 1
+          fi
 
       - uses: actions/setup-java@v4
         with:
@@ -37,7 +90,10 @@ jobs:
           YOUVERSION_OFFLINE_VERSION_IDS_JSON: ${{ secrets.YOUVERSION_OFFLINE_VERSION_IDS_JSON }}
           YOUVERSION_BULK_DOWNLOAD_LICENSED: ${{ secrets.YOUVERSION_BULK_DOWNLOAD_LICENSED }}
         run: |
-          flutter build apk --release --split-per-abi --dart-define=YOUVERSION_APP_KEY="$YOUVERSION_APP_KEY" --dart-define=YOUVERSION_OFFLINE_VERSION_IDS_JSON="$YOUVERSION_OFFLINE_VERSION_IDS_JSON" --dart-define=YOUVERSION_BULK_DOWNLOAD_LICENSED="${YOUVERSION_BULK_DOWNLOAD_LICENSED:-false}"
+          flutter build apk --release --split-per-abi \
+            --dart-define=YOUVERSION_APP_KEY="$YOUVERSION_APP_KEY" \
+            --dart-define=YOUVERSION_OFFLINE_VERSION_IDS_JSON="$YOUVERSION_OFFLINE_VERSION_IDS_JSON" \
+            --dart-define=YOUVERSION_BULK_DOWNLOAD_LICENSED="${YOUVERSION_BULK_DOWNLOAD_LICENSED:-false}"
 
       - name: Build App Bundle
         env:
@@ -45,25 +101,71 @@ jobs:
           YOUVERSION_OFFLINE_VERSION_IDS_JSON: ${{ secrets.YOUVERSION_OFFLINE_VERSION_IDS_JSON }}
           YOUVERSION_BULK_DOWNLOAD_LICENSED: ${{ secrets.YOUVERSION_BULK_DOWNLOAD_LICENSED }}
         run: |
-          flutter build appbundle --release --dart-define=YOUVERSION_APP_KEY="$YOUVERSION_APP_KEY" --dart-define=YOUVERSION_OFFLINE_VERSION_IDS_JSON="$YOUVERSION_OFFLINE_VERSION_IDS_JSON" --dart-define=YOUVERSION_BULK_DOWNLOAD_LICENSED="${YOUVERSION_BULK_DOWNLOAD_LICENSED:-false}"
+          flutter build appbundle --release \
+            --dart-define=YOUVERSION_APP_KEY="$YOUVERSION_APP_KEY" \
+            --dart-define=YOUVERSION_OFFLINE_VERSION_IDS_JSON="$YOUVERSION_OFFLINE_VERSION_IDS_JSON" \
+            --dart-define=YOUVERSION_BULK_DOWNLOAD_LICENSED="${YOUVERSION_BULK_DOWNLOAD_LICENSED:-false}"
+
+      - name: Build web release
+        run: flutter build web --release
+
+      - name: Resolve release tag
+        id: release_tag
+        shell: bash
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "value=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=v${{ steps.version.outputs.name }}" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Prepare release assets
+        shell: bash
         run: |
+          set -euo pipefail
+          VERSION_NAME="${{ steps.version.outputs.name }}"
+          mkdir -p dist/release
           cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk \
-            build/app/outputs/flutter-apk/biblepulse-arm64-v8a.apk
+            "dist/release/bible-plus-${VERSION_NAME}-arm64-v8a.apk"
           cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk \
-            build/app/outputs/flutter-apk/biblepulse-armeabi-v7a.apk
+            "dist/release/bible-plus-${VERSION_NAME}-armeabi-v7a.apk"
           cp build/app/outputs/flutter-apk/app-x86_64-release.apk \
-            build/app/outputs/flutter-apk/biblepulse-x86_64.apk
+            "dist/release/bible-plus-${VERSION_NAME}-x86_64.apk"
           cp build/app/outputs/bundle/release/app-release.aab \
-            build/app/outputs/bundle/release/biblepulse-${GITHUB_REF_NAME}.aab
+            "dist/release/bible-plus-${VERSION_NAME}.aab"
+          cp "dist/release/bible-plus-${VERSION_NAME}-arm64-v8a.apk" \
+            dist/release/biblepulse-arm64-v8a.apk
+          cp "dist/release/bible-plus-${VERSION_NAME}-armeabi-v7a.apk" \
+            dist/release/biblepulse-armeabi-v7a.apk
+          cp "dist/release/bible-plus-${VERSION_NAME}-x86_64.apk" \
+            dist/release/biblepulse-x86_64.apk
+          cd build/web && zip -r "../../dist/release/bible-plus-${VERSION_NAME}-web.zip" . && cd ../..
 
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.release_tag.outputs.value }}
+          name: Bible Plus v${{ steps.version.outputs.name }}
           generate_release_notes: true
+          body: |
+            ## Bible Plus v${{ steps.version.outputs.name }} (${{ steps.version.outputs.full }})
+
+            ### Highlights
+            - Unified gold reading UI (catalog, settings, notes, audio sheet)
+            - Web build support and Bible Plus branding
+            - Daily reading goal and improved engagement tracking
+            - CI verifies formatting, analysis, tests, manifest, Android, and web builds
+
+            ### Install
+            - **Android (recommended):** `bible-plus-${{ steps.version.outputs.name }}-arm64-v8a.apk`
+            - **Play Store bundle:** `bible-plus-${{ steps.version.outputs.name }}.aab`
+            - **Web:** `bible-plus-${{ steps.version.outputs.name }}-web.zip`
           files: |
-            build/app/outputs/flutter-apk/biblepulse-arm64-v8a.apk
-            build/app/outputs/flutter-apk/biblepulse-armeabi-v7a.apk
-            build/app/outputs/flutter-apk/biblepulse-x86_64.apk
-            build/app/outputs/bundle/release/biblepulse-${{ github.ref_name }}.aab
+            dist/release/bible-plus-${{ steps.version.outputs.name }}-arm64-v8a.apk
+            dist/release/bible-plus-${{ steps.version.outputs.name }}-armeabi-v7a.apk
+            dist/release/bible-plus-${{ steps.version.outputs.name }}-x86_64.apk
+            dist/release/bible-plus-${{ steps.version.outputs.name }}.aab
+            dist/release/bible-plus-${{ steps.version.outputs.name }}-web.zip
+            dist/release/biblepulse-arm64-v8a.apk
+            dist/release/biblepulse-armeabi-v7a.apk
+            dist/release/biblepulse-x86_64.apk
