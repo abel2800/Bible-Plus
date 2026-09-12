@@ -171,7 +171,8 @@ class _BookSelectorBottomSheetState extends State<BookSelectorBottomSheet> {
                           overflow: TextOverflow.ellipsis,
                           style: AppTheme.ui(
                             fontSize: 11,
-                            weight: isCurrent ? FontWeight.w600 : FontWeight.w500,
+                            weight:
+                                isCurrent ? FontWeight.w600 : FontWeight.w500,
                             color: isCurrent ? colors.text1 : colors.text2,
                           ),
                         ),
@@ -198,8 +199,8 @@ class _BookSelectorBottomSheetState extends State<BookSelectorBottomSheet> {
                 itemCount: activeBook.chapters,
                 itemBuilder: (context, index) {
                   final chapter = index + 1;
-                  final selected =
-                      activeBook!.id == currentBookId && chapter == currentChapter;
+                  final selected = activeBook!.id == currentBookId &&
+                      chapter == currentChapter;
                   return Material(
                     color: selected ? colors.gold : colors.card,
                     shape: RoundedRectangleBorder(

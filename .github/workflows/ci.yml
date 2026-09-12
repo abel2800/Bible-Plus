@@ -1,4 +1,4 @@
-name: BiblePulse CI
+name: Bible Plus CI
 
 on:
   push:
@@ -8,8 +8,8 @@ env:
   FLUTTER_VERSION: 3.44.1
 
 concurrency:
-  group: biblepulse-ci-${{ github.ref }}
-  cancel-in-progress: false
+  group: bible-plus-ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   verify:
@@ -37,6 +37,30 @@ jobs:
 
       - name: Validate approved content manifest
         run: python tools/content/validate_manifest.py
+
+  web:
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build web release
+        run: flutter build web --release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-release-build
+          path: build/web
+          if-no-files-found: error
 
   android:
     runs-on: ubuntu-latest

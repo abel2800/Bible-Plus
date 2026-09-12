@@ -1,7 +1,7 @@
 name: bible_pulse
 description: Offline-first English and Amharic Bible reading and study app.
 publish_to: 'none'
-version: 1.0.3+4
+version: 1.1.0+5
 
 environment:
   sdk: '>=3.6.0 <4.0.0'
