@@ -6,7 +6,7 @@ import '../providers/navigation_provider.dart';
 import '../models/bible_verse.dart';
 import '../utils/app_theme.dart';
 import '../widgets/design/bp_widgets.dart';
-import '../widgets/design/bp_glass.dart';
+import '../widgets/design/bp_plus_background.dart';
 
 enum _TestamentFilter { all, ot, nt }
 
@@ -57,7 +57,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: BpGlassBackground(
+      body: BpPlusBackground(
         child: SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

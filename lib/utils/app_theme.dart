@@ -169,6 +169,14 @@ class AppTheme {
           height: height,
           fontStyle: style,
         );
+      case 'Fraunces':
+        return GoogleFonts.fraunces(
+          fontSize: fontSize,
+          fontWeight: weight,
+          color: color,
+          height: height,
+          fontStyle: style,
+        );
       case 'Source Serif Pro':
       default:
         return GoogleFonts.sourceSerif4(

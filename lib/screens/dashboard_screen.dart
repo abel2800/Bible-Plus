@@ -26,7 +26,7 @@ import '../widgets/design/bp_gold_button.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/design/bp_widgets.dart';
 import '../widgets/reading_heatmap.dart';
-import 'audio_now_playing_screen.dart';
+import '../utils/audio_player_navigation.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -89,7 +89,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
       return;
     }
-    await AudioNowPlayingScreen.open(context);
+    await openUnifiedAudioPlayer(context);
   }
 
   Future<void> _continueListening(BuildContext context) async {
@@ -107,7 +107,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         await audio.play();
       }
       if (context.mounted) {
-        await AudioNowPlayingScreen.open(context);
+        await openUnifiedAudioPlayer(context);
       }
       return;
     }
@@ -143,7 +143,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
       return;
     }
-    await AudioNowPlayingScreen.open(context);
+    await openUnifiedAudioPlayer(context);
   }
 
   @override
@@ -587,6 +587,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         progress: engagement.progressToNextMilestone(),
                         nextMilestone: engagement.nextMilestone,
                         longest: engagement.longestStreak,
+                        chaptersToday: engagement.chaptersReadToday(),
+                        dailyGoal: engagement.dailyReadingGoal,
+                        dailyGoalProgress: engagement.dailyGoalProgress(),
                         onKeepAlive: () =>
                             context.read<NavigationProvider>().setIndex(1),
                       ),
@@ -958,6 +961,9 @@ class _StreakEncouragementCard extends StatelessWidget {
     required this.progress,
     required this.nextMilestone,
     required this.longest,
+    required this.chaptersToday,
+    required this.dailyGoal,
+    required this.dailyGoalProgress,
     required this.onKeepAlive,
   });
 
@@ -968,6 +974,9 @@ class _StreakEncouragementCard extends StatelessWidget {
   final double progress;
   final int? nextMilestone;
   final int longest;
+  final int chaptersToday;
+  final int dailyGoal;
+  final double dailyGoalProgress;
   final VoidCallback onKeepAlive;
 
   @override
@@ -1004,6 +1013,13 @@ class _StreakEncouragementCard extends StatelessWidget {
             encouragement,
             style: AppTheme.ui(fontSize: 12.5, color: t.inkSoft, height: 1.45),
           ),
+          const SizedBox(height: 10),
+          Text(
+            'Today · $chaptersToday / $dailyGoal chapters',
+            style: AppTheme.ui(fontSize: 11, color: t.inkFaint),
+          ),
+          const SizedBox(height: 6),
+          BpGoldProgressTrack(progress: dailyGoalProgress),
           if (nextMilestone != null) ...[
             const SizedBox(height: 12),
             BpGoldProgressTrack(progress: progress),

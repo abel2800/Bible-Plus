@@ -1,9 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../providers/audio_download_provider.dart';
+import '../../providers/bible_provider.dart';
 import '../../providers/color_theme_provider.dart';
 import '../../services/audio_service.dart';
 import '../../utils/app_theme.dart';
+import '../audio_sleep_timer_sheet.dart';
 
 /// Full audio controls sheet — matches bible-plus-reading-page HTML mock.
 class BpReaderAudioSheet extends StatelessWidget {
@@ -258,12 +263,19 @@ class BpReaderAudioSheet extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: _AudioChip(
-                      label: 'Sleep timer',
+                      label: audio.sleepUntil != null ? 'Timer on' : 'Sleep timer',
+                      active: audio.sleepUntil != null,
                       card: card,
                       borderFlat: borderFlat,
                       gold: gold,
                       text2: text3,
-                      onTap: () {},
+                      onTap: () {
+                        showModalBottomSheet<void>(
+                          context: context,
+                          backgroundColor: Colors.transparent,
+                          builder: (_) => const AudioSleepTimerSheet(),
+                        );
+                      },
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -274,7 +286,7 @@ class BpReaderAudioSheet extends StatelessWidget {
                       borderFlat: borderFlat,
                       gold: gold,
                       text2: text3,
-                      onTap: () {},
+                      onTap: () => _downloadChapter(context, audio),
                     ),
                   ),
                 ],
@@ -283,6 +295,48 @@ class BpReaderAudioSheet extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Future<void> _downloadChapter(
+    BuildContext context,
+    AudioService audio,
+  ) async {
+    final downloads = context.read<AudioDownloadProvider>();
+    final bible = context.read<BibleProvider>();
+    final bookId = audio.activeBookId ?? bible.selectedBook?.id;
+    if (bookId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No chapter selected to download.')),
+      );
+      return;
+    }
+    final versionId = (audio.activeVersion != null &&
+            audio.activeVersion!.isNotEmpty)
+        ? audio.activeVersion!
+        : bible.currentVersion;
+    final book = bible.books.where((b) => b.id == bookId).firstOrNull;
+    if (book == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not find book for download.')),
+      );
+      return;
+    }
+    if (downloads.downloading) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('A download is already in progress.')),
+      );
+      return;
+    }
+    unawaited(
+      downloads.downloadBook(
+        versionId: versionId,
+        bookId: book.id,
+        chapterCount: book.chapters,
+      ),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Downloading ${book.name} audio…')),
     );
   }
 

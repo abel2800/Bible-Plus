@@ -585,27 +585,9 @@ class BpReaderAudioBar extends StatelessWidget {
                   ],
                 ),
               ),
-              SizedBox(
-                height: 16,
-                child: Row(
-                  children: [
-                    for (var i = 0; i < 5; i++)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 1),
-                        child: Container(
-                          width: 2,
-                          height: i.isOdd ? 12 : 7,
-                          decoration: BoxDecoration(
-                            color: i.isOdd
-                                ? gold.withValues(alpha: 0.85)
-                                : theme.verseNumberColor
-                                    .withValues(alpha: 0.55),
-                            borderRadius: BorderRadius.circular(2),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+              BpReaderWaveformBars(
+                theme: theme,
+                playing: audio.isPlaying && !audio.isLoading,
               ),
             ],
           ),
@@ -621,6 +603,92 @@ class BpReaderAudioBar extends StatelessWidget {
       return '${d.inHours}:$m:$s';
     }
     return '$m:$s';
+  }
+}
+
+/// Animated mini waveform — pulses while audio is playing.
+class BpReaderWaveformBars extends StatefulWidget {
+  const BpReaderWaveformBars({
+    super.key,
+    required this.theme,
+    required this.playing,
+  });
+
+  final ReaderColorTheme theme;
+  final bool playing;
+
+  @override
+  State<BpReaderWaveformBars> createState() => _BpReaderWaveformBarsState();
+}
+
+class _BpReaderWaveformBarsState extends State<BpReaderWaveformBars>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    _syncAnimation();
+  }
+
+  @override
+  void didUpdateWidget(covariant BpReaderWaveformBars oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _syncAnimation();
+  }
+
+  void _syncAnimation() {
+    if (widget.playing) {
+      if (!_controller.isAnimating) _controller.repeat(reverse: true);
+    } else {
+      _controller.stop();
+      _controller.value = 0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final gold = widget.theme.accentColor;
+    final muted = widget.theme.verseNumberColor.withValues(alpha: 0.55);
+    const baseHeights = [7.0, 12.0, 8.0, 14.0, 9.0];
+
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        return SizedBox(
+          height: 16,
+          child: Row(
+            children: [
+              for (var i = 0; i < 5; i++)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 1),
+                  child: Container(
+                    width: 2,
+                    height: widget.playing
+                        ? baseHeights[i] +
+                            (4 * _controller.value * (i.isOdd ? 1 : -1)).abs()
+                        : baseHeights[i],
+                    decoration: BoxDecoration(
+                      color: i.isOdd ? gold.withValues(alpha: 0.85) : muted,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 

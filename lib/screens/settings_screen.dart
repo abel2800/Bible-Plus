@@ -16,6 +16,7 @@ import '../providers/engagement_provider.dart';
 import '../providers/reminder_provider.dart';
 import '../providers/user_preferences_provider.dart';
 import '../utils/app_theme.dart';
+import '../widgets/design/bp_plus_background.dart';
 import '../widgets/design/bp_widgets.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -39,12 +40,13 @@ class SettingsScreen extends StatelessWidget {
         amharic ? amharicText : english;
 
     return Scaffold(
-      backgroundColor: isDark ? AppTheme.appBgDark : AppTheme.appBgLight,
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 760),
-            child: ListView(
+      backgroundColor: Colors.transparent,
+      body: BpPlusBackground(
+        child: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 760),
+              child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
               children: [
                 Row(
@@ -451,6 +453,7 @@ class SettingsScreen extends StatelessWidget {
           ),
         ),
       ),
+      ),
     );
   }
 }
@@ -616,6 +619,7 @@ class _ThemeNotificationSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final reminders = context.watch<ReminderProvider>();
+    final engagement = context.watch<EngagementProvider>();
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final soft = isDark ? AppTheme.inkSoftDark : AppTheme.inkSoft;
 
@@ -630,6 +634,32 @@ class _ThemeNotificationSection extends StatelessWidget {
           style: AppTheme.ui(fontSize: 13, color: soft),
         ),
         const SizedBox(height: 12),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text(
+            text('Daily reading goal', 'ዕለታዊ የንባብ ግብ'),
+            style: AppTheme.ui(fontSize: 14, weight: FontWeight.w600),
+          ),
+          subtitle: Text(
+            text(
+              '${engagement.chaptersReadToday()} / ${engagement.dailyReadingGoal} chapters today',
+              'ዛሬ ${engagement.chaptersReadToday()} / ${engagement.dailyReadingGoal} ምዕራፎች',
+            ),
+            style: AppTheme.ui(fontSize: 12, color: soft),
+          ),
+          trailing: DropdownButton<int>(
+            value: engagement.dailyReadingGoal,
+            underline: const SizedBox.shrink(),
+            items: [
+              for (final count in const [1, 2, 3, 5, 8])
+                DropdownMenuItem(value: count, child: Text('$count')),
+            ],
+            onChanged: (value) {
+              if (value != null) engagement.setDailyReadingGoal(value);
+            },
+          ),
+        ),
+        const SizedBox(height: 8),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           title: Text(

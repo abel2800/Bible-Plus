@@ -17,8 +17,10 @@ class EngagementProvider extends ChangeNotifier {
   final Set<String> _likedVerses = {};
   bool _ready = false;
   int _longestStreak = 0;
+  int _dailyReadingGoal = 1;
 
   bool get ready => _ready;
+  int get dailyReadingGoal => _dailyReadingGoal;
   List<PrayerEntry> get prayers => List.unmodifiable(_prayers);
   int get longestStreak => _longestStreak;
 
@@ -37,6 +39,8 @@ class EngagementProvider extends ChangeNotifier {
     );
     _readingCounts.addAll(_loadReadingCounts(preferences));
     _longestStreak = preferences.getInt('engagement_longest_streak') ?? 0;
+    _dailyReadingGoal =
+        (preferences.getInt('engagement_daily_reading_goal') ?? 1).clamp(1, 10);
     final prayerJson = preferences.getString('engagement_prayers');
     if (prayerJson != null) {
       try {
@@ -61,6 +65,24 @@ class EngagementProvider extends ChangeNotifier {
 
   bool hasReadToday([DateTime? value]) =>
       _readingDays.contains(_day(value ?? DateTime.now()));
+
+  int chaptersReadToday([DateTime? value]) =>
+      _readingCounts[_day(value ?? DateTime.now())] ?? 0;
+
+  double dailyGoalProgress([DateTime? value]) {
+    if (_dailyReadingGoal <= 0) return 1;
+    return (chaptersReadToday(value) / _dailyReadingGoal).clamp(0.0, 1.0);
+  }
+
+  bool hasMetDailyGoal([DateTime? value]) =>
+      chaptersReadToday(value) >= _dailyReadingGoal;
+
+  Future<void> setDailyReadingGoal(int chapters) async {
+    _dailyReadingGoal = chapters.clamp(1, 10);
+    notifyListeners();
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setInt('engagement_daily_reading_goal', _dailyReadingGoal);
+  }
 
   int streakWithGrace([DateTime? value]) {
     if (_readingDays.isEmpty) return 0;

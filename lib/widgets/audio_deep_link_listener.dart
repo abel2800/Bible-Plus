@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/bible_provider.dart';
-import '../screens/audio_now_playing_screen.dart';
+import '../utils/audio_player_navigation.dart';
 import '../services/audio_service.dart';
 import '../services/audio_share_link.dart';
 import '../services/deep_link_service.dart';
@@ -97,7 +97,7 @@ class _AudioDeepLinkListenerState extends State<AudioDeepLinkListener> {
 
       // Avoid stacking multiple Now Playing routes from repeated links.
       Navigator.of(context).popUntil((route) => route.isFirst);
-      await AudioNowPlayingScreen.open(context);
+      await openUnifiedAudioPlayer(context);
     } finally {
       _handling = false;
     }

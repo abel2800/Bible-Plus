@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../screens/audio_now_playing_screen.dart';
 import '../models/bible_book.dart';
+import '../utils/audio_player_navigation.dart';
 
 class AudioPlayerBottomSheet extends StatelessWidget {
   final BibleBook book;
@@ -21,7 +21,11 @@ class AudioPlayerBottomSheet extends StatelessWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!navigator.mounted) return;
       navigator.pop();
-      AudioNowPlayingScreen.open(navigator.context);
+      openUnifiedAudioPlayer(
+        navigator.context,
+        bookTitle: '${book.name}, Chapter $chapter',
+        narratorLabel: 'Narrated · $versionId',
+      );
     });
     return const SizedBox.shrink();
   }

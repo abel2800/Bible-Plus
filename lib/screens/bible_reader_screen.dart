@@ -10,10 +10,10 @@ import '../providers/audio_store_provider.dart';
 import '../providers/user_preferences_provider.dart';
 import '../providers/color_theme_provider.dart';
 import '../providers/font_settings_provider.dart';
-import '../models/font_settings.dart';
 import '../providers/study_provider.dart';
 import '../providers/engagement_provider.dart';
 import '../providers/parallel_reading_provider.dart';
+import '../providers/reader_preferences_provider.dart';
 import '../providers/reminder_provider.dart';
 import '../utils/app_theme.dart';
 import '../widgets/book_selector_bottom_sheet.dart';
@@ -23,7 +23,8 @@ import '../widgets/design/bp_reader_ui.dart';
 import '../services/audio_service.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/verse_card.dart';
-import '../widgets/verse_action_bottom_sheet.dart';
+import '../widgets/design/bp_reader_note_sheet.dart';
+import '../widgets/design/bp_reader_settings_sheet.dart';
 import '../widgets/design/bp_reader_audio_sheet.dart';
 
 class BibleReaderScreen extends StatefulWidget {
@@ -42,6 +43,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   int? _lastAudioVerse;
   String? _streakDayRecorded;
   bool _focusMode = false;
+  bool _appliedFocusOnOpen = false;
   int? _selectedVerse;
   double? _popupTop;
   double? _popupLeft;
@@ -61,7 +63,17 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     final audioService = context.watch<AudioService>();
     final audioStore = context.watch<AudioStoreProvider>();
     final parallel = context.watch<ParallelReadingProvider>();
+    final readerPrefs = context.watch<ReaderPreferencesProvider>();
     final l10n = AppLocalizations.of(context);
+    if (!_appliedFocusOnOpen &&
+        readerPrefs.ready &&
+        readerPrefs.focusOnOpen &&
+        bibleProvider.currentChapter.isNotEmpty) {
+      _appliedFocusOnOpen = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() => _focusMode = true);
+      });
+    }
     final bottomInset = MediaQuery.paddingOf(context).bottom;
     if (bibleProvider.currentChapter.isNotEmpty) {
       final todayKey =
@@ -176,7 +188,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                                       const VersionSelectorBottomSheet(),
                                 ),
                                 onSettingsTap: () =>
-                                    _showReadingAppearance(context),
+                                    BpReaderSettingsSheet.show(context),
                               ),
                             ),
                           ),
@@ -288,6 +300,10 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                                           useSystemFont:
                                               fontSettings.useSystemFont,
                                           useDropCap: verse.verse == 1,
+                                          showVerseNumbers:
+                                              readerPrefs.showVerseNumbers,
+                                          redLetterWords:
+                                              readerPrefs.redLetterWords,
                                           readerTheme: readerTheme,
                                         ),
                                         if (secondary != null) ...[
@@ -321,6 +337,14 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                                     onPrevious: () =>
                                         bibleProvider.previousChapter(),
                                     onNext: () => bibleProvider.nextChapter(),
+                                  ),
+                                ),
+                              if (_selectedVerse != null)
+                                Positioned.fill(
+                                  child: GestureDetector(
+                                    behavior: HitTestBehavior.translucent,
+                                    onTap: _dismissVersePopup,
+                                    child: const SizedBox.expand(),
                                   ),
                                 ),
                               if (_selectedVerse != null &&
@@ -359,6 +383,14 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         ),
       ),
     );
+  }
+
+  void _dismissVersePopup() {
+    setState(() {
+      _selectedVerse = null;
+      _popupTop = null;
+      _popupLeft = null;
+    });
   }
 
   void _toggleVersePopup(int verseNum) {
@@ -598,165 +630,11 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     required String reference,
     required String versionId,
   }) {
-    return showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => VerseActionBottomSheet(
-        verse: verse,
-        reference: reference,
-        versionId: versionId,
-      ),
-    );
-  }
-
-  Future<void> _showReadingAppearance(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return Container(
-          decoration: BoxDecoration(
-            color: isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            border: Border(
-              top: BorderSide(
-                color: isDark ? AppTheme.borderDark : AppTheme.borderLight,
-              ),
-            ),
-          ),
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color:
-                            isDark ? AppTheme.borderDark : AppTheme.borderLight,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Reading appearance',
-                    style: AppTheme.brandTitle(
-                      fontSize: 19,
-                      weight: FontWeight.w600,
-                      color: isDark ? AppTheme.inkDark : AppTheme.ink,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Reading theme',
-                    style: AppTheme.ui(
-                      fontSize: 12,
-                      color: isDark ? AppTheme.inkFaintDark : AppTheme.inkFaint,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Consumer<ColorThemeProvider>(
-                    builder: (context, provider, _) => BpReaderThemeSwatches(
-                      themes: provider.availableThemes,
-                      selectedId: provider.currentTheme.id,
-                      onSelected: provider.setTheme,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Consumer<FontSettingsProvider>(
-                    builder: (context, provider, _) {
-                      final selectedFontId = provider.fontSettings.useSystemFont
-                          ? 'system'
-                          : AvailableFont.defaultFonts
-                                  .where(
-                                    (f) =>
-                                        f.fontFamily == provider.fontFamily &&
-                                        f.id != 'system',
-                                  )
-                                  .map((f) => f.id)
-                                  .firstOrNull ??
-                              'merriweather';
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Font style',
-                            style: AppTheme.ui(
-                              fontSize: 14,
-                              weight: FontWeight.w600,
-                              color: isDark ? AppTheme.inkDark : AppTheme.ink,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          DropdownButton<String>(
-                            value: selectedFontId,
-                            isExpanded: true,
-                            items: [
-                              for (final font in AvailableFont.defaultFonts)
-                                DropdownMenuItem(
-                                  value: font.id,
-                                  child: Text(font.name),
-                                ),
-                            ],
-                            onChanged: (id) async {
-                              if (id == null) return;
-                              final font = AvailableFont.defaultFonts
-                                  .firstWhere((f) => f.id == id);
-                              await provider.setAvailableFont(font);
-                            },
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Text size · ${provider.fontSize.round()}',
-                            style: AppTheme.ui(
-                              fontSize: 14,
-                              weight: FontWeight.w600,
-                              color: isDark ? AppTheme.inkDark : AppTheme.ink,
-                            ),
-                          ),
-                          Slider(
-                            min: 14,
-                            max: 30,
-                            divisions: 16,
-                            activeColor: AppTheme.gold,
-                            value: provider.fontSize.clamp(14, 30).toDouble(),
-                            label: provider.fontSize.round().toString(),
-                            onChanged: provider.setFontSize,
-                          ),
-                          Text(
-                            'Line spacing · ${provider.lineHeight.toStringAsFixed(1)}',
-                            style: AppTheme.ui(
-                              fontSize: 14,
-                              weight: FontWeight.w600,
-                              color: isDark ? AppTheme.inkDark : AppTheme.ink,
-                            ),
-                          ),
-                          Slider(
-                            min: 1.2,
-                            max: 2,
-                            divisions: 8,
-                            activeColor: AppTheme.gold,
-                            value: provider.lineHeight.clamp(1.2, 2).toDouble(),
-                            onChanged: provider.setLineHeight,
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+    return BpReaderNoteSheet.show(
+      context,
+      verse: verse,
+      reference: reference,
+      versionId: versionId,
     );
   }
 

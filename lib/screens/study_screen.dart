@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/study_provider.dart';
 import '../utils/app_theme.dart';
 import '../widgets/design/bp_widgets.dart';
-import '../widgets/design/bp_glass.dart';
+import '../widgets/design/bp_plus_background.dart';
 import '../widgets/highlight_list_item.dart';
 import '../widgets/note_list_item.dart';
 import '../widgets/bookmark_list_item.dart';
@@ -43,7 +43,7 @@ class _StudyScreenState extends State<StudyScreen>
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: BpGlassBackground(
+      body: BpPlusBackground(
         child: SafeArea(
           child: Column(
             children: [

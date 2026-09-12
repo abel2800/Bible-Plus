@@ -34,6 +34,8 @@ class VerseCard extends StatelessWidget {
   final String? fontFamily;
   final bool useSystemFont;
   final bool useDropCap;
+  final bool showVerseNumbers;
+  final bool redLetterWords;
   final ReaderColorTheme? readerTheme;
   final bool selected;
   final VoidCallback? onTap;
@@ -56,10 +58,41 @@ class VerseCard extends StatelessWidget {
     this.fontFamily,
     this.useSystemFont = false,
     this.useDropCap = false,
+    this.showVerseNumbers = true,
+    this.redLetterWords = false,
     this.readerTheme,
     this.selected = false,
     this.onTap,
   });
+
+  static const _redLetter = Color(0xFF9C3B2A);
+
+  static bool _isGospel(int bookId) => bookId >= 40 && bookId <= 43;
+
+  List<TextSpan> _textSpans(String text, TextStyle style) {
+    if (!redLetterWords || !_isGospel(verse.book)) {
+      return [TextSpan(text: text, style: style)];
+    }
+    final spans = <TextSpan>[];
+    final pattern = RegExp(r'"([^"]*)"');
+    var start = 0;
+    for (final match in pattern.allMatches(text)) {
+      if (match.start > start) {
+        spans.add(TextSpan(text: text.substring(start, match.start), style: style));
+      }
+      spans.add(
+        TextSpan(
+          text: text.substring(match.start, match.end),
+          style: style.copyWith(color: _redLetter),
+        ),
+      );
+      start = match.end;
+    }
+    if (start < text.length) {
+      spans.add(TextSpan(text: text.substring(start), style: style));
+    }
+    return spans.isEmpty ? [TextSpan(text: text, style: style)] : spans;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -126,8 +159,9 @@ class VerseCard extends StatelessWidget {
               TextSpan(
                 style: bodyStyle,
                 children: [
-                  TextSpan(text: '${verse.verse} ', style: numberStyle),
-                  TextSpan(text: rest),
+                  if (showVerseNumbers)
+                    TextSpan(text: '${verse.verse} ', style: numberStyle),
+                  ..._textSpans(rest, bodyStyle),
                 ],
               ),
             ),
@@ -139,8 +173,9 @@ class VerseCard extends StatelessWidget {
         TextSpan(
           style: bodyStyle,
           children: [
-            TextSpan(text: '${verse.verse} ', style: numberStyle),
-            TextSpan(text: text),
+            if (showVerseNumbers)
+              TextSpan(text: '${verse.verse} ', style: numberStyle),
+            ..._textSpans(text, bodyStyle),
           ],
         ),
       );

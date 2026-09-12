@@ -37,6 +37,7 @@ import 'providers/reading_plan_provider.dart';
 import 'providers/audio_download_provider.dart';
 import 'providers/engagement_provider.dart';
 import 'providers/parallel_reading_provider.dart';
+import 'providers/reader_preferences_provider.dart';
 import 'providers/study_group_provider.dart';
 import 'providers/theme_provider.dart';
 import 'providers/bible_provider.dart';
@@ -348,6 +349,9 @@ class BiblePulseApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => ParallelReadingProvider()..initialize(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ReaderPreferencesProvider()..initialize(),
         ),
         ChangeNotifierProvider(
           create: (context) => BibleProvider(
