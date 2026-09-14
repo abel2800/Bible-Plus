@@ -1,50 +1,56 @@
-# BiblePulse
+# Bible Plus
 
-BiblePulse is a Flutter Bible reading and study application with an Android project in this repository. Its core reading experience is designed to work offline, with local study tools, daily reading progress, and optional audio and cloud services.
+Bible Plus is a Flutter Bible reading and study app with offline-first Scripture, local study tools, daily reading progress, optional audio, and a unified gold reading experience on Android and web.
 
 Website: https://bibleplus-7.vercel.app/
 
 ## Current scope
 
-The maintained platform target in this checkout is Android. The repository does not include an iOS project or claim a release process for desktop or web platforms.
-
 | Item | Value |
 | --- | --- |
-| Application ID | `app.biblepulse.reader` |
+| Product name | Bible Plus |
 | Flutter package | `bible_pulse` |
-| Version | `1.0.3+4` |
+| Application ID | `app.biblepulse.reader` |
+| Version | `1.1.0+5` |
 | Dart constraint | `>=3.6.0 <4.0.0` |
 | Flutter constraint | `>=3.27.0` |
+| Primary targets | Android, Web (Chrome) |
 | Android namespace | `app.biblepulse.reader` |
+
+Android is the primary install target. Web is supported for development and hosted builds. iOS is not included in this repository.
 
 ## Features
 
 ### Bible reading
 
-- Local Bible reading with book and chapter navigation
-- Bundled WEB, NASV, and Amharic Bible data
-- Additional Bible packages available through the online Bible store
+- Local Bible reading with book/chapter navigation
+- Gold-themed reader UI with focus mode, verse popup actions, and chapter arrows
+- HTML-style sheets for catalog, reading settings, notes, and translations
+- Bundled WEB, KJV, ASV, NASV, and Amharic Bible data
+- Additional packages through the online Bible Store
 - Search and direct navigation to Scripture results
-- Adjustable reading appearance and text comfort settings
-- Verse actions for copying, sharing, highlighting, bookmarking, and notes
-- Parallel reading support when a second installed version is available
+- Adjustable reading appearance: themes, font size, line spacing, font family
+- Verse numbers, red-letter words, and focus-on-open preferences
+- Verse actions for copy, share, highlight, bookmark, and notes
+- Parallel reading when Amharic is available
 
 ### Daily reading and study
 
 - Verse of the Day
-- Reading streak, milestone progress, and reading heatmap
+- Reading streak, milestone progress, reading heatmap, and daily reading goal
 - Local prayer journal
 - Study screen for saved notes, bookmarks, and highlights
 - Limited built-in cross-reference data for supported passages
 
 ### Audio
 
+- Unified gold audio bar and full audio sheet across the app
 - World English Bible audio streamed from eBible.org
-- Chapter playback, queue, speed control, sleep timer, and sharing
-- Local caching and download handling where the audio source permits it
+- Chapter playback, queue, speed control, sleep timer, download, and sharing
+- Local caching where the audio source permits it
 - Optional Bible Brain text and audio integrations through build-time configuration
 
-Audio is not bundled in the repository as a complete offline audio library. The default WEB audio catalog entry is a public-domain stream that can be cached as chapters are played or downloaded.
+Audio is not bundled as a complete offline library. The default WEB audio catalog entry is a public-domain stream that can be cached as chapters are played or downloaded.
 
 ### Verse Studio
 
@@ -53,18 +59,19 @@ Audio is not bundled in the repository as a complete offline audio library. The 
 - Still-image sharing and export
 - Animated GIF export for Verse Studio designs
 
-### Android integration
+### Platform integration
 
-- Background audio playback
+- Background audio playback on Android
 - Local notifications and scheduled reminders
 - Android home-screen widget integration
 - App links for supported shared audio links
+- Web build output for hosted deployments
 
 ## Content and availability
 
-The Bible Store catalog describes the available Bible packages, their licenses, and their installation mode. Some entries are bundled assets; others are placeholders that require licensed data or Bible Brain access. A catalog entry does not by itself mean that a translation is installed or available offline.
+The Bible Store catalog describes available Bible packages, licenses, and installation mode. Some entries are bundled assets; others require licensed data or Bible Brain access. A catalog entry does not by itself mean a translation is installed or available offline.
 
-The user interface includes English, Amharic, Afaan Oromo, Tigrinya, and Somali localizations. This does not mean that Scripture text or audio is available in every listed language.
+The user interface includes English, Amharic, Afaan Oromo, Tigrinya, and Somali localizations. This does not mean Scripture text or audio is available in every listed language.
 
 Content metadata is stored in:
 
@@ -76,14 +83,17 @@ Rights and redistribution status must be checked before adding or shipping new c
 
 ## Latest update
 
-Version 1.0.3 includes the audio Bible integration and reduces the Android package size by:
+Version **1.1.0** unifies the reading experience and strengthens release verification:
 
-- Removing the FFmpeg native dependency
-- Bundling only WEB, NASV, and Amharic Bible data
-- Making verified YouVersion translations available as online downloads
-- Publishing architecture-specific APKs and an App Bundle through GitHub Releases
+- Gold reading UI across catalog, settings, notes, and audio
+- Single audio experience from Read, Home, and deep links
+- Reader preferences: verse numbers, red-letter, focus-on-open, parallel reading
+- Daily reading goal and dashboard progress
+- Bible Plus branding and launcher icons
+- Web platform support in CI and release artifacts
+- CI verifies formatting, analysis, tests, manifest, Android, and web builds
 
-The optimized release is approximately 66.9 MB as an App Bundle and 27 MB for the ARM64 APK. Download the latest Android release from the [BiblePulse website](https://bibleplus-7.vercel.app/) or the [GitHub releases page](https://github.com/abel2800/Bible-Plus/releases).
+Download the latest Android release from the [Bible Plus website](https://bibleplus-7.vercel.app/) or the [GitHub releases page](https://github.com/abel2800/Bible-Plus/releases).
 
 ## Optional services
 
@@ -113,17 +123,9 @@ These values are supplied with `--dart-define` and must not be committed.
 
 ### YouVersion downloads
 
-YouVersion credentials are compiled into the Android release; GitHub secrets are
-not available to an already-installed APK. Add `YOUVERSION_APP_KEY` as a
-repository secret, then create a new release build. For individually licensed
-offline versions, also add `YOUVERSION_OFFLINE_VERSION_IDS_JSON` with a JSON
-array such as `["1260"]`. Set `YOUVERSION_BULK_DOWNLOAD_LICENSED` to `true`
-only when the rights holder has confirmed bulk offline distribution.
+YouVersion credentials are compiled into the Android release; GitHub secrets are not available to an already-installed APK. Add `YOUVERSION_APP_KEY` as a repository secret, then create a new release build. For individually licensed offline versions, also add `YOUVERSION_OFFLINE_VERSION_IDS_JSON` with a JSON array such as `["1260"]`. Set `YOUVERSION_BULK_DOWNLOAD_LICENSED` to `true` only when the rights holder has confirmed bulk offline distribution.
 
-The release workflow accepts an empty YouVersion configuration, so builds can
-publish without that optional integration. Installing an older APK will not
-receive a newly added secret; the newly generated APK or App Bundle must be
-downloaded and installed.
+The release workflow accepts an empty YouVersion configuration, so builds can publish without that optional integration.
 
 ## Architecture
 
@@ -149,20 +151,27 @@ lib/services/     Bible, audio, study, notification, and integration services
 lib/studio/       Verse Studio rendering and export logic
 lib/widgets/      Shared interface components
 android/          Android application and Gradle configuration
+web/              Web host files and PWA manifest
 assets/           Bible packages and catalog metadata
-test/             Flutter widget tests
-tools/            Content and maintenance scripts
+test/             Flutter tests
+tools/ci/         Verification and release helper scripts
 ```
 
-The primary navigation destinations are Home, Read, Study, Search, and Settings. Other screens are opened from those destinations or when their corresponding capability is enabled.
+The primary navigation destinations are Home, Read, Study, Search, and Settings.
 
 ## Setup
 
-Install Flutter and configure an Android SDK, device, or emulator. Then run:
+Install Flutter and configure an Android SDK, device, emulator, or Chrome. Then run:
 
 ```bash
 flutter pub get
 flutter run -d android
+```
+
+For local web development:
+
+```bash
+flutter run -d chrome
 ```
 
 For a local release artifact:
@@ -183,6 +192,12 @@ For architecture-specific APKs:
 flutter build apk --release --split-per-abi
 ```
 
+For a web build:
+
+```bash
+flutter build web --release
+```
+
 Release signing uses these environment variables when a publishable signed artifact is required:
 
 ```text
@@ -196,12 +211,91 @@ Without those values, the Android release configuration falls back to the debug 
 
 ## Verification
 
-The repository’s local checks are:
+Run the full local verification suite:
+
+```bash
+bash tools/ci/verify.sh
+```
+
+On Windows PowerShell, run the equivalent steps:
+
+```powershell
+flutter pub get
+dart format --output=none --set-exit-if-changed lib test
+flutter analyze lib test --no-fatal-infos
+flutter test --exclude-tags golden
+python tools/content/validate_manifest.py
+flutter build web --release
+```
+
+Individual checks:
 
 ```bash
 dart format --output=none --set-exit-if-changed lib test
 flutter analyze lib test --no-fatal-infos
 flutter test --exclude-tags golden
+python tools/content/validate_manifest.py
 ```
 
-GitHub Actions is configured to run formatting, analysis, Flutter tests, content-manifest validation, and Android APK/App Bundle builds. The current Flutter test directory contains the shared widget test; Firebase rule tests live separately under `firebase-tests`.
+## CI and release
+
+### Continuous integration
+
+GitHub Actions workflow: `.github/workflows/ci.yml`
+
+On every push and pull request, CI runs:
+
+1. Format check (`lib`, `test`)
+2. Static analysis
+3. Flutter tests
+4. Approved content manifest validation
+5. Web release build
+6. Android APK and App Bundle build
+7. Firestore rules tests
+
+### Publishing a release
+
+1. Bump the version in `pubspec.yaml`:
+
+```yaml
+version: 1.1.0+5
+```
+
+Use `MAJOR.MINOR.PATCH+BUILD`. The tag must match the version name before `+`.
+
+2. Commit your changes locally.
+
+3. Push your branch, confirm CI passes.
+
+4. Create and push a matching tag:
+
+```bash
+git tag v1.1.0
+git push origin v1.1.0
+```
+
+5. The release workflow (`.github/workflows/release.yml`) will:
+
+- Run the same verification checks as CI
+- Validate that `v1.1.0` matches `pubspec.yaml`
+- Build Android APKs, App Bundle, and web zip
+- Publish a GitHub Release named `Bible Plus v1.1.0`
+
+You can also trigger the release workflow manually from GitHub Actions (`workflow_dispatch`). In that case it uses the version from `pubspec.yaml` and creates/updates release `v{version}`.
+
+Release assets include:
+
+- `bible-plus-{version}-arm64-v8a.apk`
+- `bible-plus-{version}-armeabi-v7a.apk`
+- `bible-plus-{version}-x86_64.apk`
+- `bible-plus-{version}.aab`
+- `bible-plus-{version}-web.zip`
+- Legacy aliases: `biblepulse-arm64-v8a.apk`, etc.
+
+### Version helper
+
+```bash
+bash tools/ci/read_version.sh
+```
+
+Prints `APP_VERSION`, `APP_VERSION_NAME`, and `APP_BUILD_NUMBER` from `pubspec.yaml`.
