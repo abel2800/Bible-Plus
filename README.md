@@ -360,12 +360,20 @@ Triggered by pushing a version tag (`v*`) or manual `workflow_dispatch`.
 
 ## Website deployment
 
-The public landing page lives in [`website/`](website/) and is deployed to Vercel at [bibleplus-7.vercel.app](https://bibleplus-7.vercel.app/).
+The public landing page lives in [`website/`](website/) and is deployed to Vercel at [bibleplus-7.vercel.app](https://bibleplus-7.vercel.app/). It is user-facing only: download buttons, release version text, and install steps — no repository links on the page.
 
 | Setting | Value |
 | --- | --- |
 | Root directory | `website` |
-| Download links | Point to GitHub Releases (`/releases/latest/download/...`) |
+| Download links | Resolved from GitHub Releases at build time in the browser (`/releases/latest/download/...`) |
+
+Preview locally:
+
+```bash
+npm run website
+```
+
+Then open [http://localhost:3456](http://localhost:3456).
 
 After recreating the GitHub repository, reconnect the Vercel project to `abel2800/Bible-Plus` under **Settings → Git**. The Vercel URL stays the same; only the Git connection needs to be refreshed.
 
