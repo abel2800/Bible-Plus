@@ -13,10 +13,16 @@ import '../models/audio_download.dart';
 class DatabaseService {
   static final DatabaseService _instance = DatabaseService._internal();
   static Database? _database;
+  bool? _ftsSupported;
 
   factory DatabaseService() => _instance;
 
   DatabaseService._internal();
+
+  Future<bool> get supportsFts async {
+    await database;
+    return _ftsSupported ?? false;
+  }
 
   Future<Database> get database async {
     if (kIsWeb) {
@@ -35,9 +41,24 @@ class DatabaseService {
     return await openDatabase(
       path,
       version: 4,
+      onConfigure: (db) async {
+        _ftsSupported ??= await _checkFtsSupport(db);
+      },
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
+  }
+
+  Future<bool> _checkFtsSupport(Database db) async {
+    try {
+      await db.execute(
+        'CREATE VIRTUAL TABLE IF NOT EXISTS __fts5_probe USING fts5(content);',
+      );
+      await db.execute('DROP TABLE IF EXISTS __fts5_probe;');
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -138,16 +159,18 @@ class DatabaseService {
         PRIMARY KEY (versionId, bookId, chapter, verse)
       )
     ''');
-    await db.execute('''
-      CREATE VIRTUAL TABLE IF NOT EXISTS bible_verses_fts USING fts5(
-        text,
-        versionId UNINDEXED,
-        bookId UNINDEXED,
-        chapter UNINDEXED,
-        verse UNINDEXED,
-        tokenize = 'unicode61'
-      )
-    ''');
+    if (_ftsSupported ?? false) {
+      await db.execute('''
+        CREATE VIRTUAL TABLE IF NOT EXISTS bible_verses_fts USING fts5(
+          text,
+          versionId UNINDEXED,
+          bookId UNINDEXED,
+          chapter UNINDEXED,
+          verse UNINDEXED,
+          tokenize = 'unicode61'
+        )
+      ''');
+    }
     await db.execute('''
       CREATE TABLE IF NOT EXISTS user_reading_plans (
         id TEXT PRIMARY KEY,
@@ -203,11 +226,13 @@ class DatabaseService {
         where: 'versionId = ?',
         whereArgs: [versionId],
       );
-      await transaction.delete(
-        'bible_verses_fts',
-        where: 'versionId = ?',
-        whereArgs: [versionId],
-      );
+      if (_ftsSupported ?? false) {
+        await transaction.delete(
+          'bible_verses_fts',
+          where: 'versionId = ?',
+          whereArgs: [versionId],
+        );
+      }
 
       final batch = transaction.batch();
       for (final verse in verses) {
@@ -219,7 +244,9 @@ class DatabaseService {
           'text': verse.text,
         };
         batch.insert('bible_verses', values);
-        batch.insert('bible_verses_fts', values);
+        if (_ftsSupported ?? false) {
+          batch.insert('bible_verses_fts', values);
+        }
       }
       await batch.commit(noResult: true);
     });
@@ -237,20 +264,21 @@ class DatabaseService {
         .toList();
     if (tokens.isEmpty) return [];
 
-    final expression = tokens
-        .map((token) => '"${token.replaceAll('"', '""')}"*')
-        .join(' AND ');
     final db = await database;
-    final rows = await db.rawQuery(
-      '''
-      SELECT bookId, chapter, verse, text
-      FROM bible_verses_fts
-      WHERE bible_verses_fts MATCH ? AND versionId = ?
-      ORDER BY bookId, chapter, verse
-      LIMIT ?
-      ''',
-      [expression, versionId, limit],
-    );
+    final rows = (_ftsSupported ?? false)
+        ? await _searchBibleWithFts(
+            db,
+            versionId: versionId,
+            tokens: tokens,
+            limit: limit,
+          )
+        : await _searchBibleWithLike(
+            db,
+            versionId: versionId,
+            tokens: tokens,
+            limit: limit,
+          );
+
     return rows
         .map(
           (row) => BibleVerse(
@@ -262,6 +290,51 @@ class DatabaseService {
           ),
         )
         .toList();
+  }
+
+  Future<List<Map<String, Object?>>> _searchBibleWithFts(
+    Database db, {
+    required String versionId,
+    required List<String> tokens,
+    required int limit,
+  }) {
+    final expression = tokens
+        .map((token) => '"${token.replaceAll('"', '""')}"*')
+        .join(' AND ');
+    return db.rawQuery(
+      '''
+      SELECT bookId, chapter, verse, text
+      FROM bible_verses_fts
+      WHERE bible_verses_fts MATCH ? AND versionId = ?
+      ORDER BY bookId, chapter, verse
+      LIMIT ?
+      ''',
+      [expression, versionId, limit],
+    );
+  }
+
+  Future<List<Map<String, Object?>>> _searchBibleWithLike(
+    Database db, {
+    required String versionId,
+    required List<String> tokens,
+    required int limit,
+  }) {
+    final where = tokens.map((_) => 'text LIKE ?').join(' AND ');
+    final args = <Object?>[
+      ...tokens.map((token) => '%$token%'),
+      versionId,
+      limit,
+    ];
+    return db.rawQuery(
+      '''
+      SELECT bookId, chapter, verse, text
+      FROM bible_verses
+      WHERE $where AND versionId = ?
+      ORDER BY bookId, chapter, verse
+      LIMIT ?
+      ''',
+      args,
+    );
   }
 
   Future<void> insertHighlight(Highlight highlight) async {

@@ -52,6 +52,7 @@ import 'providers/font_settings_provider.dart';
 import 'services/notification_service.dart';
 import 'services/database_service.dart';
 import 'services/home_widget_service.dart';
+import 'utils/sqlite_init.dart';
 import 'screens/bootstrap_screen.dart';
 import 'screens/search_screen.dart';
 import 'screens/app_shell.dart';
@@ -74,6 +75,7 @@ import 'l10n/fallback_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initAppSqlite();
   if (!kIsWeb) {
     await JustAudioBackground.init(
       androidNotificationChannelId: 'com.biblepulse.audio',
