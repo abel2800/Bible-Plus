@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "website": "npx --yes serve website -l 3456",
+    "website:python": "python -m http.server 3456 --directory website"
+  },
   "dependencies": {
     "@youversion/platform-core": "^2.6.2"
   }
