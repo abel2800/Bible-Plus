@@ -158,12 +158,12 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           child: Column(
             children: [
               if (selectedBook != null)
-                  Padding(
+                Padding(
                   padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
-                    child: Row(
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
+                    children: [
+                      Expanded(
                         child: AnimatedSlide(
                           duration: const Duration(milliseconds: 280),
                           curve: Curves.easeOutCubic,
@@ -181,11 +181,11 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                                 version: bibleProvider.currentVersion,
                                 onTitleTap: () => _showBookSelector(context),
                                 onTranslationTap: () => showModalBottomSheet(
-                                        context: context,
-                                        isScrollControlled: true,
-                                        backgroundColor: Colors.transparent,
-                                        builder: (context) =>
-                                            const VersionSelectorBottomSheet(),
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (context) =>
+                                      const VersionSelectorBottomSheet(),
                                 ),
                                 onSettingsTap: () =>
                                     BpReaderSettingsSheet.show(context),
@@ -206,87 +206,87 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                             _popupLeft = null;
                           }
                         }),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  Expanded(
-                    child: bibleProvider.isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : bibleProvider.currentChapter.isEmpty
-                            ? _buildEmptyState(context, bibleProvider, l10n)
+                ),
+              Expanded(
+                child: bibleProvider.isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : bibleProvider.currentChapter.isEmpty
+                        ? _buildEmptyState(context, bibleProvider, l10n)
                         : Stack(
                             key: _readerStackKey,
-                                children: [
+                            children: [
                               ListView.builder(
-                                      controller: _scrollController,
-                                      padding: EdgeInsets.fromLTRB(
+                                controller: _scrollController,
+                                padding: EdgeInsets.fromLTRB(
                                   24,
-                                        8,
+                                  8,
                                   24,
                                   listBottomPad + bottomInset + 72,
-                                      ),
-                                      itemCount:
+                                ),
+                                itemCount:
                                     bibleProvider.currentChapter.length + 1,
-                                      itemBuilder: (context, rawIndex) {
-                                        if (rawIndex == 0) {
+                                itemBuilder: (context, rawIndex) {
+                                  if (rawIndex == 0) {
                                     return BpReaderChapterHeading(
                                       chapter: bibleProvider.selectedChapter,
                                       theme: readerTheme,
-                                          );
-                                        }
-                                        final index = rawIndex - 1;
-                                        final verse =
-                                            bibleProvider.currentChapter[index];
+                                    );
+                                  }
+                                  final index = rawIndex - 1;
+                                  final verse =
+                                      bibleProvider.currentChapter[index];
                                   final reference =
                                       bibleProvider.getVerseReference(verse);
-                                        final versionId =
-                                            bibleProvider.currentVersion;
-                                        final isHighlighted =
-                                            studyProvider.isHighlighted(
-                                          reference,
-                                          versionId: versionId,
-                                        );
-                                        final highlightColor =
-                                            studyProvider.getHighlightColor(
-                                          reference,
-                                          versionId: versionId,
-                                        );
-                                        final isSpoken = audioMatchesReader &&
+                                  final versionId =
+                                      bibleProvider.currentVersion;
+                                  final isHighlighted =
+                                      studyProvider.isHighlighted(
+                                    reference,
+                                    versionId: versionId,
+                                  );
+                                  final highlightColor =
+                                      studyProvider.getHighlightColor(
+                                    reference,
+                                    versionId: versionId,
+                                  );
+                                  final isSpoken = audioMatchesReader &&
                                       audioService.currentVerse == verse.verse;
-                                        final secondary = parallel.enabled
-                                            ? parallel.verse(verse.verse)
-                                            : null;
+                                  final secondary = parallel.enabled
+                                      ? parallel.verse(verse.verse)
+                                      : null;
                                   final isSelected =
                                       _selectedVerse == verse.verse;
 
-                                        return KeyedSubtree(
-                                          key: _verseKeys.putIfAbsent(
-                                            verse.verse,
-                                            GlobalKey.new,
+                                  return KeyedSubtree(
+                                    key: _verseKeys.putIfAbsent(
+                                      verse.verse,
+                                      GlobalKey.new,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        VerseCard(
+                                          verse: verse,
+                                          reference: reference,
+                                          versionId: versionId,
+                                          isHighlighted: isHighlighted,
+                                          highlightColor: highlightColor,
+                                          isBookmarked:
+                                              studyProvider.isBookmarked(
+                                            reference,
+                                            versionId: versionId,
                                           ),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              VerseCard(
-                                                verse: verse,
-                                                reference: reference,
-                                                versionId: versionId,
-                                                isHighlighted: isHighlighted,
-                                                highlightColor: highlightColor,
-                                                isBookmarked:
-                                                    studyProvider.isBookmarked(
-                                                  reference,
-                                                  versionId: versionId,
-                                                ),
                                           hasNote:
                                               studyProvider.getNoteForVerse(
-                                                      reference,
-                                                      versionId: versionId,
-                                                    ) !=
-                                                    null,
-                                                isAudioActive: isSpoken,
+                                                    reference,
+                                                    versionId: versionId,
+                                                  ) !=
+                                                  null,
+                                          isAudioActive: isSpoken,
                                           selected: isSelected,
                                           onTap: () =>
                                               _toggleVersePopup(verse.verse),
@@ -294,39 +294,39 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                                           verseNumberColor:
                                               readerTheme.verseNumberColor,
                                           accentColor: readerTheme.accentColor,
-                                                fontSize: fontSettings.fontSize,
+                                          fontSize: fontSettings.fontSize,
                                           lineHeight: fontSettings.lineHeight,
                                           fontFamily: fontSettings.fontFamily,
-                                                useSystemFont:
-                                                    fontSettings.useSystemFont,
+                                          useSystemFont:
+                                              fontSettings.useSystemFont,
                                           useDropCap: verse.verse == 1,
                                           showVerseNumbers:
                                               readerPrefs.showVerseNumbers,
                                           redLetterWords:
                                               readerPrefs.redLetterWords,
                                           readerTheme: readerTheme,
-                                              ),
-                                              if (secondary != null) ...[
-                                                const SizedBox(height: 6),
-                                                Padding(
-                                                  padding:
+                                        ),
+                                        if (secondary != null) ...[
+                                          const SizedBox(height: 6),
+                                          Padding(
+                                            padding:
                                                 const EdgeInsets.only(left: 18),
-                                                  child: Text(
-                                                    secondary.text,
-                                                    style: AppTheme.ethopic(
+                                            child: Text(
+                                              secondary.text,
+                                              style: AppTheme.ethopic(
                                                 fontSize:
                                                     fontSettings.fontSize - 1,
                                                 color: readerTheme.textColor
                                                     .withValues(alpha: 0.85),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            ],
+                                              ),
+                                            ),
                                           ),
-                                        );
-                                      },
+                                        ],
+                                      ],
                                     ),
+                                  );
+                                },
+                              ),
                               if (selectedBook != null && !_focusMode)
                                 Positioned(
                                   left: 8,
@@ -373,9 +373,9 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                                         _toggleAudio(context, bibleProvider),
                                     onOpenPlayer: () =>
                                         _openAudioSheet(context, bibleProvider),
-                              ),
-                  ),
-                ],
+                                  ),
+                                ),
+                            ],
                           ),
               ),
             ],
