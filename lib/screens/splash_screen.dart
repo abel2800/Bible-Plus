@@ -33,6 +33,9 @@ class _SplashScreenState extends State<SplashScreen>
       CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
     );
 
+    final shortestSide = MediaQuery.sizeOf(context).shortestSide;
+    final logoSize = (shortestSide * 0.52).clamp(280.0, 420.0);
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: Center(
@@ -46,12 +49,12 @@ class _SplashScreenState extends State<SplashScreen>
           },
           child: Image.asset(
             BpBrandAssets.logoPath,
-            width: 240,
-            height: 240,
+            width: logoSize,
+            height: logoSize,
             fit: BoxFit.contain,
             gaplessPlayback: true,
             filterQuality: FilterQuality.high,
-            errorBuilder: (_, __, ___) => const BpBrandMark(size: 180),
+            errorBuilder: (_, __, ___) => BpBrandMark(size: logoSize * 0.75),
           ),
         ),
       ),

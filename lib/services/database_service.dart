@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 
-import 'package:sqflite/sqflite.dart';
+import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform;
+import 'package:flutter/material.dart' show TargetPlatform;
 import 'package:path/path.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:path_provider/path_provider.dart';
+import 'package:sqflite/sqflite.dart';
 import '../models/highlight.dart';
 import '../models/note.dart';
 import '../models/bookmark.dart';
@@ -35,8 +38,7 @@ class DatabaseService {
   }
 
   Future<Database> _initDatabase() async {
-    final databasePath = await getDatabasesPath();
-    final path = join(databasePath, 'bible_pulse.db');
+    final path = await _resolveDatabasePath();
 
     return await openDatabase(
       path,
@@ -47,6 +49,38 @@ class DatabaseService {
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
+  }
+
+  /// Ensures a writable folder exists. On Android we use bundled SQLite (FFI),
+  /// which is more reliable with [getApplicationSupportDirectory] than the
+  /// default sqflite databases path alone.
+  Future<String> _resolveDatabasePath() async {
+    const fileName = 'bible_pulse.db';
+
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      final supportDir = await getApplicationSupportDirectory();
+      final dbDir = Directory(join(supportDir.path, 'databases'));
+      if (!await dbDir.exists()) {
+        await dbDir.create(recursive: true);
+      }
+      final path = join(dbDir.path, fileName);
+
+      final legacyDir = await getDatabasesPath();
+      final legacyPath = join(legacyDir, fileName);
+      final legacyFile = File(legacyPath);
+      final currentFile = File(path);
+      if (!await currentFile.exists() && await legacyFile.exists()) {
+        await legacyFile.copy(path);
+      }
+      return path;
+    }
+
+    final databasePath = await getDatabasesPath();
+    final dir = Directory(databasePath);
+    if (!await dir.exists()) {
+      await dir.create(recursive: true);
+    }
+    return join(databasePath, fileName);
   }
 
   Future<bool> _checkFtsSupport(Database db) async {
