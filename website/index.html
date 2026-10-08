@@ -1192,7 +1192,23 @@
       return body.replace(/\r?\n/g, ' ').replace(/\[[^\]]*\]\([^)]*\)/g, '').replace(/[#*_`>]/g, '').trim().slice(0, 220);
     }
 
-    fetch(RELEASE_API)
+    function withCacheBust(url) {
+      if (!url) return url;
+      try {
+        const next = new URL(url);
+        next.searchParams.set('v', String(Date.now()));
+        return next.toString();
+      } catch {
+        return `${url}?v=${Date.now()}`;
+      }
+    }
+
+    fetch(RELEASE_API, {
+      cache: 'no-store',
+      headers: {
+        Accept: 'application/vnd.github+json'
+      }
+    })
       .then(r => r.ok ? r.json() : null)
       .then(release => {
         if (!release) return;
@@ -1204,12 +1220,12 @@
         const arm32 = pickAsset(assets, 'biblepulse-armeabi-v7a.apk');
 
         if (arm64) {
-          document.querySelectorAll('.download-btn').forEach(link => { link.href = arm64; });
+          document.querySelectorAll('.download-btn').forEach(link => { link.href = withCacheBust(arm64); });
         }
 
         const altDownload = document.getElementById('altDownload');
         if (altDownload && arm32) {
-          altDownload.href = arm32;
+          altDownload.href = withCacheBust(arm32);
           altDownload.hidden = false;
         }
 
