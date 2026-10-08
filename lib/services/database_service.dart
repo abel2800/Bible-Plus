@@ -22,6 +22,59 @@ class DatabaseService {
 
   DatabaseService._internal();
 
+  static Future<bool> _canUseDatabaseDirectory(Directory directory) async {
+    try {
+      if (!await directory.exists()) {
+        await directory.create(recursive: true);
+      }
+
+      final probeFile = File(join(directory.path, '.bp_sqlite_probe'));
+      await probeFile.writeAsString('ok');
+      await probeFile.delete();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static Future<String> resolveDatabasePath({String? appRootOverride}) async {
+    final candidateDirs = <String>[];
+
+    if (appRootOverride != null && appRootOverride.trim().isNotEmpty) {
+      candidateDirs.add(appRootOverride);
+    }
+
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      try {
+        final supportDir = await getApplicationSupportDirectory();
+        candidateDirs.add(join(supportDir.path, 'databases'));
+      } catch (_) {}
+    }
+
+    try {
+      candidateDirs.add(await getDatabasesPath());
+    } catch (_) {}
+
+    try {
+      final tempDir = await getTemporaryDirectory();
+      candidateDirs.add(join(tempDir.path, 'bible_pulse'));
+    } catch (_) {}
+
+    for (final candidate in candidateDirs) {
+      final dir = Directory(candidate);
+      if (await _canUseDatabaseDirectory(dir)) {
+        return join(dir.path, 'bible_pulse.db');
+      }
+    }
+
+    final fallbackDir = Directory(
+      appRootOverride ??
+          join((await getTemporaryDirectory()).path, 'bible_pulse'),
+    );
+    await fallbackDir.create(recursive: true);
+    return join(fallbackDir.path, 'bible_pulse.db');
+  }
+
   Future<bool> get supportsFts async {
     await database;
     return _ftsSupported ?? false;
@@ -53,34 +106,10 @@ class DatabaseService {
 
   /// Ensures a writable folder exists. On Android we use bundled SQLite (FFI),
   /// which is more reliable with [getApplicationSupportDirectory] than the
-  /// default sqflite databases path alone.
+  /// default sqflite databases path alone. If that location is blocked, we fall
+  /// back to the app temp folder so startup can continue without crashing.
   Future<String> _resolveDatabasePath() async {
-    const fileName = 'bible_pulse.db';
-
-    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
-      final supportDir = await getApplicationSupportDirectory();
-      final dbDir = Directory(join(supportDir.path, 'databases'));
-      if (!await dbDir.exists()) {
-        await dbDir.create(recursive: true);
-      }
-      final path = join(dbDir.path, fileName);
-
-      final legacyDir = await getDatabasesPath();
-      final legacyPath = join(legacyDir, fileName);
-      final legacyFile = File(legacyPath);
-      final currentFile = File(path);
-      if (!await currentFile.exists() && await legacyFile.exists()) {
-        await legacyFile.copy(path);
-      }
-      return path;
-    }
-
-    final databasePath = await getDatabasesPath();
-    final dir = Directory(databasePath);
-    if (!await dir.exists()) {
-      await dir.create(recursive: true);
-    }
-    return join(databasePath, fileName);
+    return resolveDatabasePath();
   }
 
   Future<bool> _checkFtsSupport(Database db) async {
