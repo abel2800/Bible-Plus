@@ -11,6 +11,7 @@ import '../providers/audio_store_provider.dart';
 import '../providers/bible_provider.dart';
 import '../providers/user_preferences_provider.dart';
 import '../providers/engagement_provider.dart';
+import '../providers/journey_provider.dart';
 import '../providers/navigation_provider.dart';
 import '../providers/study_provider.dart';
 import '../providers/theme_provider.dart';
@@ -18,6 +19,7 @@ import '../providers/color_theme_provider.dart';
 import '../providers/reminder_provider.dart';
 import '../services/home_widget_service.dart';
 import '../services/audio_service.dart';
+import '../services/journey_calculator.dart';
 import '../utils/app_theme.dart';
 import '../providers/reading_plan_provider.dart';
 import '../utils/user_display_name.dart';
@@ -25,7 +27,6 @@ import '../widgets/design/bp_plus_background.dart';
 import '../widgets/design/bp_gold_button.dart';
 import '../widgets/app_drawer.dart';
 import '../widgets/design/bp_widgets.dart';
-import '../widgets/reading_heatmap.dart';
 import '../utils/audio_player_navigation.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -226,6 +227,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final l10n = AppLocalizations.of(context);
     final capabilities = context.watch<AppCapabilities>();
     final engagement = context.watch<EngagementProvider>();
+    final journey = context.watch<JourneyProvider>();
     final study = context.watch<StudyProvider>();
     final planSnapshot = _readingPlanSnapshot(context, capabilities);
     final userPlan = planSnapshot.userPlan;
@@ -599,10 +601,104 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
                       child: BpCard(
-                        padding: const EdgeInsets.fromLTRB(16, 15, 16, 13),
-                        child: ReadingHeatmap(
-                          readingDays: engagement.readingDays,
-                          readingCounts: engagement.readingCounts,
+                        padding: EdgeInsets.zero,
+                        child: Semantics(
+                          button: true,
+                          label: 'Bible Journey. '
+                              '${journey.summary.activeDays} active days. '
+                              'Daily goal ${journey.goalAmount()} of ${journey.goalTarget}. '
+                              'Open yearly reading history.',
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(18),
+                            onTap: () => Navigator.pushNamed(
+                              context,
+                              '/bible_journey',
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        width: 38,
+                                        height: 38,
+                                        decoration: BoxDecoration(
+                                          color: t.goldGlow,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Icon(
+                                          Icons.calendar_view_week_rounded,
+                                          color: t.gold,
+                                          size: 20,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Bible Journey',
+                                              style: AppTheme.brandTitle(
+                                                fontSize: 16,
+                                                color: t.ink,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              journey.hasActivity
+                                                  ? '${journey.summary.activeDays} active days · ${journey.summary.currentStreak} day current streak'
+                                                  : 'Your reading and listening history',
+                                              style: AppTheme.ui(
+                                                fontSize: 12,
+                                                color: t.inkSoft,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Icon(
+                                        Icons.arrow_forward_rounded,
+                                        color: t.inkSoft,
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 14),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                          child: LinearProgressIndicator(
+                                            value: journey.goalProgress(),
+                                            minHeight: 8,
+                                            backgroundColor: t.border,
+                                            color: AppTheme.primaryGold(
+                                              Theme.of(context).brightness,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        '${journey.goalAmount()} / ${journey.goalTarget} ${journey.goalType == JourneyGoalType.minutes ? 'min' : 'chapters'}',
+                                        style: AppTheme.ui(
+                                          fontSize: 11.5,
+                                          weight: FontWeight.w600,
+                                          color: t.inkSoft,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),

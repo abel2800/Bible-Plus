@@ -52,7 +52,6 @@ class _BootstrapScreenState extends State<BootstrapScreen> {
         context.read<ReaderPreferencesProvider>().initialize(),
         context.read<UserPreferencesProvider>().initialize(),
         context.read<StudyProvider>().ready,
-        Future<void>.delayed(const Duration(milliseconds: 1400)),
       ]);
 
       if (!mounted) return;
@@ -63,12 +62,7 @@ class _BootstrapScreenState extends State<BootstrapScreen> {
 
       if (!mounted) return;
       setState(() => _status = BootstrapStatus.ready);
-      final prefs = context.read<UserPreferencesProvider>();
-      if (prefs.hasCompletedOnboarding) {
-        Navigator.of(context).pushReplacementNamed('/home');
-      } else {
-        Navigator.of(context).pushReplacementNamed('/home');
-      }
+      Navigator.of(context).pushReplacementNamed('/home');
     } catch (error) {
       if (!mounted) return;
       setState(() {

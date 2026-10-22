@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../config/app_capabilities.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/study_provider.dart';
+import '../providers/journey_provider.dart';
 import '../services/auth_service.dart';
 import '../services/study_sync_service.dart';
 import '../utils/app_theme.dart';
@@ -55,6 +56,12 @@ class AppDrawer extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             const BpRule(),
+            _item(
+              context,
+              Icons.calendar_view_week_rounded,
+              'Bible Journey',
+              '/bible_journey',
+            ),
             _item(context, Icons.search_rounded, l10n.navSearch, '/search'),
             _item(
               context,
@@ -133,10 +140,11 @@ class AppDrawer extends StatelessWidget {
                 ),
                 onTap: () async {
                   final user = context.read<AuthService>().currentUser!;
-                  await context.read<StudyProvider>().synchronize(
-                        context.read<StudySyncGateway>(),
-                        user.uid,
-                      );
+                  final gateway = context.read<StudySyncGateway>();
+                  final study = context.read<StudyProvider>();
+                  final journey = context.read<JourneyProvider>();
+                  await study.synchronize(gateway, user.uid);
+                  await journey.synchronize(gateway, user.uid);
                   if (context.mounted) Navigator.pop(context);
                 },
               ),

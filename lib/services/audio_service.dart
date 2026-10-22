@@ -70,10 +70,14 @@ class AudioService with ChangeNotifier {
   final int maxCacheBytes;
   final AudioPlayer _player = AudioPlayer();
   final List<StreamSubscription<dynamic>> _subscriptions = [];
+  final StreamController<AudioQueueItem> _chapterCompletions =
+      StreamController<AudioQueueItem>.broadcast();
 
   bool _useHtmlAudio = false;
   bool _isDisposed = false;
   bool _isAdvancingQueue = false;
+  String? _completedAudioKey;
+  String? _pendingPlaybackKey;
   bool _isPlaying = false;
   bool _isLoading = false;
   int _playRequestId = 0;
@@ -139,6 +143,7 @@ class AudioService with ChangeNotifier {
   Stream<Duration> get positionStream => _useHtmlAudio
       ? html_audio.WebHtmlAudio.positionStream
       : _player.positionStream;
+  Stream<AudioQueueItem> get chapterCompletions => _chapterCompletions.stream;
 
   bool get hasActiveSession => _activeBookId != null && _activeChapter != null;
   bool hasAudioForVersion(String versionId) =>
@@ -277,6 +282,20 @@ class AudioService with ChangeNotifier {
     List<int>? verseCharWeights,
     String? audioPackageId,
   }) async {
+    final currentMatches = _activeVersion == version &&
+        _activeBookId == bookId &&
+        _activeChapter == chapter;
+    if (currentMatches && _isPlaying) return;
+    if (currentMatches &&
+        !_isPlaying &&
+        !_isLoading &&
+        _duration > Duration.zero) {
+      await play();
+      return;
+    }
+    final playbackKey = '$version:$bookId:$chapter';
+    if (_isLoading && _pendingPlaybackKey == playbackKey) return;
+
     if (bookCatalog != null) {
       setBookCatalog(bookCatalog);
     }
@@ -358,7 +377,11 @@ class AudioService with ChangeNotifier {
       _notify();
       return;
     }
+    final playbackKey = '${item.versionId}:${item.bookId}:${item.chapter}';
+    if (_isLoading && _pendingPlaybackKey == playbackKey) return;
+    if (_isPlaying && currentQueueItem == item) return;
     final requestId = ++_playRequestId;
+    _pendingPlaybackKey = playbackKey;
     try {
       _isLoading = true;
       _lastError = null;
@@ -404,10 +427,12 @@ class AudioService with ChangeNotifier {
       _activeVersion = item.versionId;
       _activeBookId = item.bookId;
       _activeChapter = item.chapter;
+      _completedAudioKey = null;
       _activeBookName = item.bookName;
       if (_activeVerseCharWeights == null || _activeVerseCharWeights!.isEmpty) {
         _activeVerseCharWeights = await _resolveVerseCharWeights();
       }
+      if (requestId != _playRequestId) return;
 
       final rate = _speed.clamp(0.8, 2.5);
       _speed = rate;
@@ -443,6 +468,7 @@ class AudioService with ChangeNotifier {
         if (cached != null) playbackUri = cached;
         if (requestId != _playRequestId) return;
         await _player.stop();
+        if (requestId != _playRequestId) return;
         await _player.setAudioSource(
           AudioSource.uri(
             playbackUri,
@@ -454,8 +480,11 @@ class AudioService with ChangeNotifier {
             ),
           ),
         );
+        if (requestId != _playRequestId) return;
         await _player.setSpeed(rate);
+        if (requestId != _playRequestId) return;
         await _player.play();
+        if (requestId != _playRequestId) return;
         if (source.downloadPermitted) {
           unawaited(
             cache
@@ -494,6 +523,8 @@ class AudioService with ChangeNotifier {
       _isLoading = false;
       _isPlaying = false;
       _notify();
+    } finally {
+      if (_playRequestId == requestId) _pendingPlaybackKey = null;
     }
   }
 
@@ -594,6 +625,17 @@ class AudioService with ChangeNotifier {
 
   Future<void> playQueueItem(int index) async {
     if (index < 0 || index >= _queue.length) return;
+    if (index == _queueIndex &&
+        currentQueueItem != null &&
+        _activeVersion == currentQueueItem!.versionId &&
+        _activeBookId == currentQueueItem!.bookId &&
+        _activeChapter == currentQueueItem!.chapter) {
+      if (_isPlaying || _isLoading) return;
+      if (_position > Duration.zero && _duration > Duration.zero) {
+        await play();
+        return;
+      }
+    }
     await _playQueueItem(_queue[index], queueIndex: index);
   }
 
@@ -860,8 +902,17 @@ class AudioService with ChangeNotifier {
 
   Future<void> _handleChapterCompleted() async {
     if (_isAdvancingQueue) return;
+    final completed = currentQueueItem;
+    if (completed == null) return;
+    final completionKey =
+        '${completed.versionId}:${completed.bookId}:${completed.chapter}';
+    if (_completedAudioKey == completionKey) return;
+    _completedAudioKey = completionKey;
     _isAdvancingQueue = true;
     try {
+      if (!_chapterCompletions.isClosed) {
+        _chapterCompletions.add(completed);
+      }
       if (_sleepMode == AudioSleepMode.endOfChapter) {
         await stopPlayback(clearSession: false);
         return;
@@ -915,6 +966,7 @@ class AudioService with ChangeNotifier {
   void dispose() {
     _isDisposed = true;
     _sleepTimer?.cancel();
+    _chapterCompletions.close();
     for (final subscription in _subscriptions) {
       subscription.cancel();
     }

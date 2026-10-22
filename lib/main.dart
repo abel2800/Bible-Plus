@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -36,6 +38,7 @@ import 'providers/hymn_provider.dart';
 import 'providers/reading_plan_provider.dart';
 import 'providers/audio_download_provider.dart';
 import 'providers/engagement_provider.dart';
+import 'providers/journey_provider.dart';
 import 'providers/parallel_reading_provider.dart';
 import 'providers/reader_preferences_provider.dart';
 import 'providers/study_group_provider.dart';
@@ -67,6 +70,7 @@ import 'screens/devotions_screen.dart';
 import 'screens/hymns_screen.dart';
 import 'screens/reading_plans_screen.dart';
 import 'screens/prayer_journal_screen.dart';
+import 'screens/bible_journey_screen.dart';
 import 'screens/study_groups_screen.dart';
 import 'screens/auth/auth_screen.dart';
 import 'utils/app_theme.dart';
@@ -221,16 +225,6 @@ void main() async {
         debugPrint('Notification initialization unavailable: $error');
       }
     }
-
-    if (defaultTargetPlatform == TargetPlatform.android ||
-        defaultTargetPlatform == TargetPlatform.iOS ||
-        defaultTargetPlatform == TargetPlatform.macOS) {
-      try {
-        await DatabaseService().database;
-      } catch (error) {
-        debugPrint('Local database initialization unavailable: $error');
-      }
-    }
   }
 
   SystemChrome.setSystemUIOverlayStyle(
@@ -248,6 +242,19 @@ void main() async {
     readingPlans: licensedFeatures.contains('readingPlans'),
     hymns: licensedFeatures.contains('hymns'),
   );
+  if (!kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS ||
+          defaultTargetPlatform == TargetPlatform.macOS)) {
+    unawaited(
+      DatabaseService().database.then<void>(
+        (_) {},
+        onError: (Object error, StackTrace stack) {
+          debugPrint('Local database initialization unavailable: $error');
+        },
+      ),
+    );
+  }
   runApp(
     BiblePulseApp(
       capabilities: capabilities,
@@ -388,6 +395,13 @@ class BiblePulseApp extends StatelessWidget {
             },
           ),
         ),
+        ChangeNotifierProvider(
+          create: (context) => JourneyProvider(
+            audioService: context.read<AudioService>(),
+            authService: context.read<AuthService>(),
+            ownerId: context.read<AuthService>().currentUser?.uid ?? 'guest',
+          ),
+        ),
         if (capabilities.audio)
           ChangeNotifierProvider(
             create: (context) => AudioDownloadProvider(
@@ -448,6 +462,7 @@ class BiblePulseApp extends StatelessWidget {
               if (capabilities.readingPlans)
                 '/reading_plans': (context) => const ReadingPlansScreen(),
               '/prayer_journal': (context) => const PrayerJournalScreen(),
+              '/bible_journey': (context) => const BibleJourneyScreen(),
               if (capabilities.cloud && capabilities.readingPlans)
                 '/study_groups': (context) => const StudyGroupsScreen(),
               if (capabilities.hymns)

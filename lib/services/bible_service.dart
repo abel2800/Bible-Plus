@@ -22,9 +22,13 @@ class BibleService {
   final BibleBrainTextGateway? _brainText;
   final BibleBrainVersionRegistry? _brainVersions;
   final Map<String, Map<String, dynamic>> _bibleCache = {};
+  final Map<String, Future<Map<String, dynamic>?>> _bibleLoads = {};
   final Map<String, List<BibleVerse>> _chapterCache = {};
+  final Map<String, Future<List<BibleVerse>>> _chapterLoads = {};
   final Map<String, Map<String, List<BibleVerse>>> _searchIndexes = {};
   final Map<String, List<BibleBook>> _remoteBooksCache = {};
+  static const _maxCachedVersions = 2;
+  static const _maxCachedChapters = 24;
 
   final Map<String, String> _bundledAssets = {
     'WEB': 'assets/bible/web.json',
@@ -42,11 +46,8 @@ class BibleService {
       final remoteBooks = await _remoteBooks(version);
       if (remoteBooks != null) return remoteBooks;
 
-      if (!_bibleCache.containsKey(version)) {
-        await _loadBibleFromAssets(version);
-      }
+      final bible = await _loadBible(version);
 
-      final bible = _bibleCache[version];
       if (bible == null || !bible.containsKey('books')) {
         return [];
       }
@@ -65,7 +66,8 @@ class BibleService {
 
       for (int i = 0; i < booksJson.length; i++) {
         final bookJson = booksJson[i] as Map<String, dynamic>;
-        final bookId = i + 1;
+        final bookId =
+            int.tryParse((bookJson['id'] ?? (i + 1)).toString()) ?? (i + 1);
         final bookName =
             (bookJson['name'] ?? bookJson['title'] ?? 'Book $bookId')
                 .toString();
@@ -78,7 +80,10 @@ class BibleService {
           chapterCount = rawChapters.length;
         }
 
-        final testament = bookId <= 39 ? 'OT' : 'NT';
+        final testament =
+            (bookJson['testament'] ?? (bookId <= 39 ? 'OT' : 'NT'))
+                .toString()
+                .toUpperCase();
 
         books.add(BibleBook(
           id: bookId,
@@ -100,21 +105,40 @@ class BibleService {
     final cacheKey = '$version-$bookId-$chapter';
 
     if (_chapterCache.containsKey(cacheKey)) {
-      return _chapterCache[cacheKey]!;
+      final cached = _chapterCache.remove(cacheKey)!;
+      _chapterCache[cacheKey] = cached;
+      return cached;
     }
 
+    final pending = _chapterLoads[cacheKey];
+    if (pending != null) return pending;
+
+    final load = _loadChapter(version, bookId, chapter, cacheKey);
+    _chapterLoads[cacheKey] = load;
+    try {
+      return await load;
+    } finally {
+      if (identical(_chapterLoads[cacheKey], load)) {
+        _chapterLoads.remove(cacheKey);
+      }
+    }
+  }
+
+  Future<List<BibleVerse>> _loadChapter(
+    String version,
+    int bookId,
+    int chapter,
+    String cacheKey,
+  ) async {
     try {
       final remote = await _remoteChapter(version, bookId, chapter);
       if (remote != null && remote.isNotEmpty) {
         _chapterCache[cacheKey] = remote;
+        _trimChapterCache();
         return remote;
       }
 
-      if (!_bibleCache.containsKey(version)) {
-        await _loadBibleFromAssets(version);
-      }
-
-      final bible = _bibleCache[version];
+      final bible = await _loadBible(version);
       if (bible == null || !bible.containsKey('books')) {
         return [];
       }
@@ -129,12 +153,17 @@ class BibleService {
         return [];
       }
 
-      if (bookId < 1 || bookId > booksJson.length) {
+      final bookIndex = booksJson.indexWhere((value) {
+        if (value is! Map) return false;
+        return int.tryParse((value['id'] ?? '').toString()) == bookId;
+      });
+      final resolvedBookIndex = bookIndex == -1 ? bookId - 1 : bookIndex;
+      if (resolvedBookIndex < 0 || resolvedBookIndex >= booksJson.length) {
         debugPrint('Book ID $bookId out of range (1-${booksJson.length})');
         return [];
       }
 
-      final bookJson = booksJson[bookId - 1] as Map<String, dynamic>;
+      final bookJson = booksJson[resolvedBookIndex] as Map<String, dynamic>;
 
       final rawChapters = bookJson['chapters'];
       List<dynamic> chaptersJson = [];
@@ -162,7 +191,17 @@ class BibleService {
         return [];
       }
 
-      final chapterJson = chaptersJson[chapter - 1];
+      final chapterIndex = chaptersJson.indexWhere((value) {
+        if (value is! Map || value['number'] == null) return false;
+        return int.tryParse(value['number'].toString()) == chapter;
+      });
+      final resolvedChapterIndex =
+          chapterIndex == -1 ? chapter - 1 : chapterIndex;
+      if (resolvedChapterIndex < 0 ||
+          resolvedChapterIndex >= chaptersJson.length) {
+        return [];
+      }
+      final chapterJson = chaptersJson[resolvedChapterIndex];
 
       List<BibleVerse> verses = [];
       if (chapterJson == null) {
@@ -224,6 +263,7 @@ class BibleService {
       }
 
       _chapterCache[cacheKey] = verses;
+      _trimChapterCache();
       return verses;
     } catch (e) {
       debugPrint('Error loading chapter: $e');
@@ -334,7 +374,26 @@ class BibleService {
     );
   }
 
-  Future<void> _loadBibleFromAssets(String version) async {
+  Future<Map<String, dynamic>?> _loadBible(String version) async {
+    final cached = _bibleCache[version];
+    if (cached != null) {
+      _bibleCache.remove(version);
+      _bibleCache[version] = cached;
+      return cached;
+    }
+    final pending = _bibleLoads[version];
+    if (pending != null) return pending;
+
+    final load = _loadBibleFromAssets(version);
+    _bibleLoads[version] = load;
+    try {
+      return await load;
+    } finally {
+      if (identical(_bibleLoads[version], load)) _bibleLoads.remove(version);
+    }
+  }
+
+  Future<Map<String, dynamic>?> _loadBibleFromAssets(String version) async {
     final packagePath = _packageService?.sourceForVersion(version);
     if (packagePath != null) {
       if (packagePath.startsWith('asset:')) {
@@ -347,36 +406,68 @@ class BibleService {
           assetPath = assetPath.substring('assets/'.length);
         }
         final jsonString = await rootBundle.loadString(assetPath);
-        _bibleCache[version] = json.decode(jsonString) as Map<String, dynamic>;
-        return;
+        final decoded = await compute(_decodeBibleJson, jsonString);
+        _bibleCache[version] = decoded;
+        _trimVersionCache(version);
+        return decoded;
       }
       final disk = await fs.readStringIfExists(packagePath);
       if (disk != null) {
-        _bibleCache[version] = json.decode(disk) as Map<String, dynamic>;
-        return;
+        final decoded = await compute(_decodeBibleJson, disk);
+        _bibleCache[version] = decoded;
+        _trimVersionCache(version);
+        return decoded;
       }
     }
 
     final assetPath = _bundledAssets[version];
     if (assetPath == null) {
       debugPrint('Bible version not installed: $version');
-      return;
+      return null;
     }
     final jsonString = await rootBundle.loadString(assetPath);
-    _bibleCache[version] = json.decode(jsonString) as Map<String, dynamic>;
+    final decoded = await compute(_decodeBibleJson, jsonString);
+    _bibleCache[version] = decoded;
+    _trimVersionCache(version);
+    return decoded;
+  }
+
+  void _trimVersionCache(String keepVersion) {
+    while (_bibleCache.length > _maxCachedVersions) {
+      final oldest = _bibleCache.keys.firstWhere(
+        (version) => version != keepVersion,
+        orElse: () => _bibleCache.keys.first,
+      );
+      _bibleCache.remove(oldest);
+      _chapterCache.removeWhere((key, _) => key.startsWith('$oldest-'));
+      _searchIndexes.remove(oldest);
+    }
+  }
+
+  void _trimChapterCache() {
+    while (_chapterCache.length > _maxCachedChapters) {
+      _chapterCache.remove(_chapterCache.keys.first);
+    }
   }
 
   void invalidateCache([String? version]) {
     if (version == null) {
       _bibleCache.clear();
+      _bibleLoads.clear();
       _chapterCache.clear();
+      _chapterLoads.clear();
       _searchIndexes.clear();
       _remoteBooksCache.clear();
       return;
     }
     _bibleCache.remove(version);
+    _bibleLoads.remove(version);
     _chapterCache.removeWhere((key, _) => key.startsWith('$version-'));
+    _chapterLoads.removeWhere((key, _) => key.startsWith('$version-'));
     _searchIndexes.remove(version);
     _remoteBooksCache.remove(version);
   }
 }
+
+Map<String, dynamic> _decodeBibleJson(String source) =>
+    json.decode(source) as Map<String, dynamic>;

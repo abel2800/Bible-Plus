@@ -20,6 +20,8 @@ class BibleProvider with ChangeNotifier {
   late final DailyVerseService _dailyVerseService;
   late final Future<void> ready;
   int _searchRequest = 0;
+  int _chapterRequest = 0;
+  int _bookRequest = 0;
   String? _verseOfTheDayDateKey;
 
   String _currentVersion = 'WEB';
@@ -33,6 +35,7 @@ class BibleProvider with ChangeNotifier {
   BibleBook? _selectedBook;
   int _selectedChapter = 1;
   bool _isLoading = false;
+  String? _chapterError;
 
   String get currentVersion => _currentVersion;
   List<BibleBook> get books => _books;
@@ -40,6 +43,7 @@ class BibleProvider with ChangeNotifier {
   BibleBook? get selectedBook => _selectedBook;
   int get selectedChapter => _selectedChapter;
   bool get isLoading => _isLoading;
+  String? get chapterError => _chapterError;
   List<BibleVerse> get searchResults => _searchResults;
   bool get isSearching => _isSearching;
   int? get pendingScrollVerse => _pendingScrollVerse;
@@ -76,10 +80,14 @@ class BibleProvider with ChangeNotifier {
     if (_books.isNotEmpty) {
       await refreshVerseOfTheDay();
 
-      final bookId = prefs.getInt('last_read_book') ?? 1;
-      final chapter = prefs.getInt('last_read_chapter') ?? 1;
+      final savedBookId = prefs.getInt('last_read_book') ?? 1;
+      final savedBook = _books.where((book) => book.id == savedBookId);
+      final book = savedBook.isNotEmpty ? savedBook.first : _books.first;
+      final bookId = book.id;
+      final chapter =
+          (prefs.getInt('last_read_chapter') ?? 1).clamp(1, book.chapters);
       final verse = prefs.getInt('last_read_verse') ?? 1;
-      await loadChapter(bookId, chapter);
+      await loadChapter(bookId, chapter, saveProgress: false);
       final verseIndex =
           _currentChapter.indexWhere((item) => item.verse == verse);
       _lastReadVerse = verseIndex == -1
@@ -111,55 +119,107 @@ class BibleProvider with ChangeNotifier {
   }
 
   Future<void> loadBooks() async {
-    _isLoading = true;
-    notifyListeners();
+    final request = ++_bookRequest;
+    if (!_isLoading) {
+      _isLoading = true;
+      notifyListeners();
+    }
 
+    List<BibleBook> books = [];
     try {
-      _books = await _bibleService.getBooks(_currentVersion);
+      books = await _bibleService.getBooks(_currentVersion);
     } catch (e) {
       debugPrint('Error loading books: $e');
     }
 
+    if (request != _bookRequest) return;
+    _books = books;
+    if (_books.isNotEmpty &&
+        !_books.any((book) => book.id == _selectedBook?.id)) {
+      _selectedBook = null;
+    }
     _isLoading = false;
     notifyListeners();
   }
 
-  Future<void> loadChapter(int bookId, int chapter) async {
-    _isLoading = true;
-    notifyListeners();
+  Future<bool> loadChapter(
+    int bookId,
+    int chapter, {
+    bool saveProgress = true,
+  }) async {
+    final bookIndex = _books.indexWhere((book) => book.id == bookId);
+    if (bookIndex == -1) return false;
+    final book = _books[bookIndex];
+    if (chapter < 1 || chapter > book.chapters) return false;
+    if (_selectedBook?.id == bookId &&
+        _selectedChapter == chapter &&
+        _currentChapter.isNotEmpty) {
+      return true;
+    }
+
+    final request = ++_chapterRequest;
+    final version = _currentVersion;
+    _chapterError = null;
+    if (!_isLoading) {
+      _isLoading = true;
+      notifyListeners();
+    }
 
     try {
-      _currentChapter = await _bibleService.getChapter(
-        _currentVersion,
+      final verses = await _bibleService.getChapter(
+        version,
         bookId,
         chapter,
       );
+      if (request != _chapterRequest || version != _currentVersion) {
+        return false;
+      }
+      if (verses.isEmpty) {
+        _chapterError = 'This chapter is currently unavailable.';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+      _currentChapter = verses;
       _selectedChapter = chapter;
-      _selectedBook = _books.firstWhere((book) => book.id == bookId);
-      if (_currentChapter.isNotEmpty) {
+      _selectedBook = book;
+      if (saveProgress && _currentChapter.isNotEmpty) {
         _lastReadVerse = _currentChapter.first;
         await _saveLastRead(_lastReadVerse!);
       }
     } catch (e) {
       debugPrint('Error loading chapter: $e');
+      _chapterError = 'This chapter could not be loaded.';
     }
 
+    if (request != _chapterRequest || version != _currentVersion) return false;
     _isLoading = false;
     notifyListeners();
+    return _currentChapter.isNotEmpty &&
+        _selectedBook?.id == bookId &&
+        _selectedChapter == chapter;
   }
 
   Future<void> changeVersion(String version) async {
+    if (version == _currentVersion) return;
+    ++_chapterRequest;
+    final previousBookId = _selectedBook?.id;
+    final previousChapter = _selectedChapter;
     _currentVersion = version;
+    _currentChapter = [];
+    _isLoading = true;
+    notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('last_read_version', version);
     await prefs.setString('preferred_bible_version', version);
     _bibleService.invalidateCache(version);
     await loadBooks();
 
-    if (_selectedBook != null) {
-      await loadChapter(_selectedBook!.id, _selectedChapter);
-    } else if (_books.isNotEmpty) {
-      await loadChapter(_books.first.id, 1);
+    if (_books.isNotEmpty) {
+      final matchingBook = _books.where((book) => book.id == previousBookId);
+      final book = matchingBook.isNotEmpty ? matchingBook.first : _books.first;
+      final targetChapter = previousChapter.clamp(1, book.chapters);
+      await loadChapter(book.id, targetChapter);
     }
     await refreshVerseOfTheDay(force: true);
   }
@@ -220,7 +280,7 @@ class BibleProvider with ChangeNotifier {
     _pendingScrollVerse = verse;
     notifyListeners();
 
-    await loadChapter(bookId, chapter);
+    await loadChapter(bookId, chapter, saveProgress: false);
     final index = _currentChapter.indexWhere((item) => item.verse == verse);
     if (index != -1) {
       _lastReadVerse = _currentChapter[index];

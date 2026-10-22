@@ -299,62 +299,71 @@ class BpReaderFocusToggle extends StatelessWidget {
         : Colors.black.withValues(alpha: 0.08);
     final gold = theme.accentColor;
 
-    return Material(
-      color: theme.surfaceColor,
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        onTap: () => onChanged(!active),
+    return Semantics(
+      button: true,
+      toggled: active,
+      label: active ? 'Turn focus mode off' : 'Turn focus mode on',
+      child: Material(
+        color: theme.surfaceColor,
         borderRadius: BorderRadius.circular(14),
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(13, 8, 8, 8),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: borderFlat),
-            boxShadow: [
-              BoxShadow(
-                color:
-                    Colors.black.withValues(alpha: theme.isDark ? 0.35 : 0.12),
-                blurRadius: 24,
-                offset: const Offset(0, 10),
+        child: InkWell(
+          onTap: () => onChanged(!active),
+          borderRadius: BorderRadius.circular(14),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(13, 8, 8, 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: borderFlat),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black
+                        .withValues(alpha: theme.isDark ? 0.35 : 0.12),
+                    blurRadius: 24,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                active ? 'Focus On' : 'Focus Off',
-                style: AppTheme.ui(
-                  fontSize: 11,
-                  weight: FontWeight.w600,
-                  color: active ? theme.headerColor : theme.verseNumberColor,
-                ),
-              ),
-              const SizedBox(width: 8),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                width: 30,
-                height: 18,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100),
-                  color: active ? gold.withValues(alpha: 0.13) : borderFlat,
-                ),
-                child: AnimatedAlign(
-                  duration: const Duration(milliseconds: 200),
-                  alignment:
-                      active ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    width: 14,
-                    height: 14,
-                    margin: const EdgeInsets.symmetric(horizontal: 2),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: active ? gold : theme.verseNumberColor,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    active ? 'Focus On' : 'Focus Off',
+                    style: AppTheme.ui(
+                      fontSize: 11,
+                      weight: FontWeight.w600,
+                      color:
+                          active ? theme.headerColor : theme.verseNumberColor,
                     ),
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 30,
+                    height: 18,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: active ? gold.withValues(alpha: 0.13) : borderFlat,
+                    ),
+                    child: AnimatedAlign(
+                      duration: const Duration(milliseconds: 200),
+                      alignment:
+                          active ? Alignment.centerRight : Alignment.centerLeft,
+                      child: Container(
+                        width: 14,
+                        height: 14,
+                        margin: const EdgeInsets.symmetric(horizontal: 2),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: active ? gold : theme.verseNumberColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

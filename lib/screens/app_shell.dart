@@ -23,6 +23,7 @@ class AppShell extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final t = context.colors;
     final index = navigation.selectedIndex.clamp(0, 4);
+    final focusMode = navigation.focusMode;
 
     final destinations = [
       NavigationDestination(
@@ -65,7 +66,7 @@ class AppShell extends StatelessWidget {
     final stackedContent = Stack(
       children: [
         Positioned.fill(child: content),
-        if (index != 1)
+        if (index != 1 && !focusMode)
           const Positioned(
             left: 12,
             right: 12,
@@ -80,6 +81,13 @@ class AppShell extends StatelessWidget {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final useRail = constraints.maxWidth >= 720;
+
+            if (focusMode) {
+              return Scaffold(
+                backgroundColor: t.appBg,
+                body: stackedContent,
+              );
+            }
 
             if (useRail) {
               return Scaffold(

@@ -42,16 +42,16 @@ class BookSelectorBottomSheet extends StatefulWidget {
 class _BookSelectorBottomSheetState extends State<BookSelectorBottomSheet> {
   String _query = '';
   bool _showOldTestament = true;
-  int? _pickedBookId;
+  int? _expandedBookId;
 
   @override
   void initState() {
     super.initState();
     final bible = context.read<BibleProvider>();
-    _showOldTestament = bible.selectedBook?.testament != 'NT';
-    if (widget.jumpToCurrentBook) {
-      _pickedBookId = bible.selectedBook?.id;
-    }
+    final currentTestament =
+        widget.jumpToCurrentBook ? bible.selectedBook?.testament ?? 'OT' : 'OT';
+    _showOldTestament = currentTestament.toUpperCase() != 'NT';
+    _expandedBookId = null;
   }
 
   Future<void> _selectChapter(
@@ -60,8 +60,16 @@ class _BookSelectorBottomSheetState extends State<BookSelectorBottomSheet> {
     BibleBook book,
     int chapter,
   ) async {
-    await bible.loadChapter(book.id, chapter);
+    final loaded = await bible.loadChapter(book.id, chapter);
     if (!context.mounted) return;
+    if (!loaded) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(bible.chapterError ?? 'This chapter is unavailable.'),
+        ),
+      );
+      return;
+    }
 
     if (widget.forcePlayAudio) {
       final audio = context.read<AudioService>();
@@ -73,8 +81,8 @@ class _BookSelectorBottomSheetState extends State<BookSelectorBottomSheet> {
           bookName: book.name,
           bookChapterCount: book.chapters,
           bookCatalog: [
-            for (final b in bible.books)
-              (id: b.id, name: b.name, chapters: b.chapters),
+            for (final item in bible.books)
+              (id: item.id, name: item.name, chapters: item.chapters),
           ],
         );
       }
@@ -88,27 +96,23 @@ class _BookSelectorBottomSheetState extends State<BookSelectorBottomSheet> {
     final readerTheme = context.watch<ColorThemeProvider>().currentTheme;
     final colors = BpReaderSheetColors(theme: readerTheme);
     final bible = context.watch<BibleProvider>();
+    final width = MediaQuery.sizeOf(context).width;
+    final bookColumns = width < 350 ? 3 : 4;
+    final chapterColumns = width < 340
+        ? 4
+        : width < 420
+            ? 5
+            : 6;
     final currentBookId = bible.selectedBook?.id;
     final currentChapter = bible.selectedChapter;
-    final activeBookId = _pickedBookId ?? currentBookId;
-
-    bool matches(BibleBook b) =>
-        b.name.toLowerCase().contains(_query.toLowerCase());
-
+    final normalizedQuery = _query.trim().toLowerCase();
     final books = bible.books
-        .where((b) => b.testament == (_showOldTestament ? 'OT' : 'NT'))
-        .where(matches)
-        .toList();
-
-    BibleBook? activeBook;
-    if (activeBookId != null) {
-      for (final book in bible.books) {
-        if (book.id == activeBookId) {
-          activeBook = book;
-          break;
-        }
-      }
-    }
+        .where((book) =>
+            book.testament.toUpperCase() == (_showOldTestament ? 'OT' : 'NT'))
+        .where((book) => book.name.toLowerCase().contains(normalizedQuery))
+        .toList(growable: false);
+    final match = books.where((book) => book.id == _expandedBookId);
+    final expandedBook = match.isEmpty ? null : match.first;
 
     return BpReaderSheetContainer(
       colors: colors,
@@ -120,116 +124,328 @@ class _BookSelectorBottomSheetState extends State<BookSelectorBottomSheet> {
           children: [
             BpReaderSearchInput(
               colors: colors,
-              hint: 'Search books or verses…',
-              onChanged: (v) => setState(() => _query = v),
+              hint: 'Search books…',
+              onChanged: (value) => setState(() {
+                _query = value;
+                if (expandedBook != null &&
+                    !expandedBook.name
+                        .toLowerCase()
+                        .contains(value.trim().toLowerCase())) {
+                  _expandedBookId = null;
+                }
+              }),
             ),
             const SizedBox(height: 12),
-            BpReaderTogglePill(
+            _TestamentSwitch(
+              showOldTestament: _showOldTestament,
               colors: colors,
-              leftLabel: 'Old Testament',
-              rightLabel: 'New Testament',
-              leftSelected: _showOldTestament,
-              onLeft: () => setState(() => _showOldTestament = true),
-              onRight: () => setState(() => _showOldTestament = false),
+              onChanged: (showOldTestament) => setState(() {
+                _showOldTestament = showOldTestament;
+                _expandedBookId = null;
+              }),
             ),
             const SizedBox(height: 12),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 7,
-                crossAxisSpacing: 7,
-                childAspectRatio: 1.35,
-              ),
-              itemCount: books.length,
-              itemBuilder: (context, index) {
-                final book = books[index];
-                final isCurrent = book.id == currentBookId;
-                final isPicked = book.id == activeBookId;
-                return Material(
-                  color: colors.card,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(
-                      color: isCurrent || isPicked
-                          ? colors.gold
-                          : colors.borderFlat,
-                      width: isCurrent || isPicked ? 1.2 : 1,
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final tileSize =
+                    (constraints.maxWidth - (bookColumns - 1) * 8) /
+                        bookColumns;
+                final rows = <Widget>[];
+                for (var start = 0;
+                    start < books.length;
+                    start += bookColumns) {
+                  final end = (start + bookColumns < books.length)
+                      ? start + bookColumns
+                      : books.length;
+                  final rowBooks = books.sublist(start, end);
+                  rows.add(
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (var column = 0;
+                            column < bookColumns;
+                            column++) ...[
+                          if (column > 0) const SizedBox(width: 8),
+                          SizedBox.square(
+                            dimension: tileSize,
+                            child: column < rowBooks.length
+                                ? _BookTile(
+                                    book: rowBooks[column],
+                                    selected:
+                                        rowBooks[column].id == currentBookId,
+                                    expanded:
+                                        rowBooks[column].id == _expandedBookId,
+                                    colors: colors,
+                                    onTap: () => setState(() {
+                                      final tappedId = rowBooks[column].id;
+                                      _expandedBookId =
+                                          tappedId == _expandedBookId
+                                              ? null
+                                              : tappedId;
+                                    }),
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+                        ],
+                      ],
                     ),
-                  ),
-                  child: InkWell(
-                    onTap: () => setState(() => _pickedBookId = book.id),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: Text(
-                          book.name,
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTheme.ui(
-                            fontSize: 11,
-                            weight:
-                                isCurrent ? FontWeight.w600 : FontWeight.w500,
-                            color: isCurrent ? colors.text1 : colors.text2,
+                  );
+
+                  if (expandedBook != null &&
+                      rowBooks.any((book) => book.id == expandedBook.id)) {
+                    rows.add(
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8, bottom: 12),
+                        child: _ChapterDropdown(
+                          book: expandedBook,
+                          selectedChapter: expandedBook.id == currentBookId
+                              ? currentChapter
+                              : null,
+                          chapterColumns: chapterColumns,
+                          colors: colors,
+                          onChapterTap: (chapter) => _selectChapter(
+                            context,
+                            bible,
+                            expandedBook,
+                            chapter,
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                );
+                    );
+                  } else {
+                    rows.add(const SizedBox(height: 8));
+                  }
+                }
+                return Column(children: rows);
               },
             ),
-            if (activeBook != null) ...[
-              BpReaderMiniLabel(
-                colors: colors,
-                label: '${activeBook.name} — chapters',
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TestamentSwitch extends StatelessWidget {
+  const _TestamentSwitch({
+    required this.showOldTestament,
+    required this.colors,
+    required this.onChanged,
+  });
+
+  final bool showOldTestament;
+  final BpReaderSheetColors colors;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: colors.card,
+        border: Border.all(color: colors.borderFlat),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: _TestamentButton(
+              label: 'Old Testament',
+              selected: showOldTestament,
+              colors: colors,
+              onTap: () => onChanged(true),
+            ),
+          ),
+          const SizedBox(width: 4),
+          Expanded(
+            child: _TestamentButton(
+              label: 'New Testament',
+              selected: !showOldTestament,
+              colors: colors,
+              onTap: () => onChanged(false),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TestamentButton extends StatelessWidget {
+  const _TestamentButton({
+    required this.label,
+    required this.selected,
+    required this.colors,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final BpReaderSheetColors colors;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: selected ? colors.gold : Colors.transparent,
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: SizedBox(
+          height: 48,
+          child: Center(
+            child: Text(
+              label,
+              style: AppTheme.ui(
+                fontSize: 12,
+                weight: FontWeight.w600,
+                color: selected ? AppTheme.onGold : colors.text2,
               ),
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 6,
-                  mainAxisSpacing: 6,
-                  crossAxisSpacing: 6,
-                  childAspectRatio: 1.1,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BookTile extends StatelessWidget {
+  const _BookTile({
+    required this.book,
+    required this.selected,
+    required this.expanded,
+    required this.colors,
+    required this.onTap,
+  });
+
+  final BibleBook book;
+  final bool selected;
+  final bool expanded;
+  final BpReaderSheetColors colors;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: expanded ? colors.gold.withValues(alpha: 0.18) : colors.card,
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: expanded || selected ? colors.gold : colors.borderFlat,
+            ),
+          ),
+          child: Stack(
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: Icon(
+                  expanded
+                      ? Icons.keyboard_arrow_down_rounded
+                      : Icons.chevron_right_rounded,
+                  size: 16,
+                  color: expanded || selected ? colors.gold : colors.text3,
                 ),
-                itemCount: activeBook.chapters,
-                itemBuilder: (context, index) {
-                  final chapter = index + 1;
-                  final selected = activeBook!.id == currentBookId &&
-                      chapter == currentChapter;
-                  return Material(
-                    color: selected ? colors.gold : colors.card,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      side: BorderSide(
-                        color: selected ? colors.gold : colors.borderFlat,
-                      ),
-                    ),
+              ),
+              Center(
+                child: Text(
+                  book.name,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTheme.ui(
+                    fontSize: 11.5,
+                    weight: selected || expanded
+                        ? FontWeight.w600
+                        : FontWeight.w400,
+                    color: selected || expanded ? colors.text1 : colors.text2,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ChapterDropdown extends StatelessWidget {
+  const _ChapterDropdown({
+    required this.book,
+    required this.selectedChapter,
+    required this.chapterColumns,
+    required this.colors,
+    required this.onChapterTap,
+  });
+
+  final BibleBook book;
+  final int? selectedChapter;
+  final int chapterColumns;
+  final BpReaderSheetColors colors;
+  final ValueChanged<int> onChapterTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+      decoration: BoxDecoration(
+        color: colors.card,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: colors.borderFlat),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${book.name} chapters',
+            style: AppTheme.ui(
+              fontSize: 12,
+              weight: FontWeight.w600,
+              color: colors.text1,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              for (var chapter = 1; chapter <= book.chapters; chapter++)
+                SizedBox(
+                  width: chapterColumns >= 6 ? 44 : 48,
+                  height: 46,
+                  child: Material(
+                    color: chapter == selectedChapter
+                        ? colors.gold.withValues(alpha: 0.22)
+                        : colors.sheetBg,
+                    borderRadius: BorderRadius.circular(8),
                     child: InkWell(
-                      onTap: () =>
-                          _selectChapter(context, bible, activeBook!, chapter),
-                      borderRadius: BorderRadius.circular(10),
+                      onTap: () => onChapterTap(chapter),
+                      borderRadius: BorderRadius.circular(8),
                       child: Center(
                         child: Text(
                           '$chapter',
                           style: AppTheme.ui(
-                            fontSize: 11,
-                            weight: FontWeight.w700,
-                            color: selected ? AppTheme.onGold : colors.text2,
+                            fontSize: 13,
+                            weight: chapter == selectedChapter
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                            color: colors.text1,
                           ),
                         ),
                       ),
                     ),
-                  );
-                },
-              ),
+                  ),
+                ),
             ],
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

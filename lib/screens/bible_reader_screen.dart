@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -11,10 +14,10 @@ import '../providers/user_preferences_provider.dart';
 import '../providers/color_theme_provider.dart';
 import '../providers/font_settings_provider.dart';
 import '../providers/study_provider.dart';
-import '../providers/engagement_provider.dart';
+import '../providers/journey_provider.dart';
+import '../providers/navigation_provider.dart';
 import '../providers/parallel_reading_provider.dart';
 import '../providers/reader_preferences_provider.dart';
-import '../providers/reminder_provider.dart';
 import '../utils/app_theme.dart';
 import '../widgets/book_selector_bottom_sheet.dart';
 import '../widgets/version_selector_bottom_sheet.dart';
@@ -34,24 +37,60 @@ class BibleReaderScreen extends StatefulWidget {
   State<BibleReaderScreen> createState() => _BibleReaderScreenState();
 }
 
-class _BibleReaderScreenState extends State<BibleReaderScreen> {
+class _BibleReaderScreenState extends State<BibleReaderScreen>
+    with WidgetsBindingObserver {
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _readerStackKey = GlobalKey();
   final Map<int, GlobalKey> _verseKeys = {};
   int? _parallelBook;
   int? _parallelChapter;
   int? _lastAudioVerse;
-  String? _streakDayRecorded;
-  bool _focusMode = false;
+  String? _journeyContextKey;
   bool _appliedFocusOnOpen = false;
+  bool _focusPreferenceApplied = false;
   int? _selectedVerse;
   double? _popupTop;
   double? _popupLeft;
+  bool _audioToggleInProgress = false;
+  bool _readerWasDragged = false;
+  String? _completionRecordedFor;
+  String? _activeReaderLocation;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    if (context.read<NavigationProvider>().focusMode &&
+        !kIsWeb &&
+        defaultTargetPlatform == TargetPlatform.android) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    }
     _scrollController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed &&
+        !kIsWeb &&
+        defaultTargetPlatform == TargetPlatform.android &&
+        context.read<NavigationProvider>().focusMode) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    }
+  }
+
+  void _setFocusMode(bool value) {
+    context.read<NavigationProvider>().setFocusMode(value);
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      SystemChrome.setEnabledSystemUIMode(
+        value ? SystemUiMode.immersiveSticky : SystemUiMode.edgeToEdge,
+      );
+    }
   }
 
   @override
@@ -60,52 +99,67 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     final studyProvider = Provider.of<StudyProvider>(context);
     final readerTheme = context.watch<ColorThemeProvider>().currentTheme;
     final fontSettings = context.watch<FontSettingsProvider>().fontSettings;
-    final audioService = context.watch<AudioService>();
+    final audioService = context.read<AudioService>();
+    final audioState = context
+        .select<AudioService, (bool, bool, int?, int?, String?, int?, bool)>(
+      (audio) => (
+        audio.isPlaying,
+        audio.hasActiveSession,
+        audio.currentVerse,
+        audio.activeBookId,
+        audio.activeVersion,
+        audio.activeChapter,
+        audio.isLoading,
+      ),
+    );
     final audioStore = context.watch<AudioStoreProvider>();
     final parallel = context.watch<ParallelReadingProvider>();
     final readerPrefs = context.watch<ReaderPreferencesProvider>();
+    final navigation = context.watch<NavigationProvider>();
+    final focusMode = navigation.focusMode;
     final l10n = AppLocalizations.of(context);
-    if (!_appliedFocusOnOpen &&
+    if (!_focusPreferenceApplied &&
         readerPrefs.ready &&
-        readerPrefs.focusOnOpen &&
+        navigation.selectedIndex == 1 &&
         bibleProvider.currentChapter.isNotEmpty) {
-      _appliedFocusOnOpen = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() => _focusMode = true);
-      });
-    }
-    final bottomInset = MediaQuery.paddingOf(context).bottom;
-    if (bibleProvider.currentChapter.isNotEmpty) {
-      final todayKey =
-          '${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}';
-      if (_streakDayRecorded != todayKey) {
-        _streakDayRecorded = todayKey;
-        final engagement = context.read<EngagementProvider>();
-        final reminders = context.read<ReminderProvider>();
-        final messenger = ScaffoldMessenger.of(context);
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          final chapterCount = bibleProvider.currentChapter.length;
-          final celebration = await engagement.recordReading(
-            DateTime.now(),
-            chapterCount.clamp(1, 8),
-          );
-          await reminders.refreshStreakNotifications(
-            streak: engagement.streakWithGrace(),
-            readToday: engagement.hasReadToday(),
-          );
-          if (celebration != null && mounted) {
-            messenger.showSnackBar(
-              SnackBar(
-                content: Text(celebration),
-                behavior: SnackBarBehavior.floating,
-                duration: const Duration(seconds: 3),
-              ),
-            );
-          }
+      _focusPreferenceApplied = true;
+      if (readerPrefs.focusOnOpen && !_appliedFocusOnOpen) {
+        _appliedFocusOnOpen = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _setFocusMode(true);
         });
       }
     }
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
     final selectedBook = bibleProvider.selectedBook;
+    final readerLocation = selectedBook == null
+        ? null
+        : '${bibleProvider.currentVersion}:${selectedBook.id}:${bibleProvider.selectedChapter}';
+    if (readerLocation != _activeReaderLocation) {
+      _activeReaderLocation = readerLocation;
+      _completionRecordedFor = null;
+      _readerWasDragged = false;
+    }
+    final selectedReader = navigation.selectedIndex == 1 &&
+        selectedBook != null &&
+        bibleProvider.currentChapter.isNotEmpty;
+    final journeyKey = selectedReader
+        ? '${selectedBook.id}:${bibleProvider.selectedChapter}:${bibleProvider.currentVersion}'
+        : null;
+    final journey = context.read<JourneyProvider>();
+    if (journeyKey != _journeyContextKey ||
+        (selectedReader && !journey.readerContextActive && !audioState.$1)) {
+      if (!selectedReader) {
+        journey.endReader();
+      } else {
+        journey.beginReader(
+          bookId: selectedBook.id,
+          bookName: selectedBook.name,
+          chapter: bibleProvider.selectedChapter,
+        );
+      }
+      _journeyContextKey = journeyKey;
+    }
     if (parallel.enabled &&
         selectedBook != null &&
         (_parallelBook != selectedBook.id ||
@@ -119,15 +173,15 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     final hasChapterAudio = audioStore.hasAudioForTextVersion(
       bibleProvider.currentVersion,
     );
-    final audioMatchesReader = audioService.hasActiveSession &&
-        bibleProvider.selectedBook?.id == audioService.activeBookId &&
-        bibleProvider.selectedChapter == audioService.activeChapter &&
-        bibleProvider.currentVersion == audioService.activeVersion;
+    final audioMatchesReader = audioState.$2 &&
+        bibleProvider.selectedBook?.id == audioState.$4 &&
+        bibleProvider.selectedChapter == audioState.$6 &&
+        bibleProvider.currentVersion == audioState.$5;
 
     if (audioMatchesReader &&
-        audioService.currentVerse != null &&
-        audioService.currentVerse != _lastAudioVerse) {
-      _lastAudioVerse = audioService.currentVerse;
+        audioState.$3 != null &&
+        audioState.$3 != _lastAudioVerse) {
+      _lastAudioVerse = audioState.$3;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final verseContext = _verseKeys[_lastAudioVerse]?.currentContext;
         if (verseContext != null) {
@@ -144,241 +198,287 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     }
 
     final showMiniAudio = selectedBook != null &&
-        hasChapterAudio &&
-        bibleProvider.currentChapter.isNotEmpty &&
-        !_focusMode;
+        (hasChapterAudio || audioMatchesReader) &&
+        bibleProvider.currentChapter.isNotEmpty;
     final listBottomPad = showMiniAudio ? 12.0 : 24.0;
 
-    return Scaffold(
-      backgroundColor: readerTheme.backgroundColor,
-      body: BpReaderBackground(
-        theme: readerTheme,
-        child: SafeArea(
-          bottom: false,
-          child: Column(
-            children: [
-              if (selectedBook != null)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: AnimatedSlide(
-                          duration: const Duration(milliseconds: 280),
-                          curve: Curves.easeOutCubic,
-                          offset:
-                              _focusMode ? const Offset(0, -1.2) : Offset.zero,
-                          child: AnimatedOpacity(
-                            duration: const Duration(milliseconds: 240),
-                            opacity: _focusMode ? 0 : 1,
-                            child: IgnorePointer(
-                              ignoring: _focusMode,
-                              child: BpReaderTopBar(
-                                theme: readerTheme,
-                                bookName: selectedBook.name,
-                                chapter: bibleProvider.selectedChapter,
-                                version: bibleProvider.currentVersion,
-                                onTitleTap: () => _showBookSelector(context),
-                                onTranslationTap: () => showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  backgroundColor: Colors.transparent,
-                                  builder: (context) =>
-                                      const VersionSelectorBottomSheet(),
-                                ),
-                                onSettingsTap: () =>
-                                    BpReaderSettingsSheet.show(context),
-                              ),
+    return PopScope(
+      canPop: !focusMode,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && focusMode) _setFocusMode(false);
+      },
+      child: Scaffold(
+        backgroundColor: readerTheme.backgroundColor,
+        body: BpReaderBackground(
+          theme: readerTheme,
+          child: SafeArea(
+            bottom: false,
+            child: Column(
+              children: [
+                if (selectedBook != null && !focusMode)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: BpReaderTopBar(
+                            theme: readerTheme,
+                            bookName: selectedBook.name,
+                            chapter: bibleProvider.selectedChapter,
+                            version: bibleProvider.currentVersion,
+                            onTitleTap: () => _showBookSelector(context),
+                            onTranslationTap: () => showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (context) =>
+                                  const VersionSelectorBottomSheet(),
                             ),
+                            onSettingsTap: () =>
+                                BpReaderSettingsSheet.show(context),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      BpReaderFocusToggle(
-                        theme: readerTheme,
-                        active: _focusMode,
-                        onChanged: (value) => setState(() {
-                          _focusMode = value;
-                          if (value) {
-                            _selectedVerse = null;
-                            _popupTop = null;
-                            _popupLeft = null;
-                          }
-                        }),
-                      ),
-                    ],
+                        const SizedBox(width: 8),
+                        BpReaderFocusToggle(
+                          theme: readerTheme,
+                          active: false,
+                          onChanged: _setFocusMode,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              Expanded(
-                child: bibleProvider.isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : bibleProvider.currentChapter.isEmpty
-                        ? _buildEmptyState(context, bibleProvider, l10n)
-                        : Stack(
-                            key: _readerStackKey,
-                            children: [
-                              ListView.builder(
-                                controller: _scrollController,
-                                padding: EdgeInsets.fromLTRB(
-                                  24,
-                                  8,
-                                  24,
-                                  listBottomPad + bottomInset + 72,
-                                ),
-                                itemCount:
-                                    bibleProvider.currentChapter.length + 1,
-                                itemBuilder: (context, rawIndex) {
-                                  if (rawIndex == 0) {
-                                    return BpReaderChapterHeading(
-                                      chapter: bibleProvider.selectedChapter,
-                                      theme: readerTheme,
-                                    );
+                Expanded(
+                  child: bibleProvider.currentChapter.isEmpty
+                      ? bibleProvider.isLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : _buildEmptyState(context, bibleProvider, l10n)
+                      : Stack(
+                          key: _readerStackKey,
+                          children: [
+                            Listener(
+                              onPointerDown: (_) => context
+                                  .read<JourneyProvider>()
+                                  .readerInteraction(),
+                              child: NotificationListener<ScrollNotification>(
+                                onNotification: (notification) {
+                                  if (notification
+                                          is ScrollUpdateNotification &&
+                                      notification.dragDetails != null) {
+                                    _readerWasDragged = true;
+                                    context
+                                        .read<JourneyProvider>()
+                                        .readerInteraction();
                                   }
-                                  final index = rawIndex - 1;
-                                  final verse =
-                                      bibleProvider.currentChapter[index];
-                                  final reference =
-                                      bibleProvider.getVerseReference(verse);
-                                  final versionId =
-                                      bibleProvider.currentVersion;
-                                  final isHighlighted =
-                                      studyProvider.isHighlighted(
-                                    reference,
-                                    versionId: versionId,
-                                  );
-                                  final highlightColor =
-                                      studyProvider.getHighlightColor(
-                                    reference,
-                                    versionId: versionId,
-                                  );
-                                  final isSpoken = audioMatchesReader &&
-                                      audioService.currentVerse == verse.verse;
-                                  final secondary = parallel.enabled
-                                      ? parallel.verse(verse.verse)
-                                      : null;
-                                  final isSelected =
-                                      _selectedVerse == verse.verse;
+                                  if (notification is ScrollEndNotification) {
+                                    final reachedEnd = _readerWasDragged &&
+                                        notification.metrics.extentAfter <= 32;
+                                    _readerWasDragged = false;
+                                    final location =
+                                        '${bibleProvider.currentVersion}:'
+                                        '${selectedBook?.id}:'
+                                        '${bibleProvider.selectedChapter}';
+                                    if (reachedEnd &&
+                                        selectedBook != null &&
+                                        _completionRecordedFor != location) {
+                                      _completionRecordedFor = location;
+                                      unawaited(
+                                        context
+                                            .read<JourneyProvider>()
+                                            .recordChapterCompleted(
+                                              bookId: selectedBook.id,
+                                              bookName: selectedBook.name,
+                                              chapter:
+                                                  bibleProvider.selectedChapter,
+                                            ),
+                                      );
+                                    }
+                                  }
+                                  return false;
+                                },
+                                child: ListView.builder(
+                                  controller: _scrollController,
+                                  padding: EdgeInsets.fromLTRB(
+                                    24,
+                                    8,
+                                    24,
+                                    listBottomPad + bottomInset + 72,
+                                  ),
+                                  itemCount:
+                                      bibleProvider.currentChapter.length + 1,
+                                  itemBuilder: (context, rawIndex) {
+                                    if (rawIndex == 0) {
+                                      return BpReaderChapterHeading(
+                                        chapter: bibleProvider.selectedChapter,
+                                        theme: readerTheme,
+                                      );
+                                    }
+                                    final index = rawIndex - 1;
+                                    final verse =
+                                        bibleProvider.currentChapter[index];
+                                    final reference =
+                                        bibleProvider.getVerseReference(verse);
+                                    final versionId =
+                                        bibleProvider.currentVersion;
+                                    final isHighlighted =
+                                        studyProvider.isHighlighted(
+                                      reference,
+                                      versionId: versionId,
+                                    );
+                                    final highlightColor =
+                                        studyProvider.getHighlightColor(
+                                      reference,
+                                      versionId: versionId,
+                                    );
+                                    final isSpoken = audioMatchesReader &&
+                                        audioState.$3 == verse.verse;
+                                    final secondary = parallel.enabled
+                                        ? parallel.verse(verse.verse)
+                                        : null;
+                                    final isSelected =
+                                        _selectedVerse == verse.verse;
 
-                                  return KeyedSubtree(
-                                    key: _verseKeys.putIfAbsent(
-                                      verse.verse,
-                                      GlobalKey.new,
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        VerseCard(
-                                          verse: verse,
-                                          reference: reference,
-                                          versionId: versionId,
-                                          isHighlighted: isHighlighted,
-                                          highlightColor: highlightColor,
-                                          isBookmarked:
-                                              studyProvider.isBookmarked(
-                                            reference,
+                                    return KeyedSubtree(
+                                      key: _verseKeys.putIfAbsent(
+                                        verse.verse,
+                                        GlobalKey.new,
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          VerseCard(
+                                            verse: verse,
+                                            reference: reference,
                                             versionId: versionId,
+                                            isHighlighted: isHighlighted,
+                                            highlightColor: highlightColor,
+                                            isBookmarked:
+                                                studyProvider.isBookmarked(
+                                              reference,
+                                              versionId: versionId,
+                                            ),
+                                            hasNote:
+                                                studyProvider.getNoteForVerse(
+                                                      reference,
+                                                      versionId: versionId,
+                                                    ) !=
+                                                    null,
+                                            isAudioActive: isSpoken,
+                                            selected: isSelected,
+                                            onTap: () =>
+                                                _toggleVersePopup(verse.verse),
+                                            textColor: readerTheme.textColor,
+                                            verseNumberColor:
+                                                readerTheme.verseNumberColor,
+                                            accentColor:
+                                                readerTheme.accentColor,
+                                            fontSize: fontSettings.fontSize,
+                                            lineHeight: fontSettings.lineHeight,
+                                            fontFamily: fontSettings.fontFamily,
+                                            useSystemFont:
+                                                fontSettings.useSystemFont,
+                                            useDropCap: verse.verse == 1,
+                                            showVerseNumbers:
+                                                readerPrefs.showVerseNumbers,
+                                            redLetterWords:
+                                                readerPrefs.redLetterWords,
+                                            readerTheme: readerTheme,
                                           ),
-                                          hasNote:
-                                              studyProvider.getNoteForVerse(
-                                                    reference,
-                                                    versionId: versionId,
-                                                  ) !=
-                                                  null,
-                                          isAudioActive: isSpoken,
-                                          selected: isSelected,
-                                          onTap: () =>
-                                              _toggleVersePopup(verse.verse),
-                                          textColor: readerTheme.textColor,
-                                          verseNumberColor:
-                                              readerTheme.verseNumberColor,
-                                          accentColor: readerTheme.accentColor,
-                                          fontSize: fontSettings.fontSize,
-                                          lineHeight: fontSettings.lineHeight,
-                                          fontFamily: fontSettings.fontFamily,
-                                          useSystemFont:
-                                              fontSettings.useSystemFont,
-                                          useDropCap: verse.verse == 1,
-                                          showVerseNumbers:
-                                              readerPrefs.showVerseNumbers,
-                                          redLetterWords:
-                                              readerPrefs.redLetterWords,
-                                          readerTheme: readerTheme,
-                                        ),
-                                        if (secondary != null) ...[
-                                          const SizedBox(height: 6),
-                                          Padding(
-                                            padding:
-                                                const EdgeInsets.only(left: 18),
-                                            child: Text(
-                                              secondary.text,
-                                              style: AppTheme.ethopic(
-                                                fontSize:
-                                                    fontSettings.fontSize - 1,
-                                                color: readerTheme.textColor
-                                                    .withValues(alpha: 0.85),
+                                          if (secondary != null) ...[
+                                            const SizedBox(height: 6),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 18),
+                                              child: Text(
+                                                secondary.text,
+                                                style: AppTheme.ethopic(
+                                                  fontSize:
+                                                      fontSettings.fontSize - 1,
+                                                  color: readerTheme.textColor
+                                                      .withValues(alpha: 0.85),
+                                                ),
                                               ),
                                             ),
-                                          ),
+                                          ],
                                         ],
-                                      ],
-                                    ),
-                                  );
-                                },
+                                      ),
+                                    );
+                                  },
+                                ),
                               ),
-                              if (selectedBook != null && !_focusMode)
-                                Positioned(
-                                  left: 8,
-                                  right: 8,
-                                  top: MediaQuery.sizeOf(context).height * 0.38,
-                                  child: BpReaderChapterNav(
-                                    theme: readerTheme,
-                                    onPrevious: () =>
-                                        bibleProvider.previousChapter(),
-                                    onNext: () => bibleProvider.nextChapter(),
-                                  ),
+                            ),
+                            if (selectedBook != null && !focusMode)
+                              Positioned(
+                                left: 8,
+                                right: 8,
+                                top: MediaQuery.sizeOf(context).height * 0.38,
+                                child: BpReaderChapterNav(
+                                  theme: readerTheme,
+                                  onPrevious: () =>
+                                      bibleProvider.previousChapter(),
+                                  onNext: () => bibleProvider.nextChapter(),
                                 ),
-                              if (_selectedVerse != null)
-                                Positioned.fill(
-                                  child: GestureDetector(
-                                    behavior: HitTestBehavior.translucent,
-                                    onTap: _dismissVersePopup,
-                                    child: const SizedBox.expand(),
-                                  ),
+                              ),
+                            if (_selectedVerse != null && !focusMode)
+                              Positioned.fill(
+                                child: GestureDetector(
+                                  behavior: HitTestBehavior.translucent,
+                                  onTap: _dismissVersePopup,
+                                  child: const SizedBox.expand(),
                                 ),
-                              if (_selectedVerse != null &&
-                                  _popupTop != null &&
-                                  _popupLeft != null)
-                                Positioned(
-                                  top: _popupTop,
-                                  left: _popupLeft,
-                                  child: _buildVersePopup(
-                                    context,
-                                    bibleProvider: bibleProvider,
-                                    studyProvider: studyProvider,
-                                    readerTheme: readerTheme,
-                                  ),
+                              ),
+                            if (!focusMode &&
+                                _selectedVerse != null &&
+                                _popupTop != null &&
+                                _popupLeft != null)
+                              Positioned(
+                                top: _popupTop,
+                                left: _popupLeft,
+                                child: _buildVersePopup(
+                                  context,
+                                  bibleProvider: bibleProvider,
+                                  studyProvider: studyProvider,
+                                  readerTheme: readerTheme,
                                 ),
-                              if (showMiniAudio)
-                                Positioned(
-                                  left: 12,
-                                  right: 12,
-                                  bottom: 8 + bottomInset,
-                                  child: BpReaderAudioBar(
-                                    theme: readerTheme,
-                                    title:
-                                        '${selectedBook.name} ${bibleProvider.selectedChapter} — Audio Bible',
-                                    onTogglePlay: () =>
-                                        _toggleAudio(context, bibleProvider),
-                                    onOpenPlayer: () =>
-                                        _openAudioSheet(context, bibleProvider),
-                                  ),
+                              ),
+                            if (showMiniAudio)
+                              Positioned(
+                                left: 12,
+                                right: 12,
+                                bottom: 8 + bottomInset,
+                                child: BpReaderAudioBar(
+                                  theme: readerTheme,
+                                  title:
+                                      '${selectedBook.name} ${bibleProvider.selectedChapter} — Audio Bible',
+                                  onTogglePlay: () =>
+                                      _toggleAudio(context, bibleProvider),
+                                  onOpenPlayer: () =>
+                                      _openAudioSheet(context, bibleProvider),
                                 ),
-                            ],
-                          ),
-              ),
-            ],
+                              ),
+                            if (focusMode)
+                              Positioned(
+                                top: 8,
+                                right: 12,
+                                child: BpReaderFocusToggle(
+                                  theme: readerTheme,
+                                  active: true,
+                                  onChanged: _setFocusMode,
+                                ),
+                              ),
+                            if (bibleProvider.isLoading)
+                              const Positioned(
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                child: LinearProgressIndicator(minHeight: 2),
+                              ),
+                          ],
+                        ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -394,6 +494,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   }
 
   void _toggleVersePopup(int verseNum) {
+    context.read<JourneyProvider>().readerInteraction(verse: verseNum);
     if (_selectedVerse == verseNum) {
       setState(() {
         _selectedVerse = null;
@@ -528,18 +629,24 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     BuildContext context,
     BibleProvider bibleProvider,
   ) async {
-    final audio = context.read<AudioService>();
-    if (audio.isPlaying) {
-      await audio.pause();
-      return;
+    if (_audioToggleInProgress) return;
+    _audioToggleInProgress = true;
+    try {
+      final audio = context.read<AudioService>();
+      if (audio.isPlaying) {
+        await audio.pause();
+        return;
+      }
+      if (audio.hasActiveSession &&
+          audio.activeBookId == bibleProvider.selectedBook?.id &&
+          audio.activeChapter == bibleProvider.selectedChapter) {
+        await audio.play();
+        return;
+      }
+      await _playChapterAudio(context, bibleProvider);
+    } finally {
+      _audioToggleInProgress = false;
     }
-    if (audio.hasActiveSession &&
-        audio.activeBookId == bibleProvider.selectedBook?.id &&
-        audio.activeChapter == bibleProvider.selectedChapter) {
-      await audio.play();
-      return;
-    }
-    await _playChapterAudio(context, bibleProvider);
   }
 
   Future<void> _playChapterAudio(

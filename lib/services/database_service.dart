@@ -12,6 +12,7 @@ import '../models/bookmark.dart';
 import '../models/bible_verse.dart';
 import '../models/reading_plan.dart';
 import '../models/audio_download.dart';
+import '../models/journey_session.dart';
 
 class DatabaseService {
   static final DatabaseService _instance = DatabaseService._internal();
@@ -95,7 +96,7 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 4,
+      version: 5,
       onConfigure: (db) async {
         _ftsSupported ??= await _checkFtsSupport(db);
       },
@@ -173,6 +174,7 @@ class DatabaseService {
 
     await _createVersion2Tables(db);
     await _createVersion4Tables(db);
+    await _createVersion5Tables(db);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -186,6 +188,9 @@ class DatabaseService {
     }
     if (oldVersion < 4) {
       await _createVersion4Tables(db);
+    }
+    if (oldVersion < 5) {
+      await _createVersion5Tables(db);
     }
   }
 
@@ -267,6 +272,85 @@ class DatabaseService {
         PRIMARY KEY (versionId, bookId, chapter)
       )
     ''');
+  }
+
+  Future<void> _createVersion5Tables(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS journey_sessions (
+        id TEXT PRIMARY KEY,
+        ownerId TEXT NOT NULL DEFAULT 'guest',
+        type TEXT NOT NULL,
+        startedAt TEXT NOT NULL,
+        endedAt TEXT,
+        durationSeconds INTEGER NOT NULL DEFAULT 0,
+        createdAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL,
+        bookId INTEGER,
+        bookName TEXT,
+        chapter INTEGER,
+        startVerse INTEGER,
+        endVerse INTEGER,
+        completedChapters INTEGER NOT NULL DEFAULT 0,
+        syncVersion INTEGER NOT NULL DEFAULT 0,
+        deletedAt TEXT
+      )
+    ''');
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_journey_owner_started '
+      'ON journey_sessions(ownerId, startedAt)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_journey_owner_updated '
+      'ON journey_sessions(ownerId, updatedAt)',
+    );
+  }
+
+  Future<void> upsertJourneySession(JourneySession session) async {
+    final db = await database;
+    await db.insert(
+      'journey_sessions',
+      {...session.toJson(), 'deletedAt': null},
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<JourneySession>> getJourneySessions(String ownerId) async {
+    final db = await database;
+    final rows = await db.query(
+      'journey_sessions',
+      where: 'ownerId = ? AND deletedAt IS NULL',
+      whereArgs: [ownerId],
+      orderBy: 'startedAt',
+    );
+    return rows
+        .map((row) => JourneySession.fromJson(row))
+        .toList(growable: false);
+  }
+
+  Future<List<JourneySession>> getJourneySessionsForSync(
+    String ownerId,
+  ) async {
+    final db = await database;
+    final rows = await db.query(
+      'journey_sessions',
+      where: 'ownerId = ?',
+      whereArgs: [ownerId],
+      orderBy: 'updatedAt',
+    );
+    return rows
+        .map((row) => JourneySession.fromJson(row))
+        .toList(growable: false);
+  }
+
+  Future<void> deleteJourneySession(String ownerId, String id) async {
+    final db = await database;
+    final updatedAt = DateTime.now().toUtc().toIso8601String();
+    await db.update(
+      'journey_sessions',
+      {'deletedAt': updatedAt, 'updatedAt': updatedAt},
+      where: 'ownerId = ? AND id = ?',
+      whereArgs: [ownerId, id],
+    );
   }
 
   Future<bool> hasBibleIndex(String versionId) async {
