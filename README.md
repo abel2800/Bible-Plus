@@ -19,7 +19,7 @@ Install the latest Android build from:
 - [Bible Plus website](https://bibleplus-7.vercel.app/) — recommended for most users
 - [GitHub Releases](https://github.com/abel2800/Bible-Plus/releases/latest) — direct APK, AAB, and web zip downloads
 
-The website links to `biblepulse-arm64-v8a.apk`, which is the recommended build for modern Android phones.
+The website links to `biblepulse-arm64-v8a.apk`, the recommended build for modern Android phones. It also offers the 32-bit ARM APK when that asset is present in the latest release.
 
 ---
 
@@ -30,7 +30,7 @@ The website links to `biblepulse-arm64-v8a.apk`, which is the recommended build 
 | Product name | Bible Plus |
 | Flutter package | `bible_pulse` |
 | Application ID | `app.biblepulse.reader` |
-| Current version | `1.1.1+6` |
+| Current version | `1.2.1+2` |
 | Dart SDK | `>=3.6.0 <4.0.0` |
 | Flutter SDK | `>=3.27.0` |
 | CI Flutter version | `3.44.1` |
@@ -56,11 +56,15 @@ Android is the primary install and distribution target. Web is supported for dev
 ### Daily reading and study
 
 - Verse of the Day on the home dashboard
-- Reading streak, milestones, heatmap, and configurable **daily reading goal**
+- **Bible Journey** activity tracking for reading time, listening time, and completed chapters
+- Journey dashboard with daily and historical details, yearly activity heatmap, active-day counts, and current/longest streaks
+- Configurable daily goal measured in reading/listening minutes or completed chapters, with saved goal history
 - Local prayer journal
 - Study screen for notes, bookmarks, and highlights
 - Built-in cross-reference data for supported passages
 - Reading plans with local progress tracking
+
+Journey activity is stored locally and can synchronize for a signed-in account when study sync is configured. Reading time is recorded while the reader is active; listening time is based on actual audio playback progress.
 
 ### Audio
 
@@ -326,24 +330,24 @@ Triggered by pushing a version tag (`v*`) or manual `workflow_dispatch`.
 
 **Steps to publish:**
 
-1. Bump version in `pubspec.yaml`:
+1. Update the `version` in `pubspec.yaml`. Increment the build number after `+` for each Android build, and update the semantic version before a public release. Current value: `1.2.1+2`.
 
    ```yaml
-   version: 1.1.1+6
+   version: 1.2.2+3
    ```
 
-   Format: `MAJOR.MINOR.PATCH+BUILD`. The Git tag must match the name before `+` (e.g. tag `v1.1.1` for version `1.1.1+6`).
+   Format: `MAJOR.MINOR.PATCH+BUILD`. The release tag must match the version before `+`; for example, `1.2.2+3` uses tag `v1.2.2`.
 
-2. Commit and push to `main`. Confirm CI passes.
+2. Commit and push the version change to `main`, and confirm CI passes.
 
 3. Create and push the matching tag:
 
    ```bash
-   git tag v1.1.1
-   git push origin v1.1.1
+   git tag v1.2.2
+   git push origin v1.2.2
    ```
 
-4. The release workflow verifies the project, builds artifacts, and publishes a GitHub Release named **Bible Plus v{version}**.
+4. GitHub Actions runs the release workflow. It verifies formatting, analysis, tests, and the content manifest; builds split Android APKs, an Android App Bundle, and the web build; then publishes a GitHub Release named **Bible Plus v{version}**. The tag must match `pubspec.yaml` or the workflow fails. A manual `workflow_dispatch` can start a release build without a pushed tag; use the version tag for normal public releases.
 
 **Release assets:**
 
@@ -354,7 +358,9 @@ Triggered by pushing a version tag (`v*`) or manual `workflow_dispatch`.
 | `bible-plus-{version}-x86_64.apk` | Emulators / x86 devices |
 | `bible-plus-{version}.aab` | Google Play bundle |
 | `bible-plus-{version}-web.zip` | Hosted web build |
-| `biblepulse-arm64-v8a.apk` | Legacy alias used by the website |
+| `biblepulse-arm64-v8a.apk` | Stable ARM64 filename used by the website |
+| `biblepulse-armeabi-v7a.apk` | Stable 32-bit ARM filename used by the website when available |
+| `biblepulse-x86_64.apk` | Stable x86_64 filename for emulators |
 
 ---
 
@@ -365,7 +371,13 @@ The public landing page lives in [`website/`](website/) and is deployed to Verce
 | Setting | Value |
 | --- | --- |
 | Root directory | `website` |
-| Download links | Resolved from GitHub Releases at build time in the browser (`/releases/latest/download/...`) |
+| Download links | Resolved in the visitor's browser from the GitHub latest-release API |
+
+On page load, `website/index.html` requests `https://api.github.com/repos/abel2800/Bible-Plus/releases/latest` and looks for the stable APK asset names listed above. It updates the download buttons and release version/details from that response. The HTML also starts with GitHub's `/releases/latest/download/...` URLs as a fallback if the API request fails. The page requests the API without caching and adds a changing query parameter to the APK URL; `website/vercel.json` also sends no-cache headers. These measures help visitors get the newest release rather than a cached older APK.
+
+To make a new version available from the website, publish a GitHub Release with the expected stable asset names. The release workflow creates these aliases automatically, so a successful tagged release does not require a website code change or redeployment. Confirm the latest release contains `biblepulse-arm64-v8a.apk`; the alternate 32-bit link is only shown if its corresponding asset exists. GitHub's latest-release API does not select draft or prerelease releases.
+
+This updates the website's download target only. It does not install updates on devices that already have the app; users must download and install the newer APK, or receive the update through a distribution channel such as Google Play.
 
 Preview locally:
 
@@ -380,6 +392,21 @@ After recreating the GitHub repository, reconnect the Vercel project to `abel280
 ---
 
 ## Version history
+
+### v1.2.1
+
+- Add Bible Journey with reading/listening activity, completed chapter tracking, daily goals, streaks, history, and an activity heatmap
+- Record completed chapters from the reader and audio playback activity for listening sessions
+- Improve reader navigation and chapter completion tracking
+- Resolve website APK downloads from the latest GitHub release and add cache-bypass behavior
+
+### v1.2.0
+
+- Fix Android startup behavior
+
+### v1.1.2
+
+- Fix additional Android startup errors
 
 ### v1.1.1
 
