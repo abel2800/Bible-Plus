@@ -68,12 +68,19 @@ class DatabaseService {
       }
     }
 
-    final fallbackDir = Directory(
-      appRootOverride ??
-          join((await getTemporaryDirectory()).path, 'bible_pulse'),
-    );
+    final fallbackBase = appRootOverride ??
+        await _safeTemporaryDirectoryPath();
+    final fallbackDir = Directory(join(fallbackBase, 'bible_pulse'));
     await fallbackDir.create(recursive: true);
     return join(fallbackDir.path, 'bible_pulse.db');
+  }
+
+  static Future<String> _safeTemporaryDirectoryPath() async {
+    try {
+      return (await getTemporaryDirectory()).path;
+    } catch (_) {
+      return Directory.systemTemp.path;
+    }
   }
 
   Future<bool> get supportsFts async {
@@ -96,7 +103,7 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 5,
+      version: 6,
       onConfigure: (db) async {
         _ftsSupported ??= await _checkFtsSupport(db);
       },
@@ -175,6 +182,7 @@ class DatabaseService {
     await _createVersion2Tables(db);
     await _createVersion4Tables(db);
     await _createVersion5Tables(db);
+    await _createVersion6Indexes(db);
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -191,6 +199,9 @@ class DatabaseService {
     }
     if (oldVersion < 5) {
       await _createVersion5Tables(db);
+    }
+    if (oldVersion < 6) {
+      await _createVersion6Indexes(db);
     }
   }
 
@@ -302,6 +313,41 @@ class DatabaseService {
     await db.execute(
       'CREATE INDEX IF NOT EXISTS idx_journey_owner_updated '
       'ON journey_sessions(ownerId, updatedAt)',
+    );
+  }
+
+  Future<void> _createVersion6Indexes(Database db) async {
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_highlights_deleted_owner '
+      'ON highlights(deletedAt, ownerId)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_highlights_version_ref '
+      'ON highlights(versionId, verseReference)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_notes_deleted_owner '
+      'ON notes(deletedAt, ownerId)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_notes_version_ref '
+      'ON notes(versionId, verseReference)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_bookmarks_deleted_owner '
+      'ON bookmarks(deletedAt, ownerId)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_bookmarks_version_ref '
+      'ON bookmarks(versionId, verseReference)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_audio_downloads_version_book_chapter '
+      'ON audio_downloads(versionId, bookId, chapter)',
+    );
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_reading_plans_plan_id '
+      'ON user_reading_plans(planId)',
     );
   }
 
