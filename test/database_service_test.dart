@@ -27,7 +27,8 @@ void main() {
     }
   });
 
-  test('database creates query indexes for highlights, notes, and bookmarks', () async {
+  test('database creates query indexes for highlights, notes, and bookmarks',
+      () async {
     final db = await DatabaseService().database;
     final rows = await db.rawQuery(
       "SELECT name FROM sqlite_master WHERE type = 'index' AND name IN (?, ?, ?, ?, ?, ?, ?, ?, ?)",

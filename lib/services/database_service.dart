@@ -68,8 +68,7 @@ class DatabaseService {
       }
     }
 
-    final fallbackBase = appRootOverride ??
-        await _safeTemporaryDirectoryPath();
+    final fallbackBase = appRootOverride ?? await _safeTemporaryDirectoryPath();
     final fallbackDir = Directory(join(fallbackBase, 'bible_pulse'));
     await fallbackDir.create(recursive: true);
     return join(fallbackDir.path, 'bible_pulse.db');
