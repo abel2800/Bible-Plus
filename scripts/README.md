@@ -30,7 +30,7 @@ Example usage:
 
 ```powershell
 # create a dist/ folder with minimized files
-node scripts/prepare_offline_bibles.js --input assets/bible/youversion_4125.json --out dist --id ORM --name "Oromo" --lang om
+node scripts/prepare_offline_bibles.js --input assets/bible/youversion_1787253529049_youversion_4125.json --out dist --id ORM --name "Oromo" --lang om
 node scripts/prepare_offline_bibles.js --input assets/bible/amh.json --out dist --id AMH --name "Amharic" --lang am
 ```
 
